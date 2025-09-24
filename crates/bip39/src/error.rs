@@ -138,21 +138,17 @@ pub enum Error {
     /// This error is automatically converted from [`rand::Error`] and
     /// indicates a failure in the random number generator used for
     /// entropy generation.
-    #[error("Random number generation failed: {source}")]
-    RandomGeneration {
-        #[from]
-        source: rand::Error,
-    },
+    #[error("Random number generation failed")]
+    RandomGeneration,
 
     /// Error from the underlying BIP39 crate.
     ///
     /// This error wraps errors from the external `bip39` crate that
-    /// we use for some low-level operations. It's automatically
-    /// converted using the `From` trait.
-    #[error("BIP39 error: {source}")]
-    Bip39Error {
-        #[from]
-        source: bip39_upstream::Error,
+    /// we use for some low-level operations.
+    #[error("BIP39 error: {message}")]
+    Bip39Error { 
+        /// Error message from the underlying BIP39 crate
+        message: String 
     },
 }
 
@@ -182,9 +178,8 @@ impl PartialEq for Error {
             (Error::InvalidWordCount { count: c1 }, Error::InvalidWordCount { count: c2 }) => c1 == c2,
             (Error::InvalidWord { word: w1, position: p1 }, Error::InvalidWord { word: w2, position: p2 }) => w1 == w2 && p1 == p2,
             (Error::InvalidChecksum, Error::InvalidChecksum) => true,
-            // For errors containing external types, we compare by error kind/type only
-            (Error::RandomGeneration { .. }, Error::RandomGeneration { .. }) => true,
-            (Error::Bip39Error { .. }, Error::Bip39Error { .. }) => true,
+            (Error::RandomGeneration, Error::RandomGeneration) => true,
+            (Error::Bip39Error { message: m1 }, Error::Bip39Error { message: m2 }) => m1 == m2,
             _ => false,
         }
     }
@@ -194,6 +189,22 @@ impl PartialEq for Error {
 ///
 /// This is automatically implemented since we provide [`PartialEq`].
 impl Eq for Error {}
+
+/// Convert from `rand::Error` to our `Error` type.
+impl From<rand::Error> for Error {
+    fn from(_error: rand::Error) -> Self {
+        Error::RandomGeneration
+    }
+}
+
+/// Convert from `bip39_upstream::Error` to our `Error` type.
+impl From<bip39_upstream::Error> for Error {
+    fn from(error: bip39_upstream::Error) -> Self {
+        Error::Bip39Error {
+            message: error.to_string(),
+        }
+    }
+}
 
 /// Convenient type alias for [`std::result::Result`] with our [`enum@Error`] type.
 ///
