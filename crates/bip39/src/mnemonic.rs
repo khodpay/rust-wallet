@@ -242,6 +242,57 @@ impl Mnemonic {
             word_count,
         })
     }
+
+    /// Generates a new random `Mnemonic` with cryptographically secure entropy.
+    ///
+    /// This is the high-level constructor for creating new mnemonics. It generates
+    /// cryptographically secure random entropy and converts it to a BIP39 mnemonic.
+    ///
+    /// # Arguments
+    ///
+    /// * `word_count` - The number of words (12, 15, 18, 21, or 24)
+    /// * `language` - The language for the mnemonic phrase
+    ///
+    /// # Returns
+    ///
+    /// * `Ok(Mnemonic)` - A new randomly generated mnemonic
+    /// * `Err(Error)` - If the word count is invalid
+    ///
+    /// # Security Note
+    ///
+    /// This function uses the system's cryptographically secure random number generator
+    /// (`rand::thread_rng()`). The generated mnemonic should be stored securely and
+    /// backed up properly. Loss of the mnemonic means permanent loss of wallet access.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use bip39::{Mnemonic, WordCount, Language};
+    ///
+    /// // Generate a new 12-word English mnemonic
+    /// let mnemonic = Mnemonic::generate(WordCount::Twelve, Language::English).unwrap();
+    /// assert_eq!(mnemonic.word_count(), WordCount::Twelve);
+    ///
+    /// // Generate a 24-word mnemonic for maximum security
+    /// let mnemonic_24 = Mnemonic::generate(WordCount::TwentyFour, Language::Japanese).unwrap();
+    /// assert_eq!(mnemonic_24.word_count(), WordCount::TwentyFour);
+    /// ```
+    pub fn generate(word_count: WordCount, language: Language) -> crate::Result<Self> {
+        use rand::RngCore;
+        
+        // Step 1: Calculate the required entropy length
+        let entropy_length = word_count.entropy_length();
+        
+        // Step 2: Generate cryptographically secure random entropy
+        // Uses the system's secure random number generator
+        let mut entropy = vec![0u8; entropy_length];
+        let mut rng = rand::thread_rng();
+        rng.fill_bytes(&mut entropy);
+        
+        // Step 3: Use the `new()` constructor to create the Mnemonic
+        // This handles entropy validation, checksum calculation, and phrase generation
+        Self::new(&entropy, language)
+    }
 }
 
 #[cfg(test)]
@@ -678,5 +729,194 @@ mod tests {
         
         // The phrase should pass independent validation
         assert!(validate_phrase_in_language(&mnemonic.phrase, Language::English).is_ok());
+    }
+
+    // ============================================================================
+    // Tests for Mnemonic::generate() constructor (Task 17)
+    // ============================================================================
+
+    #[test]
+    fn test_generate_12_words() {
+        // Generate a 12-word mnemonic
+        let mnemonic = Mnemonic::generate(WordCount::Twelve, Language::English).unwrap();
+        
+        assert_eq!(mnemonic.word_count(), WordCount::Twelve);
+        assert_eq!(mnemonic.language, Language::English);
+        assert_eq!(mnemonic.entropy.len(), 16);
+        
+        // Should have 12 words
+        let word_count = mnemonic.phrase.split_whitespace().count();
+        assert_eq!(word_count, 12);
+    }
+
+    #[test]
+    fn test_generate_24_words() {
+        // Generate a 24-word mnemonic
+        let mnemonic = Mnemonic::generate(WordCount::TwentyFour, Language::English).unwrap();
+        
+        assert_eq!(mnemonic.word_count(), WordCount::TwentyFour);
+        assert_eq!(mnemonic.entropy.len(), 32);
+        
+        let word_count = mnemonic.phrase.split_whitespace().count();
+        assert_eq!(word_count, 24);
+    }
+
+    #[test]
+    fn test_generate_all_word_counts() {
+        // Test generating all valid word counts
+        let word_counts = WordCount::all_variants();
+        
+        for &word_count in word_counts {
+            let mnemonic = Mnemonic::generate(word_count, Language::English).unwrap();
+            assert_eq!(mnemonic.word_count(), word_count);
+        }
+    }
+
+    #[test]
+    fn test_generate_randomness() {
+        // Generate multiple mnemonics and verify they're different
+        let mnemonic1 = Mnemonic::generate(WordCount::Twelve, Language::English).unwrap();
+        let mnemonic2 = Mnemonic::generate(WordCount::Twelve, Language::English).unwrap();
+        let mnemonic3 = Mnemonic::generate(WordCount::Twelve, Language::English).unwrap();
+        
+        // With cryptographically secure random generation, these should be different
+        assert_ne!(mnemonic1.phrase, mnemonic2.phrase);
+        assert_ne!(mnemonic2.phrase, mnemonic3.phrase);
+        assert_ne!(mnemonic1.phrase, mnemonic3.phrase);
+        
+        assert_ne!(mnemonic1.entropy, mnemonic2.entropy);
+        assert_ne!(mnemonic2.entropy, mnemonic3.entropy);
+    }
+
+    #[test]
+    fn test_generate_is_valid() {
+        // Generated mnemonic should pass validation
+        use crate::validate_phrase_in_language;
+        
+        let mnemonic = Mnemonic::generate(WordCount::Twelve, Language::English).unwrap();
+        assert!(validate_phrase_in_language(&mnemonic.phrase, Language::English).is_ok());
+    }
+
+    #[test]
+    fn test_generate_can_create_seed() {
+        // Generated mnemonic should be able to create a seed
+        use crate::phrase_to_seed_in_language;
+        
+        let mnemonic = Mnemonic::generate(WordCount::Twelve, Language::English).unwrap();
+        let seed = phrase_to_seed_in_language(&mnemonic.phrase, "", Language::English).unwrap();
+        
+        assert_eq!(seed.len(), 64);
+    }
+
+    #[test]
+    fn test_generate_roundtrip_with_from_phrase() {
+        // Generate mnemonic, then parse it back
+        let mnemonic1 = Mnemonic::generate(WordCount::Twelve, Language::English).unwrap();
+        let mnemonic2 = Mnemonic::from_phrase(&mnemonic1.phrase, Language::English).unwrap();
+        
+        // Should be identical
+        assert_eq!(mnemonic1, mnemonic2);
+        assert_eq!(mnemonic1.entropy, mnemonic2.entropy);
+        assert_eq!(mnemonic1.phrase, mnemonic2.phrase);
+    }
+
+    #[test]
+    fn test_generate_with_japanese() {
+        // Generate Japanese mnemonic
+        let mnemonic = Mnemonic::generate(WordCount::Twelve, Language::Japanese).unwrap();
+        
+        assert_eq!(mnemonic.language, Language::Japanese);
+        assert_eq!(mnemonic.word_count(), WordCount::Twelve);
+        
+        // Should be valid Japanese mnemonic
+        use crate::validate_phrase_in_language;
+        assert!(validate_phrase_in_language(&mnemonic.phrase, Language::Japanese).is_ok());
+    }
+
+    #[test]
+    fn test_generate_all_languages() {
+        // Test generating mnemonics in different languages
+        let test_languages = vec![
+            Language::English,
+            Language::Japanese,
+            Language::Korean,
+            Language::Spanish,
+        ];
+        
+        for language in test_languages {
+            let mnemonic = Mnemonic::generate(WordCount::Twelve, language).unwrap();
+            assert_eq!(mnemonic.language, language);
+        }
+    }
+
+    #[test]
+    fn test_generate_entropy_is_random() {
+        // Verify entropy is actually random
+        let mnemonic1 = Mnemonic::generate(WordCount::Twelve, Language::English).unwrap();
+        let mnemonic2 = Mnemonic::generate(WordCount::Twelve, Language::English).unwrap();
+        
+        // Entropy should be different
+        assert_ne!(mnemonic1.entropy, mnemonic2.entropy);
+        
+        // Neither should be all zeros (extremely unlikely)
+        assert_ne!(mnemonic1.entropy, vec![0u8; 16]);
+        assert_ne!(mnemonic2.entropy, vec![0u8; 16]);
+    }
+
+    #[test]
+    fn test_generate_correct_entropy_length() {
+        // Verify entropy length matches word count
+        let test_cases = vec![
+            (WordCount::Twelve, 16),
+            (WordCount::Fifteen, 20),
+            (WordCount::Eighteen, 24),
+            (WordCount::TwentyOne, 28),
+            (WordCount::TwentyFour, 32),
+        ];
+        
+        for (word_count, expected_entropy_len) in test_cases {
+            let mnemonic = Mnemonic::generate(word_count, Language::English).unwrap();
+            assert_eq!(mnemonic.entropy.len(), expected_entropy_len);
+        }
+    }
+
+    #[test]
+    fn test_generate_produces_lowercase_words() {
+        // Generated mnemonics should use lowercase words
+        let mnemonic = Mnemonic::generate(WordCount::Twelve, Language::English).unwrap();
+        
+        for word in mnemonic.phrase.split_whitespace() {
+            assert!(word.chars().all(|c| c.is_lowercase() || !c.is_alphabetic()));
+        }
+    }
+
+    #[test]
+    fn test_generate_clone() {
+        // Test that generated mnemonics can be cloned
+        let mnemonic1 = Mnemonic::generate(WordCount::Twelve, Language::English).unwrap();
+        let mnemonic2 = mnemonic1.clone();
+        
+        assert_eq!(mnemonic1, mnemonic2);
+        assert_eq!(mnemonic1.entropy, mnemonic2.entropy);
+        assert_eq!(mnemonic1.phrase, mnemonic2.phrase);
+    }
+
+    #[test]
+    fn test_generate_integration() {
+        // Full workflow: generate → validate → create seed
+        let mnemonic = Mnemonic::generate(WordCount::TwentyFour, Language::English).unwrap();
+        
+        // Validate
+        use crate::validate_phrase_in_language;
+        assert!(validate_phrase_in_language(&mnemonic.phrase, Language::English).is_ok());
+        
+        // Create seed
+        use crate::phrase_to_seed_in_language;
+        let seed = phrase_to_seed_in_language(&mnemonic.phrase, "password", Language::English).unwrap();
+        assert_eq!(seed.len(), 64);
+        
+        // Roundtrip
+        let mnemonic2 = Mnemonic::from_phrase(&mnemonic.phrase, Language::English).unwrap();
+        assert_eq!(mnemonic, mnemonic2);
     }
 }
