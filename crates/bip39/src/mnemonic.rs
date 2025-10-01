@@ -171,6 +171,97 @@ impl Mnemonic {
         self.word_count
     }
 
+    /// Returns the mnemonic phrase as a string slice.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use bip39::{Mnemonic, Language};
+    ///
+    /// let entropy = [0u8; 16];
+    /// let mnemonic = Mnemonic::new(&entropy, Language::English).unwrap();
+    /// let phrase = mnemonic.phrase();
+    /// assert_eq!(phrase.split_whitespace().count(), 12);
+    /// ```
+    pub fn phrase(&self) -> &str {
+        &self.phrase
+    }
+
+    /// Returns the entropy bytes used to generate this mnemonic.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use bip39::{Mnemonic, Language};
+    ///
+    /// let entropy = [42u8; 16];
+    /// let mnemonic = Mnemonic::new(&entropy, Language::English).unwrap();
+    /// assert_eq!(mnemonic.entropy(), &[42u8; 16]);
+    /// ```
+    pub fn entropy(&self) -> &[u8] {
+        &self.entropy
+    }
+
+    /// Generates a cryptographic seed from this mnemonic with the given passphrase.
+    ///
+    /// This method converts the mnemonic phrase into a 512-bit (64-byte) seed using
+    /// PBKDF2-HMAC-SHA512 with 2048 iterations. The passphrase provides additional
+    /// security (often called the "25th word").
+    ///
+    /// # Arguments
+    ///
+    /// * `passphrase` - Optional passphrase for additional security (use empty string for none)
+    ///
+    /// # Returns
+    ///
+    /// * `Ok([u8; 64])` - A 64-byte cryptographic seed
+    /// * `Err(Error)` - If seed generation fails
+    ///
+    /// # Security Note
+    ///
+    /// The passphrase adds an extra layer of security but must be remembered.
+    /// If the passphrase is lost, the wallet cannot be recovered even with
+    /// the correct mnemonic phrase.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use bip39::{Mnemonic, WordCount, Language};
+    ///
+    /// let mnemonic = Mnemonic::generate(WordCount::Twelve, Language::English).unwrap();
+    ///
+    /// // Without passphrase
+    /// let seed = mnemonic.to_seed("").unwrap();
+    /// assert_eq!(seed.len(), 64);
+    ///
+    /// // With passphrase
+    /// let seed_with_pass = mnemonic.to_seed("my secret passphrase").unwrap();
+    /// assert_eq!(seed_with_pass.len(), 64);
+    /// ```
+    pub fn to_seed(&self, passphrase: &str) -> crate::Result<[u8; 64]> {
+        // Convert language to upstream format
+        let upstream_language = self.language.to_upstream();
+        
+        // Parse the mnemonic phrase (already validated in constructor)
+        // Using parse_in_normalized for consistent normalization
+        let upstream_mnemonic = bip39_upstream::Mnemonic::parse_in_normalized(
+            upstream_language,
+            &self.phrase
+        ).map_err(|_| crate::Error::InvalidMnemonic {
+            reason: "Failed to parse mnemonic phrase for seed generation".to_string(),
+        })?;
+        
+        // Generate the seed using PBKDF2-HMAC-SHA512
+        // The upstream crate handles:
+        // - Unicode NFKD normalization of phrase and passphrase
+        // - Salt = "mnemonic" + passphrase
+        // - 2048 iterations of PBKDF2-HMAC-SHA512
+        // - 512-bit (64-byte) output
+        let seed = upstream_mnemonic.to_seed(passphrase);
+        
+        Ok(seed)
+    }
+
     /// Creates a `Mnemonic` by parsing an existing mnemonic phrase.
     ///
     /// This constructor parses and validates a BIP39 mnemonic phrase string,
@@ -918,5 +1009,217 @@ mod tests {
         // Roundtrip
         let mnemonic2 = Mnemonic::from_phrase(&mnemonic.phrase, Language::English).unwrap();
         assert_eq!(mnemonic, mnemonic2);
+    }
+
+    // ============================================================================
+    // Tests for Mnemonic getter methods (Phase 4)
+    // ============================================================================
+
+    #[test]
+    fn test_phrase_getter() {
+        let entropy = [0u8; 16];
+        let mnemonic = Mnemonic::new(&entropy, Language::English).unwrap();
+        
+        let phrase = mnemonic.phrase();
+        assert_eq!(phrase.split_whitespace().count(), 12);
+    }
+
+    #[test]
+    fn test_phrase_matches_stored_phrase() {
+        let entropy = [42u8; 16];
+        let mnemonic = Mnemonic::new(&entropy, Language::English).unwrap();
+        
+        // phrase() should return the same value as the internal field
+        assert_eq!(mnemonic.phrase(), mnemonic.phrase);
+    }
+
+    #[test]
+    fn test_entropy_getter() {
+        let entropy = [42u8; 16];
+        let mnemonic = Mnemonic::new(&entropy, Language::English).unwrap();
+        
+        assert_eq!(mnemonic.entropy(), &entropy);
+    }
+
+    #[test]
+    fn test_entropy_all_word_counts() {
+        let test_cases = vec![
+            ([0u8; 16].to_vec(), WordCount::Twelve),
+            ([0u8; 20].to_vec(), WordCount::Fifteen),
+            ([0u8; 24].to_vec(), WordCount::Eighteen),
+            ([0u8; 28].to_vec(), WordCount::TwentyOne),
+            ([0u8; 32].to_vec(), WordCount::TwentyFour),
+        ];
+        
+        for (entropy_vec, word_count) in test_cases {
+            let mnemonic = Mnemonic::new(&entropy_vec, Language::English).unwrap();
+            assert_eq!(mnemonic.entropy(), entropy_vec.as_slice());
+            assert_eq!(mnemonic.word_count(), word_count);
+        }
+    }
+
+    #[test]
+    fn test_to_seed_without_passphrase() {
+        let entropy = [0u8; 16];
+        let mnemonic = Mnemonic::new(&entropy, Language::English).unwrap();
+        
+        let seed = mnemonic.to_seed("").unwrap();
+        assert_eq!(seed.len(), 64);
+    }
+
+    #[test]
+    fn test_to_seed_with_passphrase() {
+        let entropy = [0u8; 16];
+        let mnemonic = Mnemonic::new(&entropy, Language::English).unwrap();
+        
+        let seed = mnemonic.to_seed("TREZOR").unwrap();
+        assert_eq!(seed.len(), 64);
+    }
+
+    #[test]
+    fn test_to_seed_passphrase_affects_output() {
+        let mnemonic = Mnemonic::generate(WordCount::Twelve, Language::English).unwrap();
+        
+        let seed1 = mnemonic.to_seed("").unwrap();
+        let seed2 = mnemonic.to_seed("password").unwrap();
+        let seed3 = mnemonic.to_seed("different").unwrap();
+        
+        assert_ne!(seed1, seed2);
+        assert_ne!(seed2, seed3);
+        assert_ne!(seed1, seed3);
+    }
+
+    #[test]
+    fn test_to_seed_deterministic() {
+        let mnemonic = Mnemonic::generate(WordCount::Twelve, Language::English).unwrap();
+        
+        let seed1 = mnemonic.to_seed("test").unwrap();
+        let seed2 = mnemonic.to_seed("test").unwrap();
+        
+        assert_eq!(seed1, seed2);
+    }
+
+    #[test]
+    fn test_to_seed_matches_utility_function() {
+        use crate::phrase_to_seed_in_language;
+        
+        let mnemonic = Mnemonic::generate(WordCount::Twelve, Language::English).unwrap();
+        
+        // to_seed() should produce same result as phrase_to_seed_in_language()
+        let seed1 = mnemonic.to_seed("password").unwrap();
+        let seed2 = phrase_to_seed_in_language(mnemonic.phrase(), "password", Language::English).unwrap();
+        
+        assert_eq!(seed1, seed2);
+    }
+
+    #[test]
+    fn test_getters_integration() {
+        // Test all getters work together
+        let original_entropy = [123u8; 16];
+        let mnemonic = Mnemonic::new(&original_entropy, Language::English).unwrap();
+        
+        // phrase() should return a valid phrase
+        let phrase = mnemonic.phrase();
+        assert!(!phrase.is_empty());
+        assert_eq!(phrase.split_whitespace().count(), 12);
+        
+        // entropy() should return original entropy
+        assert_eq!(mnemonic.entropy(), &original_entropy);
+        
+        // word_count() should return correct count
+        assert_eq!(mnemonic.word_count(), WordCount::Twelve);
+    }
+
+    #[test]
+    fn test_to_seed_with_unicode_passphrase() {
+        let mnemonic = Mnemonic::generate(WordCount::Twelve, Language::English).unwrap();
+        
+        // Should handle Unicode passphrases correctly
+        let seed = mnemonic.to_seed("test 日本語 🔑").unwrap();
+        assert_eq!(seed.len(), 64);
+    }
+
+    #[test]
+    fn test_phrase_from_all_constructors() {
+        // phrase() should work for mnemonics created via different constructors
+        let entropy = [0u8; 16];
+        
+        // Via new()
+        let mnemonic1 = Mnemonic::new(&entropy, Language::English).unwrap();
+        let phrase1 = mnemonic1.phrase();
+        assert_eq!(phrase1.split_whitespace().count(), 12);
+        
+        // Via from_phrase()
+        let mnemonic2 = Mnemonic::from_phrase(phrase1, Language::English).unwrap();
+        let phrase2 = mnemonic2.phrase();
+        assert_eq!(phrase1, phrase2);
+        
+        // Via generate()
+        let mnemonic3 = Mnemonic::generate(WordCount::Twelve, Language::English).unwrap();
+        let phrase3 = mnemonic3.phrase();
+        assert_eq!(phrase3.split_whitespace().count(), 12);
+    }
+
+    #[test]
+    fn test_entropy_from_all_constructors() {
+        let original_entropy = [42u8; 16];
+        
+        // Via new()
+        let mnemonic1 = Mnemonic::new(&original_entropy, Language::English).unwrap();
+        assert_eq!(mnemonic1.entropy(), &original_entropy);
+        
+        // Via from_phrase()
+        let mnemonic2 = Mnemonic::from_phrase(mnemonic1.phrase(), Language::English).unwrap();
+        assert_eq!(mnemonic2.entropy(), &original_entropy);
+        
+        // Via generate() - should have some entropy
+        let mnemonic3 = Mnemonic::generate(WordCount::Twelve, Language::English).unwrap();
+        assert_eq!(mnemonic3.entropy().len(), 16);
+        assert_ne!(mnemonic3.entropy(), &[0u8; 16]); // Very unlikely to be all zeros
+    }
+
+    #[test]
+    fn test_to_seed_from_all_constructors() {
+        let entropy = [0u8; 16];
+        
+        // All constructors should produce mnemonics that can create seeds
+        let mnemonic1 = Mnemonic::new(&entropy, Language::English).unwrap();
+        let seed1 = mnemonic1.to_seed("").unwrap();
+        assert_eq!(seed1.len(), 64);
+        
+        let mnemonic2 = Mnemonic::from_phrase(mnemonic1.phrase(), Language::English).unwrap();
+        let seed2 = mnemonic2.to_seed("").unwrap();
+        assert_eq!(seed1, seed2); // Same mnemonic = same seed
+        
+        let mnemonic3 = Mnemonic::generate(WordCount::Twelve, Language::English).unwrap();
+        let seed3 = mnemonic3.to_seed("").unwrap();
+        assert_eq!(seed3.len(), 64);
+    }
+
+    #[test]
+    fn test_to_seed_case_sensitive_passphrase() {
+        let mnemonic = Mnemonic::generate(WordCount::Twelve, Language::English).unwrap();
+        
+        let seed1 = mnemonic.to_seed("password").unwrap();
+        let seed2 = mnemonic.to_seed("Password").unwrap();
+        let seed3 = mnemonic.to_seed("PASSWORD").unwrap();
+        
+        assert_ne!(seed1, seed2);
+        assert_ne!(seed2, seed3);
+        assert_ne!(seed1, seed3);
+    }
+
+    #[test]
+    fn test_to_seed_whitespace_in_passphrase() {
+        let mnemonic = Mnemonic::generate(WordCount::Twelve, Language::English).unwrap();
+        
+        let seed1 = mnemonic.to_seed("password").unwrap();
+        let seed2 = mnemonic.to_seed(" password ").unwrap();
+        let seed3 = mnemonic.to_seed("pass word").unwrap();
+        
+        // Whitespace should be preserved
+        assert_ne!(seed1, seed2);
+        assert_ne!(seed1, seed3);
+        assert_ne!(seed2, seed3);
     }
 }
