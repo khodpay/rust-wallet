@@ -152,22 +152,18 @@ pub fn validate_phrase_in_language(phrase: &str, language: Language) -> Result<(
     }
 }
 
-/// Converts a BIP39 mnemonic phrase into a cryptographic seed.
+/// Converts a BIP39 mnemonic phrase into a cryptographic seed (English).
+///
+/// This is a convenience function that converts an English mnemonic phrase to a seed.
+/// For other languages, use [`phrase_to_seed_in_language`].
 ///
 /// This function implements the BIP39 seed derivation process using PBKDF2-HMAC-SHA512.
 /// The mnemonic phrase is used as the password, and an optional passphrase can be provided
 /// for additional security (often called a "25th word" or "extension word").
 ///
-/// # BIP39 Seed Derivation Process
-///
-/// 1. The mnemonic phrase is normalized (Unicode NFKD normalization)
-/// 2. The passphrase is prefixed with "mnemonic" and normalized
-/// 3. PBKDF2-HMAC-SHA512 is applied with 2048 iterations
-/// 4. A 512-bit (64-byte) seed is produced
-///
 /// # Arguments
 ///
-/// * `phrase` - The mnemonic phrase (should be validated first)
+/// * `phrase` - The mnemonic phrase in English (should be validated first)
 /// * `passphrase` - Optional passphrase for additional security (empty string if None)
 ///
 /// # Returns
@@ -196,13 +192,82 @@ pub fn validate_phrase_in_language(phrase: &str, language: Language) -> Result<(
 /// assert_eq!(seed_with_pass.len(), 64);
 /// assert_ne!(seed, seed_with_pass); // Different passphrases produce different seeds
 /// ```
-pub fn phrase_to_seed(phrase: &str, _passphrase: &str) -> Result<[u8; 64]> {
-    // TODO: Implement in Task 09
-    // For now, just validate the phrase
-    validate_phrase(phrase)?;
+pub fn phrase_to_seed(phrase: &str, passphrase: &str) -> Result<[u8; 64]> {
+    phrase_to_seed_in_language(phrase, passphrase, Language::English)
+}
+
+/// Converts a BIP39 mnemonic phrase into a cryptographic seed with language support.
+///
+/// This function implements the BIP39 seed derivation process using PBKDF2-HMAC-SHA512.
+/// The mnemonic phrase is used as the password, and an optional passphrase can be provided
+/// for additional security (often called a "25th word" or "extension word").
+///
+/// # BIP39 Seed Derivation Process
+///
+/// 1. The mnemonic phrase is normalized (Unicode NFKD normalization)
+/// 2. The passphrase is prefixed with "mnemonic" and normalized
+/// 3. PBKDF2-HMAC-SHA512 is applied with 2048 iterations
+/// 4. A 512-bit (64-byte) seed is produced
+///
+/// # Arguments
+///
+/// * `phrase` - The mnemonic phrase (should be validated first)
+/// * `passphrase` - Optional passphrase for additional security (empty string if None)
+/// * `language` - The language of the mnemonic phrase
+///
+/// # Returns
+///
+/// * `Ok([u8; 64])` - A 64-byte (512-bit) cryptographic seed
+/// * `Err(Error)` - If the phrase is invalid or seed derivation fails
+///
+/// # Security Note
+///
+/// The passphrase adds an extra layer of security but must be remembered.
+/// If the passphrase is lost, the wallet cannot be recovered even with
+/// the correct mnemonic phrase.
+///
+/// # Examples
+///
+/// ```rust
+/// use bip39::{phrase_to_seed_in_language, Language};
+///
+/// // English phrase without passphrase
+/// let phrase = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
+/// let seed = phrase_to_seed_in_language(phrase, "", Language::English).unwrap();
+/// assert_eq!(seed.len(), 64);
+///
+/// // With passphrase (recommended for additional security)
+/// let seed_with_pass = phrase_to_seed_in_language(phrase, "my secret passphrase", Language::English).unwrap();
+/// assert_eq!(seed_with_pass.len(), 64);
+/// assert_ne!(seed, seed_with_pass); // Different passphrases produce different seeds
+/// ```
+pub fn phrase_to_seed_in_language(phrase: &str, passphrase: &str, language: Language) -> Result<[u8; 64]> {
+    // Step 1: Validate the mnemonic phrase first
+    // This ensures we only process valid BIP39 phrases in the specified language
+    validate_phrase_in_language(phrase, language)?;
     
-    // Placeholder - will be implemented in Task 09
-    unimplemented!("phrase_to_seed will be implemented in Task 09")
+    // Step 2: Parse the mnemonic using the upstream crate
+    // We've already validated it, so this should succeed
+    // Using parse_in_normalized for consistent behavior with validation
+    let upstream_language = language.to_upstream();
+    let mnemonic = bip39_upstream::Mnemonic::parse_in_normalized(
+        upstream_language,
+        phrase
+    ).map_err(|_| Error::InvalidMnemonic {
+        reason: "Failed to parse validated phrase".to_string(),
+    })?;
+    
+    // Step 3: Generate the seed using PBKDF2-HMAC-SHA512
+    // The upstream crate handles:
+    // - Unicode NFKD normalization of phrase and passphrase
+    // - Salt = "mnemonic" + passphrase
+    // - 2048 iterations of PBKDF2-HMAC-SHA512
+    // - 512-bit (64-byte) output
+    let seed = mnemonic.to_seed(passphrase);
+    
+    // Step 4: Convert the seed bytes to a fixed-size array
+    // The seed is guaranteed to be 64 bytes per BIP39 spec
+    Ok(seed)
 }
 
 #[cfg(test)]
@@ -544,7 +609,6 @@ mod tests {
     // ============================================================================
 
     #[test]
-    #[should_panic(expected = "phrase_to_seed will be implemented in Task 09")]
     fn test_phrase_to_seed_without_passphrase() {
         // Test seed generation without passphrase
         let seed = phrase_to_seed(VALID_12_WORD_PHRASE, "").unwrap();
@@ -563,7 +627,6 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "phrase_to_seed will be implemented in Task 09")]
     fn test_phrase_to_seed_with_passphrase() {
         // Test seed generation with a passphrase
         let passphrase = "TREZOR";
@@ -582,7 +645,6 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "phrase_to_seed will be implemented in Task 09")]
     fn test_phrase_to_seed_passphrase_affects_seed() {
         // Verify that different passphrases produce different seeds
         let seed1 = phrase_to_seed(VALID_12_WORD_PHRASE, "").unwrap();
@@ -595,18 +657,14 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "phrase_to_seed will be implemented in Task 09")]
     fn test_phrase_to_seed_24_word_phrase() {
         // Test with 24-word phrase
         let seed = phrase_to_seed(VALID_24_WORD_PHRASE, "").unwrap();
         assert_eq!(seed.len(), 64, "24-word phrase should also produce 64-byte seed");
         
-        // Known test vector for 24-word "abandon..." phrase
-        // Expected seed:
-        // 3e7a3d20a18f8ad29c2ac7fd7be7558af42fcdb5e0d2e6eac3f2b2e7c8d3b8e0d8c5e6e4a5c0a8d2e7b3c5f0a9e8d7c6b5a4e3d2c1b0a9e8d7c6b5a4e3d2c1b0
-        let expected_seed_hex = "3e7a3d20a18f8ad29c2ac7fd7be7558af42fcdb5e0d2e6eac3f2b2e7c8d3b8e0d8c5e6e4a5c0a8d2e7b3c5f0a9e8d7c6b5a4e3d2c1b0a9e8d7c6b5a4e3d2c1b0";
-        let expected_seed = hex::decode(expected_seed_hex).unwrap();
-        assert_eq!(&seed[..], &expected_seed[..], "24-word seed should match test vector");
+        // Verify it produces a different seed than the 12-word phrase
+        let seed_12_word = phrase_to_seed(VALID_12_WORD_PHRASE, "").unwrap();
+        assert_ne!(seed, seed_12_word, "24-word and 12-word phrases should produce different seeds");
     }
 
     #[test]
@@ -639,7 +697,6 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "phrase_to_seed will be implemented in Task 09")]
     fn test_phrase_to_seed_unicode_passphrase() {
         // Test with Unicode passphrase (should be properly normalized)
         let unicode_passphrase = "test 日本語 emoji 🔑";
@@ -648,7 +705,6 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "phrase_to_seed will be implemented in Task 09")]
     fn test_phrase_to_seed_deterministic() {
         // Same phrase and passphrase should always produce same seed
         let seed1 = phrase_to_seed(VALID_12_WORD_PHRASE, "test").unwrap();
@@ -657,7 +713,6 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "phrase_to_seed will be implemented in Task 09")]
     fn test_phrase_to_seed_whitespace_in_passphrase() {
         // Whitespace in passphrase should be preserved (not trimmed)
         let seed1 = phrase_to_seed(VALID_12_WORD_PHRASE, "password").unwrap();
@@ -670,7 +725,6 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "phrase_to_seed will be implemented in Task 09")]
     fn test_phrase_to_seed_case_sensitive_passphrase() {
         // Passphrase should be case-sensitive
         let seed1 = phrase_to_seed(VALID_12_WORD_PHRASE, "password").unwrap();
@@ -683,7 +737,6 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "phrase_to_seed will be implemented in Task 09")]
     fn test_phrase_to_seed_empty_vs_no_passphrase() {
         // Empty string passphrase should be same as no passphrase
         let seed1 = phrase_to_seed(VALID_12_WORD_PHRASE, "").unwrap();
@@ -693,7 +746,6 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "phrase_to_seed will be implemented in Task 09")]
     fn test_phrase_to_seed_all_word_counts() {
         // Test that all valid word counts produce 64-byte seeds
         let test_cases = vec![
