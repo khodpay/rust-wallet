@@ -8,4 +8,11 @@ mod utils;
 pub use error::{Error, Result};
 pub use language::Language;
 pub use word_count::WordCount;
-pub use utils::{validate_phrase, validate_phrase_in_language, phrase_to_seed, phrase_to_seed_in_language};
+pub use utils::{
+    validate_phrase, 
+    validate_phrase_in_language, 
+    phrase_to_seed, 
+    phrase_to_seed_in_language,
+    generate_mnemonic,
+    generate_mnemonic_in_language,
+};
