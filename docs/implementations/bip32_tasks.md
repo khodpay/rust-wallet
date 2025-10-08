@@ -17,9 +17,9 @@ Here's your comprehensive task list organized by phases and priority. Each task 
 - ✅ Task 11: Define PrivateKey struct (32-byte secp256k1 key)
 - ✅ Task 12: Write tests for PrivateKey creation and validation
 - ✅ Task 13: Implement PrivateKey methods (TDD)
-- 🔲 Task 14: Define PublicKey struct (33-byte compressed secp256k1 key)
-- 🔲 Task 15: Write tests for PublicKey creation and derivation from PrivateKey
-- 🔲 Task 16: Implement PublicKey methods (TDD)
+- ✅ Task 14: Define PublicKey struct (33-byte compressed secp256k1 key)
+- ✅ Task 15: Write tests for PublicKey creation and derivation from PrivateKey
+- ✅ Task 16: Implement PublicKey methods (TDD)
 
 ## 🏗️ PHASE 3: Extended Key Structure (HIGH → MEDIUM Priority)
 - 🔲 Task 17: Define ExtendedPrivateKey struct (key + chain_code + depth + fingerprint + child_number)

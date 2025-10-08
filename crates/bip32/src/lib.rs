@@ -43,9 +43,11 @@ mod chain_code;
 mod error;
 mod network;
 mod private_key;
+mod public_key;
 
 // Public re-exports
 pub use chain_code::ChainCode;
 pub use error::{Error, Result};
 pub use network::{KeyType, Network};
 pub use private_key::PrivateKey;
+pub use public_key::PublicKey;
