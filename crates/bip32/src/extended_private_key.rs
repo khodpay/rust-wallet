@@ -5,7 +5,8 @@
 
 use crate::{ChainCode, Error, ExtendedPublicKey, Network, PrivateKey, PublicKey, Result};
 use hmac::{Hmac, Mac};
-use sha2::Sha512;
+use ripemd::Ripemd160;
+use sha2::{Digest, Sha256, Sha512};
 
 /// An extended private key for BIP32 hierarchical deterministic wallets.
 ///
@@ -254,6 +255,63 @@ impl ExtendedPrivateKey {
             self.chain_code.clone(),
             public_key,
         )
+    }
+
+    /// Calculates the fingerprint of this extended key.
+    ///
+    /// The fingerprint is the first 4 bytes of the HASH160 (RIPEMD160(SHA256(public_key)))
+    /// of the public key. This is used to identify parent keys in BIP-32 derivation.
+    ///
+    /// # Important
+    ///
+    /// - The fingerprint is calculated from the **public key**, not the private key
+    /// - This means ExtendedPrivateKey and its corresponding ExtendedPublicKey have
+    ///   the **same fingerprint**
+    /// - The master key's `parent_fingerprint` is `[0, 0, 0, 0]`, but its own
+    ///   `fingerprint()` is derived from its public key (not zero)
+    ///
+    /// # Algorithm
+    ///
+    /// ```text
+    /// fingerprint = HASH160(public_key)[0..4]
+    /// where HASH160(x) = RIPEMD160(SHA256(x))
+    /// ```
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use bip32::{ExtendedPrivateKey, Network};
+    ///
+    /// let seed = [0x01; 32];
+    /// let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet)?;
+    ///
+    /// // Get the fingerprint (4 bytes)
+    /// let fingerprint = master.fingerprint();
+    /// assert_eq!(fingerprint.len(), 4);
+    ///
+    /// // Master key's parent_fingerprint is [0,0,0,0], but its own fingerprint is not
+    /// assert_eq!(master.parent_fingerprint(), &[0, 0, 0, 0]);
+    /// assert_ne!(fingerprint, [0, 0, 0, 0]);
+    /// # Ok::<(), bip32::Error>(())
+    /// ```
+    pub fn fingerprint(&self) -> [u8; 4] {
+        // Get public key from private key
+        let public_key = PublicKey::from_private_key(&self.private_key);
+        
+        // Calculate HASH160: RIPEMD160(SHA256(public_key))
+        let public_key_bytes = public_key.to_bytes();
+        
+        // Step 1: SHA256
+        let sha256_hash = Sha256::digest(&public_key_bytes);
+        
+        // Step 2: RIPEMD160
+        let ripemd160_hash = Ripemd160::digest(&sha256_hash);
+        
+        // Step 3: Take first 4 bytes
+        let mut fingerprint = [0u8; 4];
+        fingerprint.copy_from_slice(&ripemd160_hash[0..4]);
+        
+        fingerprint
     }
 }
 
@@ -618,5 +676,90 @@ mod tests {
             "873dff81c02f525623fd1fe5167eac3a55a049de3d314bb42ee227ffed37d508"
         ).unwrap();
         assert_eq!(master_pub.chain_code().as_bytes(), expected_chain.as_slice());
+    }
+
+    // Task 23: Tests for fingerprint calculation
+
+    #[test]
+    fn test_fingerprint_length() {
+        let seed = [0x01; 32];
+        let ext_key = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let fingerprint = ext_key.fingerprint();
+
+        // Fingerprint must be exactly 4 bytes
+        assert_eq!(fingerprint.len(), 4);
+    }
+
+    #[test]
+    fn test_fingerprint_deterministic() {
+        let seed = [0x02; 32];
+        let ext_key = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        
+        let fingerprint1 = ext_key.fingerprint();
+        let fingerprint2 = ext_key.fingerprint();
+
+        // Should produce the same fingerprint every time
+        assert_eq!(fingerprint1, fingerprint2);
+    }
+
+    #[test]
+    fn test_fingerprint_different_for_different_keys() {
+        let seed1 = [0x03; 32];
+        let seed2 = [0x04; 32];
+        
+        let ext_key1 = ExtendedPrivateKey::from_seed(&seed1, Network::BitcoinMainnet).unwrap();
+        let ext_key2 = ExtendedPrivateKey::from_seed(&seed2, Network::BitcoinMainnet).unwrap();
+
+        // Different keys should have different fingerprints
+        assert_ne!(ext_key1.fingerprint(), ext_key2.fingerprint());
+    }
+
+    #[test]
+    fn test_fingerprint_same_for_private_and_public() {
+        let seed = [0x05; 32];
+        let ext_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let ext_pub = ext_priv.to_extended_public_key();
+
+        // Private and public extended keys should have the same fingerprint
+        assert_eq!(ext_priv.fingerprint(), ext_pub.fingerprint());
+    }
+
+    #[test]
+    fn test_fingerprint_bip32_test_vector() {
+        // BIP-32 Test Vector 1
+        let seed = hex::decode("000102030405060708090a0b0c0d0e0f").unwrap();
+        let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+
+        // Expected fingerprint from BIP-32 test vectors
+        // The master key's fingerprint is derived from its public key
+        // Expected: 3442193e (from test vector Chain m)
+        let expected_fingerprint = hex::decode("3442193e").unwrap();
+        
+        assert_eq!(master.fingerprint(), expected_fingerprint.as_slice());
+    }
+
+    #[test]
+    fn test_fingerprint_master_key_not_zero() {
+        // Master key's fingerprint should NOT be [0,0,0,0]
+        // (that's the parent_fingerprint, not the key's own fingerprint)
+        let seed = [0x06; 32];
+        let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+
+        assert_ne!(master.fingerprint(), [0, 0, 0, 0]);
+        assert_eq!(master.parent_fingerprint(), &[0, 0, 0, 0]); // But parent is [0,0,0,0]
+    }
+
+    #[test]
+    fn test_fingerprint_uses_public_key() {
+        // Fingerprint should be calculated from the public key, not private key
+        // Two different private keys that somehow had the same public key (impossible in practice)
+        // would have the same fingerprint
+        let seed = [0x07; 32];
+        let ext_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let ext_pub = ext_priv.to_extended_public_key();
+
+        // This test documents that fingerprint is derived from public key
+        // by verifying that both private and public extended keys produce same fingerprint
+        assert_eq!(ext_priv.fingerprint(), ext_pub.fingerprint());
     }
 }

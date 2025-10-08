@@ -28,8 +28,8 @@ Here's your comprehensive task list organized by phases and priority. Each task 
 - ✅ Task 20: Implement ExtendedPrivateKey::from_seed() with HMAC-SHA512 (TDD)
 - ✅ Task 21: Write tests for ExtendedPrivateKey::to_extended_public_key()
 - ✅ Task 22: Implement ExtendedPrivateKey::to_extended_public_key() (TDD)
-- 🔲 Task 23: Write tests for fingerprint calculation
-- 🔲 Task 24: Implement fingerprint calculation methods (TDD)
+- ✅ Task 23: Write tests for fingerprint calculation
+- ✅ Task 24: Implement fingerprint calculation methods (TDD)
 
 ## 🛤️ PHASE 4: Derivation Path Parsing (MEDIUM Priority)
 - 🔲 Task 25: Define DerivationPath struct to hold path components
