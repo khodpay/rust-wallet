@@ -42,6 +42,7 @@
 mod chain_code;
 mod error;
 mod extended_private_key;
+mod extended_public_key;
 mod network;
 mod private_key;
 mod public_key;
@@ -50,6 +51,7 @@ mod public_key;
 pub use chain_code::ChainCode;
 pub use error::{Error, Result};
 pub use extended_private_key::ExtendedPrivateKey;
+pub use extended_public_key::ExtendedPublicKey;
 pub use network::{KeyType, Network};
 pub use private_key::PrivateKey;
 pub use public_key::PublicKey;
