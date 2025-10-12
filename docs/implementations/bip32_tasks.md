@@ -36,8 +36,8 @@ Here's your comprehensive task list organized by phases and priority. Each task 
 - ✅ Task 26: Define ChildNumber enum (Normal(u32), Hardened(u32))
 - ✅ Task 27: Write tests for ChildNumber hardened/normal conversion
 - ✅ Task 28: Implement ChildNumber methods (TDD)
-- 🔲 Task 29: Write tests for DerivationPath parsing (e.g., "m/44'/0'/0'/0/0")
-- 🔲 Task 30: Implement DerivationPath::from_str() parser (TDD)
+- ✅ Task 29: Write tests for DerivationPath parsing (e.g., "m/44'/0'/0'/0/0")
+- ✅ Task 30: Implement DerivationPath::from_str() parser (TDD)
 - 🔲 Task 31: Write tests for DerivationPath validation
 - 🔲 Task 32: Implement DerivationPath validation methods (TDD)
 
