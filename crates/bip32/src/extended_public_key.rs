@@ -3,7 +3,7 @@
 //! This module provides the ExtendedPublicKey type which combines a public key
 //! with metadata necessary for hierarchical key derivation according to BIP-32.
 
-use crate::{ChainCode, Network, PublicKey};
+use crate::{ChainCode, ChildNumber, Network, PublicKey};
 use ripemd::Ripemd160;
 use sha2::{Digest, Sha256};
 
@@ -87,14 +87,14 @@ pub struct ExtendedPublicKey {
     parent_fingerprint: [u8; 4],
 
     /// The child index used to derive this key from its parent.
-    /// - Values 0 to 2^31-1 (0x7FFFFFFF): normal derivation (allowed)
-    /// - Values 2^31 to 2^32-1 (0x80000000+): hardened derivation (NOT allowed)
+    /// - `ChildNumber::Normal(n)`: normal derivation (allowed)
+    /// - `ChildNumber::Hardened(n)`: hardened derivation (NOT allowed)
     ///
-    /// Set to 0 for the master key.
+    /// Set to `ChildNumber::Normal(0)` for the master key.
     ///
     /// **Important**: Extended public keys cannot derive hardened children.
     /// Attempting to derive a hardened child will result in an error.
-    child_number: u32,
+    child_number: ChildNumber,
 
     /// The chain code used for deriving child keys.
     /// This provides additional entropy beyond the public key itself,
@@ -152,7 +152,7 @@ impl ExtendedPublicKey {
         network: Network,
         depth: u8,
         parent_fingerprint: [u8; 4],
-        child_number: u32,
+        child_number: ChildNumber,
         chain_code: ChainCode,
         public_key: PublicKey,
     ) -> Self {
@@ -182,7 +182,7 @@ impl ExtendedPublicKey {
     }
 
     /// Returns the child number.
-    pub fn child_number(&self) -> u32 {
+    pub fn child_number(&self) -> ChildNumber {
         self.child_number
     }
 
@@ -281,17 +281,17 @@ mod tests {
 
         let ext_pub = ExtendedPublicKey::new(
             Network::BitcoinMainnet,
-            1,
-            [0x12, 0x34, 0x56, 0x78],
-            5,
+            2,
+            [0x3A, 0x4F, 0x8B, 0xC2],
+            ChildNumber::Normal(5),
             chain_code.clone(),
             public_key.clone(),
         );
 
         assert_eq!(ext_pub.network(), Network::BitcoinMainnet);
-        assert_eq!(ext_pub.depth(), 1);
-        assert_eq!(ext_pub.parent_fingerprint(), &[0x12, 0x34, 0x56, 0x78]);
-        assert_eq!(ext_pub.child_number(), 5);
+        assert_eq!(ext_pub.depth(), 2);
+        assert_eq!(ext_pub.parent_fingerprint(), &[0x3A, 0x4F, 0x8B, 0xC2]);
+        assert_eq!(ext_pub.child_number(), ChildNumber::Normal(5));
         assert_eq!(ext_pub.chain_code(), &chain_code);
         assert_eq!(ext_pub.public_key(), &public_key);
     }
@@ -304,7 +304,7 @@ mod tests {
         assert_eq!(ext_pub.network(), Network::BitcoinMainnet);
         assert_eq!(ext_pub.depth(), 0); // Master key
         assert_eq!(ext_pub.parent_fingerprint(), &[0, 0, 0, 0]); // Master key
-        assert_eq!(ext_pub.child_number(), 0); // Master key
+        assert_eq!(ext_pub.child_number(), ChildNumber::Normal(0)); // Master key
         assert_eq!(ext_pub.chain_code().as_bytes().len(), 32);
         assert_eq!(ext_pub.public_key().to_bytes().len(), 33); // Compressed
     }
@@ -418,7 +418,7 @@ mod tests {
 
         // Master key properties
         assert_eq!(ext_pub.depth(), 0);
-        assert_eq!(ext_pub.child_number(), 0);
+        assert_eq!(ext_pub.child_number(), ChildNumber::Normal(0));
         assert_eq!(ext_pub.parent_fingerprint(), &[0, 0, 0, 0]);
         
         // But fingerprint should not be zero
@@ -443,13 +443,13 @@ mod tests {
             Network::BitcoinMainnet,
             ExtendedPublicKey::MAX_DEPTH,
             [0xFF, 0xFF, 0xFF, 0xFF],
-            0xFFFFFFFF,
+            ChildNumber::Hardened(0x7FFFFFFF),
             chain_code,
             public_key,
         );
 
         assert_eq!(ext_pub.depth(), 255);
-        assert_eq!(ext_pub.child_number(), 0xFFFFFFFF);
+        assert_eq!(ext_pub.child_number(), ChildNumber::Hardened(0x7FFFFFFF));
     }
 
     #[test]
@@ -465,7 +465,7 @@ mod tests {
             Network::BitcoinMainnet,
             0,
             [0, 0, 0, 0],
-            0,
+            ChildNumber::Normal(0),
             chain_code1,
             public_key.clone(),
         );
@@ -474,7 +474,7 @@ mod tests {
             Network::BitcoinMainnet,
             0,
             [0, 0, 0, 0],
-            0,
+            ChildNumber::Normal(0),
             chain_code2,
             public_key,
         );

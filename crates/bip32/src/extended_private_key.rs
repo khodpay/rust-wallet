@@ -3,7 +3,7 @@
 //! This module provides the core ExtendedPrivateKey type which combines a private key
 //! with metadata necessary for hierarchical key derivation according to BIP-32.
 
-use crate::{ChainCode, Error, ExtendedPublicKey, Network, PrivateKey, PublicKey, Result};
+use crate::{ChainCode, ChildNumber, Error, ExtendedPublicKey, Network, PrivateKey, PublicKey, Result};
 use hmac::{Hmac, Mac};
 use ripemd::Ripemd160;
 use sha2::{Digest, Sha256, Sha512};
@@ -81,11 +81,11 @@ pub struct ExtendedPrivateKey {
     parent_fingerprint: [u8; 4],
 
     /// The child index used to derive this key from its parent.
-    /// - Values 0 to 2^31-1 (0x7FFFFFFF): normal derivation
-    /// - Values 2^31 to 2^32-1 (0x80000000+): hardened derivation
+    /// - `ChildNumber::Normal(n)`: normal derivation (0 to 2^31-1)
+    /// - `ChildNumber::Hardened(n)`: hardened derivation (2^31 to 2^32-1)
     ///
-    /// Set to 0 for the master key.
-    child_number: u32,
+    /// Set to `ChildNumber::Normal(0)` for the master key.
+    child_number: ChildNumber,
 
     /// The chain code used for deriving child keys.
     /// This provides additional entropy beyond the private key itself,
@@ -180,7 +180,7 @@ impl ExtendedPrivateKey {
             network,
             depth: 0,
             parent_fingerprint: [0u8; 4],
-            child_number: 0,
+            child_number: ChildNumber::Normal(0),
             chain_code,
             private_key,
         })
@@ -202,7 +202,7 @@ impl ExtendedPrivateKey {
     }
 
     /// Returns the child number.
-    pub fn child_number(&self) -> u32 {
+    pub fn child_number(&self) -> ChildNumber {
         self.child_number
     }
 
@@ -313,6 +313,120 @@ impl ExtendedPrivateKey {
         
         fingerprint
     }
+
+    /// Derives a child extended private key from this extended private key.
+    ///
+    /// This implements the BIP-32 child key derivation (CKD) function for private keys.
+    /// It supports both normal and hardened derivation based on the child number type.
+    ///
+    /// # Algorithm
+    ///
+    /// For **normal derivation** (`ChildNumber::Normal(n)`):
+    /// 1. Data = serP(parent_public_key) || ser32(child_number)
+    /// 2. I = HMAC-SHA512(Key = parent_chain_code, Data = Data)
+    /// 3. Split I into IL (first 32 bytes) and IR (last 32 bytes)
+    /// 4. child_private_key = (parse256(IL) + parent_private_key) mod n
+    /// 5. child_chain_code = IR
+    ///
+    /// For **hardened derivation** (`ChildNumber::Hardened(n)`):
+    /// 1. Data = 0x00 || ser256(parent_private_key) || ser32(child_number)
+    /// 2. I = HMAC-SHA512(Key = parent_chain_code, Data = Data)
+    /// 3. Split I into IL and IR
+    /// 4. child_private_key = (parse256(IL) + parent_private_key) mod n
+    /// 5. child_chain_code = IR
+    ///
+    /// # Arguments
+    ///
+    /// * `child_number` - The child number (normal or hardened)
+    ///
+    /// # Returns
+    ///
+    /// Returns a new `ExtendedPrivateKey` with:
+    /// - Incremented depth
+    /// - Parent fingerprint set to this key's fingerprint
+    /// - Child number set to the provided value
+    /// - Derived private key and chain code
+    ///
+    /// # Errors
+    ///
+    /// Returns [`Error::MaxDepthExceeded`] if this key is already at maximum depth (255).
+    /// Returns [`Error::InvalidPrivateKey`] if derivation produces an invalid key (extremely rare).
+    ///
+    /// # Examples
+    ///
+    /// ```rust,ignore
+    /// use bip32::{ExtendedPrivateKey, ChildNumber, Network};
+    ///
+    /// let seed = [0u8; 64];
+    /// let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet)?;
+    ///
+    /// // Derive normal child at index 0
+    /// let child_0 = master.derive_child(ChildNumber::Normal(0))?;
+    /// assert_eq!(child_0.depth(), 1);
+    /// assert_eq!(child_0.child_number(), ChildNumber::Normal(0));
+    ///
+    /// // Derive hardened child at index 0
+    /// let child_0h = master.derive_child(ChildNumber::Hardened(0))?;
+    /// assert_eq!(child_0h.child_number(), ChildNumber::Hardened(0));
+    /// # Ok::<(), bip32::Error>(())
+    /// ```
+    pub fn derive_child(&self, child_number: ChildNumber) -> Result<Self> {
+        // Check if we can derive a child (depth limit)
+        if self.depth == Self::MAX_DEPTH {
+            return Err(Error::MaxDepthExceeded {
+                depth: Self::MAX_DEPTH,
+            });
+        }
+
+        // Prepare HMAC-SHA512
+        type HmacSha512 = Hmac<Sha512>;
+        let mut hmac = HmacSha512::new_from_slice(self.chain_code.as_bytes())
+            .expect("HMAC can take key of any size");
+
+        // Determine if this is hardened derivation and get the raw index
+        let is_hardened = child_number.is_hardened();
+        let index = child_number.to_index();
+
+        if is_hardened {
+            // Hardened derivation: use private key
+            // Data = 0x00 || private_key (32 bytes) || child_number (4 bytes)
+            hmac.update(&[0x00]);
+            hmac.update(&self.private_key.to_bytes());
+        } else {
+            // Normal derivation: use public key
+            // Data = public_key (33 bytes compressed) || child_number (4 bytes)
+            let public_key = PublicKey::from_private_key(&self.private_key);
+            hmac.update(&public_key.to_bytes());
+        }
+
+        // Add child number (big-endian)
+        hmac.update(&index.to_be_bytes());
+
+        // Compute HMAC-SHA512
+        let result = hmac.finalize().into_bytes();
+
+        // Split into IL (first 32 bytes) and IR (last 32 bytes)
+        let (il, ir) = result.split_at(32);
+
+        // IL becomes the tweak to add to parent private key
+        // child_private_key = (IL + parent_private_key) mod n
+        let child_private_key = self.private_key.tweak_add(il)?;
+
+        // IR becomes the child chain code
+        let child_chain_code = ChainCode::from_bytes(ir)?;
+
+        // Calculate parent fingerprint (first 4 bytes of HASH160 of parent public key)
+        let parent_fingerprint = self.fingerprint();
+
+        Ok(ExtendedPrivateKey {
+            network: self.network,
+            depth: self.depth + 1,
+            parent_fingerprint,
+            child_number,
+            chain_code: child_chain_code,
+            private_key: child_private_key,
+        })
+    }
 }
 
 impl std::fmt::Debug for ExtendedPrivateKey {
@@ -338,7 +452,7 @@ mod tests {
         let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
 
         assert_eq!(master.depth(), 0);
-        assert_eq!(master.child_number(), 0);
+        assert_eq!(master.child_number(), ChildNumber::Normal(0));
         assert_eq!(master.parent_fingerprint(), &[0, 0, 0, 0]);
         assert_eq!(master.network(), Network::BitcoinMainnet);
     }
@@ -349,7 +463,7 @@ mod tests {
         let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
 
         assert_eq!(master.depth(), 0);
-        assert_eq!(master.child_number(), 0);
+        assert_eq!(master.child_number(), ChildNumber::Normal(0));
         assert_eq!(master.parent_fingerprint(), &[0, 0, 0, 0]);
     }
 
@@ -420,7 +534,7 @@ mod tests {
 
         // Master key always has these values
         assert_eq!(master.depth(), 0);
-        assert_eq!(master.child_number(), 0);
+        assert_eq!(master.child_number(), ChildNumber::Normal(0));
         assert_eq!(master.parent_fingerprint(), &[0, 0, 0, 0]);
     }
 
@@ -470,7 +584,7 @@ mod tests {
         // Test all getters
         assert_eq!(master.network(), Network::BitcoinTestnet);
         assert_eq!(master.depth(), 0);
-        assert_eq!(master.child_number(), 0);
+        assert_eq!(master.child_number(), ChildNumber::Normal(0));
         assert_eq!(master.parent_fingerprint(), &[0, 0, 0, 0]);
         assert!(master.chain_code().as_bytes().len() == 32);
         assert!(master.private_key().to_bytes().len() == 32);
@@ -653,7 +767,7 @@ mod tests {
 
         // Master key properties should be preserved
         assert_eq!(master_pub.depth(), 0);
-        assert_eq!(master_pub.child_number(), 0);
+        assert_eq!(master_pub.child_number(), ChildNumber::Normal(0));
         assert_eq!(master_pub.parent_fingerprint(), &[0, 0, 0, 0]);
     }
 
@@ -761,5 +875,280 @@ mod tests {
         // This test documents that fingerprint is derived from public key
         // by verifying that both private and public extended keys produce same fingerprint
         assert_eq!(ext_priv.fingerprint(), ext_pub.fingerprint());
+    }
+
+    #[test]
+    fn test_derive_child_normal_basic() {
+        let seed = [0x01; 32];
+        let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        
+        // Derive first normal child (index 0)
+        let child = master.derive_child(ChildNumber::Normal(0)).unwrap();
+        
+        // Child should have incremented depth
+        assert_eq!(child.depth(), 1);
+        assert_eq!(child.child_number(), ChildNumber::Normal(0));
+        
+        // Parent fingerprint should be master's fingerprint
+        assert_eq!(child.parent_fingerprint(), &master.fingerprint());
+        
+        // Network should be preserved
+        assert_eq!(child.network(), master.network());
+        
+        // Key and chain code should be different from parent
+        assert_ne!(child.private_key().to_bytes(), master.private_key().to_bytes());
+        assert_ne!(child.chain_code().as_bytes(), master.chain_code().as_bytes());
+    }
+
+    #[test]
+    fn test_derive_child_normal_multiple_indices() {
+        let seed = [0x02; 32];
+        let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        
+        // Derive different normal children
+        let child0 = master.derive_child(ChildNumber::Normal(0)).unwrap();
+        let child1 = master.derive_child(ChildNumber::Normal(1)).unwrap();
+        let child100 = master.derive_child(ChildNumber::Normal(100)).unwrap();
+        
+        // All should have depth 1
+        assert_eq!(child0.depth(), 1);
+        assert_eq!(child1.depth(), 1);
+        assert_eq!(child100.depth(), 1);
+        
+        // Child numbers should match indices
+        assert_eq!(child0.child_number(), ChildNumber::Normal(0));
+        assert_eq!(child1.child_number(), ChildNumber::Normal(1));
+        assert_eq!(child100.child_number(), ChildNumber::Normal(100));
+        
+        // All should have same parent fingerprint
+        let parent_fp = master.fingerprint();
+        assert_eq!(child0.parent_fingerprint(), &parent_fp);
+        assert_eq!(child1.parent_fingerprint(), &parent_fp);
+        assert_eq!(child100.parent_fingerprint(), &parent_fp);
+        
+        // Keys should all be different
+        assert_ne!(child0.private_key().to_bytes(), child1.private_key().to_bytes());
+        assert_ne!(child0.private_key().to_bytes(), child100.private_key().to_bytes());
+        assert_ne!(child1.private_key().to_bytes(), child100.private_key().to_bytes());
+    }
+
+    #[test]
+    fn test_derive_child_hardened_basic() {
+        let seed = [0x03; 32];
+        let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        
+        // Derive first hardened child (index 0)
+        let child = master.derive_child(ChildNumber::Hardened(0)).unwrap();
+        
+        assert_eq!(child.depth(), 1);
+        assert_eq!(child.child_number(), ChildNumber::Hardened(0));
+        assert_eq!(child.parent_fingerprint(), &master.fingerprint());
+    }
+
+    #[test]
+    fn test_derive_child_hardened_multiple() {
+        let seed = [0x04; 32];
+        let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        
+        // Derive different hardened children
+        let hardened_0 = master.derive_child(ChildNumber::Hardened(0)).unwrap();
+        let hardened_1 = master.derive_child(ChildNumber::Hardened(1)).unwrap();
+        let hardened_44 = master.derive_child(ChildNumber::Hardened(44)).unwrap();
+        
+        assert_eq!(hardened_0.child_number(), ChildNumber::Hardened(0));
+        assert_eq!(hardened_1.child_number(), ChildNumber::Hardened(1));
+        assert_eq!(hardened_44.child_number(), ChildNumber::Hardened(44));
+        
+        // All should have different keys
+        assert_ne!(hardened_0.private_key().to_bytes(), hardened_1.private_key().to_bytes());
+        assert_ne!(hardened_0.private_key().to_bytes(), hardened_44.private_key().to_bytes());
+    }
+
+    #[test]
+    fn test_derive_child_normal_vs_hardened_different() {
+        let seed = [0x05; 32];
+        let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        
+        // Derive normal child at index 0
+        let normal_0 = master.derive_child(ChildNumber::Normal(0)).unwrap();
+        
+        // Derive hardened child at index 0
+        let hardened_0 = master.derive_child(ChildNumber::Hardened(0)).unwrap();
+        
+        // Should produce different keys even though base index is same
+        assert_ne!(normal_0.private_key().to_bytes(), hardened_0.private_key().to_bytes());
+        assert_ne!(normal_0.chain_code().as_bytes(), hardened_0.chain_code().as_bytes());
+        
+        // Child numbers should be different
+        assert_eq!(normal_0.child_number(), ChildNumber::Normal(0));
+        assert_eq!(hardened_0.child_number(), ChildNumber::Hardened(0));
+    }
+
+    #[test]
+    fn test_derive_child_deterministic() {
+        let seed = [0x06; 32];
+        let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        
+        // Derive same child twice
+        let child1 = master.derive_child(ChildNumber::Normal(5)).unwrap();
+        let child2 = master.derive_child(ChildNumber::Normal(5)).unwrap();
+        
+        // Should be identical
+        assert_eq!(child1, child2);
+        assert_eq!(child1.private_key().to_bytes(), child2.private_key().to_bytes());
+        assert_eq!(child1.chain_code().as_bytes(), child2.chain_code().as_bytes());
+    }
+
+    #[test]
+    fn test_derive_child_multi_level() {
+        let seed = [0x07; 32];
+        let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        
+        // Derive child, then grandchild
+        let child = master.derive_child(ChildNumber::Normal(0)).unwrap();
+        let grandchild = child.derive_child(ChildNumber::Normal(0)).unwrap();
+        
+        // Depths should increase
+        assert_eq!(master.depth(), 0);
+        assert_eq!(child.depth(), 1);
+        assert_eq!(grandchild.depth(), 2);
+        
+        // Grandchild's parent fingerprint should be child's fingerprint
+        assert_eq!(grandchild.parent_fingerprint(), &child.fingerprint());
+        assert_ne!(grandchild.parent_fingerprint(), &master.fingerprint());
+    }
+
+    #[test]
+    fn test_derive_child_preserves_network() {
+        let seed = [0x08; 32];
+        
+        let mainnet_master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let mainnet_child = mainnet_master.derive_child(ChildNumber::Normal(0)).unwrap();
+        
+        let testnet_master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinTestnet).unwrap();
+        let testnet_child = testnet_master.derive_child(ChildNumber::Normal(0)).unwrap();
+        
+        assert_eq!(mainnet_child.network(), Network::BitcoinMainnet);
+        assert_eq!(testnet_child.network(), Network::BitcoinTestnet);
+        
+        // Keys should be same (network doesn't affect derivation)
+        assert_eq!(mainnet_child.private_key().to_bytes(), testnet_child.private_key().to_bytes());
+    }
+
+    #[test]
+    fn test_derive_child_max_normal_index() {
+        let seed = [0x09; 32];
+        let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        
+        // Maximum normal child index is 2^31 - 1
+        let max_normal_index = ChildNumber::MAX_NORMAL_INDEX;
+        let child = master.derive_child(ChildNumber::Normal(max_normal_index)).unwrap();
+        
+        assert_eq!(child.child_number(), ChildNumber::Normal(max_normal_index));
+        assert_eq!(child.depth(), 1);
+    }
+
+    #[test]
+    fn test_derive_child_max_index() {
+        let seed = [0x0A; 32];
+        let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        
+        // Maximum hardened index
+        let max_hardened = ChildNumber::MAX_NORMAL_INDEX;
+        let child = master.derive_child(ChildNumber::Hardened(max_hardened)).unwrap();
+        
+        assert_eq!(child.child_number(), ChildNumber::Hardened(max_hardened));
+        assert_eq!(child.depth(), 1);
+    }
+
+    #[test]
+    fn test_derive_child_depth_overflow() {
+        let seed = [0x0B; 32];
+        let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        
+        // Manually create a key at max depth
+        let max_depth_key = ExtendedPrivateKey {
+            network: master.network(),
+            depth: ExtendedPrivateKey::MAX_DEPTH,
+            parent_fingerprint: [0; 4],
+            child_number: ChildNumber::Normal(0),
+            chain_code: master.chain_code().clone(),
+            private_key: master.private_key().clone(),
+        };
+        
+        // Trying to derive a child should fail
+        let result = max_depth_key.derive_child(ChildNumber::Normal(0));
+        assert!(result.is_err());
+        
+        match result {
+            Err(Error::MaxDepthExceeded { depth }) => {
+                assert_eq!(depth, ExtendedPrivateKey::MAX_DEPTH);
+            }
+            _ => panic!("Expected MaxDepthExceeded error"),
+        }
+    }
+
+    #[test]
+    fn test_derive_child_bip32_test_vector_1() {
+        // BIP-32 Test Vector 1: Chain m/0'
+        let seed = hex::decode("000102030405060708090a0b0c0d0e0f").unwrap();
+        let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        
+        // Derive m/0' (first hardened child)
+        let child = master.derive_child(ChildNumber::Hardened(0)).unwrap();
+        
+        // Expected values from BIP-32 test vectors
+        let expected_key = hex::decode(
+            "edb2e14f9ee77d26dd93b4ecede8d16ed408ce149b6cd80b0715a2d911a0afea"
+        ).unwrap();
+        let expected_chain = hex::decode(
+            "47fdacbd0f1097043b78c63c20c34ef4ed9a111d980047ad16282c7ae6236141"
+        ).unwrap();
+        
+        assert_eq!(child.private_key().to_bytes(), expected_key.as_slice());
+        assert_eq!(child.chain_code().as_bytes(), expected_chain.as_slice());
+        assert_eq!(child.depth(), 1);
+        assert_eq!(child.child_number(), ChildNumber::Hardened(0));
+    }
+
+    #[test]
+    fn test_derive_child_bip32_test_vector_2() {
+        // BIP-32 Test Vector 1: Chain m/0'/1
+        let seed = hex::decode("000102030405060708090a0b0c0d0e0f").unwrap();
+        let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        
+        // Derive m/0'
+        let child_0h = master.derive_child(ChildNumber::Hardened(0)).unwrap();
+        
+        // Derive m/0'/1 (normal child from hardened parent)
+        let child_0h_1 = child_0h.derive_child(ChildNumber::Normal(1)).unwrap();
+        
+        // Expected values from BIP-32 test vectors
+        let expected_key = hex::decode(
+            "3c6cb8d0f6a264c91ea8b5030fadaa8e538b020f0a387421a12de9319dc93368"
+        ).unwrap();
+        let expected_chain = hex::decode(
+            "2a7857631386ba23dacac34180dd1983734e444fdbf774041578e9b6adb37c19"
+        ).unwrap();
+        
+        assert_eq!(child_0h_1.private_key().to_bytes(), expected_key.as_slice());
+        assert_eq!(child_0h_1.chain_code().as_bytes(), expected_chain.as_slice());
+        assert_eq!(child_0h_1.depth(), 2);
+        assert_eq!(child_0h_1.child_number(), ChildNumber::Normal(1));
+    }
+
+    #[test]
+    fn test_derive_child_deep_path() {
+        let seed = [0x0C; 32];
+        let mut current = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        
+        // Derive a deep path (but not exceeding MAX_DEPTH)
+        for i in 0..10 {
+            current = current.derive_child(ChildNumber::Normal(i)).unwrap();
+            assert_eq!(current.depth(), (i + 1) as u8);
+            assert_eq!(current.child_number(), ChildNumber::Normal(i));
+        }
+        
+        assert_eq!(current.depth(), 10);
     }
 }
