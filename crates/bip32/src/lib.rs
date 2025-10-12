@@ -40,6 +40,8 @@
 
 // Module declarations
 mod chain_code;
+mod child_number;
+mod derivation_path;
 mod error;
 mod extended_private_key;
 mod extended_public_key;
@@ -49,6 +51,8 @@ mod public_key;
 
 // Public re-exports
 pub use chain_code::ChainCode;
+pub use child_number::ChildNumber;
+pub use derivation_path::DerivationPath;
 pub use error::{Error, Result};
 pub use extended_private_key::ExtendedPrivateKey;
 pub use extended_public_key::ExtendedPublicKey;

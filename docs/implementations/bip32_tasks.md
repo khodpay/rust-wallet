@@ -32,7 +32,7 @@ Here's your comprehensive task list organized by phases and priority. Each task 
 - ✅ Task 24: Implement fingerprint calculation methods (TDD)
 
 ## 🛤️ PHASE 4: Derivation Path Parsing (MEDIUM Priority)
-- 🔲 Task 25: Define DerivationPath struct to hold path components
+- ✅ Task 25: Define DerivationPath struct to hold path components
 - 🔲 Task 26: Define ChildNumber enum (Normal(u32), Hardened(u32))
 - 🔲 Task 27: Write tests for ChildNumber hardened/normal conversion
 - 🔲 Task 28: Implement ChildNumber methods (TDD)
