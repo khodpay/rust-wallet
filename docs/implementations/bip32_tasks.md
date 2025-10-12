@@ -42,8 +42,8 @@ Here's your comprehensive task list organized by phases and priority. Each task 
 - ✅ Task 32: Implement DerivationPath validation methods (TDD)
 
 ## 🔄 PHASE 5: Child Key Derivation (MEDIUM → HIGH Priority)
-- 🔲 Task 33: Write tests for ExtendedPrivateKey::derive_child() (single step)
-- 🔲 Task 34: Implement ExtendedPrivateKey::derive_child() with HMAC-SHA512 (TDD)
+- ✅ Task 33: Write tests for ExtendedPrivateKey::derive_child() (single step)
+- ✅ Task 34: Implement ExtendedPrivateKey::derive_child() with HMAC-SHA512 (TDD)
 - 🔲 Task 35: Write tests for hardened derivation (index >= 2^31)
 - 🔲 Task 36: Implement hardened derivation logic (TDD)
 - 🔲 Task 37: Write tests for ExtendedPublicKey::derive_child() (normal only)
