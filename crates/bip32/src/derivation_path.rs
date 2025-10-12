@@ -228,6 +228,256 @@ impl DerivationPath {
     pub fn is_empty(&self) -> bool {
         self.path.is_empty()
     }
+
+    /// Returns `true` if this path is valid.
+    ///
+    /// Since all successfully parsed paths are valid, this always returns `true`.
+    /// This method exists for API completeness and future extensibility.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,ignore
+    /// use bip32::DerivationPath;
+    /// use std::str::FromStr;
+    ///
+    /// let path = DerivationPath::from_str("m/44'/0'/0'/0/0")?;
+    /// assert!(path.is_valid());
+    /// ```
+    pub fn is_valid(&self) -> bool {
+        // All paths that can be constructed are valid
+        // This method exists for API completeness
+        true
+    }
+
+    /// Returns `true` if the path contains any hardened derivation.
+    ///
+    /// Hardened derivation requires access to the private key and cannot be
+    /// performed on extended public keys alone.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,ignore
+    /// use bip32::DerivationPath;
+    /// use std::str::FromStr;
+    ///
+    /// let normal = DerivationPath::from_str("m/0/1/2")?;
+    /// assert!(!normal.contains_hardened());
+    ///
+    /// let hardened = DerivationPath::from_str("m/44'/0'/0'")?;
+    /// assert!(hardened.contains_hardened());
+    /// ```
+    pub fn contains_hardened(&self) -> bool {
+        self.path.iter().any(|child| child.is_hardened())
+    }
+
+    /// Returns `true` if this path can be derived from an extended public key.
+    ///
+    /// A path is public-derivable if it contains no hardened derivation steps.
+    /// Hardened derivation requires the private key.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,ignore
+    /// use bip32::DerivationPath;
+    /// use std::str::FromStr;
+    ///
+    /// let normal = DerivationPath::from_str("m/0/1/2")?;
+    /// assert!(normal.is_public_derivable());
+    ///
+    /// let with_hardened = DerivationPath::from_str("m/44'/0/1")?;
+    /// assert!(!with_hardened.is_public_derivable());
+    /// ```
+    pub fn is_public_derivable(&self) -> bool {
+        !self.contains_hardened()
+    }
+
+    /// Returns `true` if the child at the given index is hardened.
+    ///
+    /// Returns `false` if the index is out of bounds or the child is normal.
+    ///
+    /// # Arguments
+    ///
+    /// * `index` - The index of the child to check (0-based)
+    ///
+    /// # Examples
+    ///
+    /// ```rust,ignore
+    /// use bip32::DerivationPath;
+    /// use std::str::FromStr;
+    ///
+    /// let path = DerivationPath::from_str("m/44'/0/1'")?;
+    /// assert!(path.is_hardened_at(0));  // 44' is hardened
+    /// assert!(!path.is_hardened_at(1)); // 0 is normal
+    /// assert!(path.is_hardened_at(2));  // 1' is hardened
+    /// ```
+    pub fn is_hardened_at(&self, index: usize) -> bool {
+        self.path.get(index).map_or(false, |child| child.is_hardened())
+    }
+
+    /// Returns a reference to the child number at the given index.
+    ///
+    /// Returns `None` if the index is out of bounds.
+    ///
+    /// # Arguments
+    ///
+    /// * `index` - The index of the child to retrieve (0-based)
+    ///
+    /// # Examples
+    ///
+    /// ```rust,ignore
+    /// use bip32::{DerivationPath, ChildNumber};
+    /// use std::str::FromStr;
+    ///
+    /// let path = DerivationPath::from_str("m/44'/0'/0'")?;
+    /// assert_eq!(path.child_number_at(0), Some(&ChildNumber::Hardened(44)));
+    /// assert_eq!(path.child_number_at(3), None);
+    /// ```
+    pub fn child_number_at(&self, index: usize) -> Option<&ChildNumber> {
+        self.path.get(index)
+    }
+
+    /// Returns the parent path by removing the last child number.
+    ///
+    /// Returns `None` if this is the master key (which has no parent).
+    ///
+    /// # Examples
+    ///
+    /// ```rust,ignore
+    /// use bip32::DerivationPath;
+    /// use std::str::FromStr;
+    ///
+    /// let path = DerivationPath::from_str("m/44'/0'/0'")?;
+    /// let parent = path.parent().unwrap();
+    /// assert_eq!(parent.to_string(), "m/44'/0'");
+    ///
+    /// let master = DerivationPath::master();
+    /// assert!(master.parent().is_none());
+    /// ```
+    pub fn parent(&self) -> Option<DerivationPath> {
+        if self.path.is_empty() {
+            None
+        } else {
+            let mut parent_path = self.path.clone();
+            parent_path.pop();
+            Some(DerivationPath { path: parent_path })
+        }
+    }
+
+    /// Extends this path with additional child numbers.
+    ///
+    /// Returns a new `DerivationPath` with the additional components appended.
+    ///
+    /// # Arguments
+    ///
+    /// * `children` - Slice of child numbers to append
+    ///
+    /// # Examples
+    ///
+    /// ```rust,ignore
+    /// use bip32::{DerivationPath, ChildNumber};
+    /// use std::str::FromStr;
+    ///
+    /// let base = DerivationPath::from_str("m/44'/0'")?;
+    /// let extended = base.extend(&[
+    ///     ChildNumber::Hardened(0),
+    ///     ChildNumber::Normal(0),
+    /// ]);
+    /// assert_eq!(extended.to_string(), "m/44'/0'/0'/0");
+    /// ```
+    pub fn extend(&self, children: &[ChildNumber]) -> DerivationPath {
+        let mut new_path = self.path.clone();
+        new_path.extend_from_slice(children);
+        DerivationPath { path: new_path }
+    }
+
+    /// Returns `true` if this path starts with the given prefix.
+    ///
+    /// # Arguments
+    ///
+    /// * `prefix` - The prefix path to check
+    ///
+    /// # Examples
+    ///
+    /// ```rust,ignore
+    /// use bip32::DerivationPath;
+    /// use std::str::FromStr;
+    ///
+    /// let path = DerivationPath::from_str("m/44'/0'/0'/0/0")?;
+    /// let prefix = DerivationPath::from_str("m/44'/0'")?;
+    /// assert!(path.starts_with(&prefix));
+    /// ```
+    pub fn starts_with(&self, prefix: &DerivationPath) -> bool {
+        if prefix.path.len() > self.path.len() {
+            return false;
+        }
+        
+        self.path.starts_with(&prefix.path)
+    }
+
+    /// Returns the number of hardened derivations at the start of the path.
+    ///
+    /// This is useful for BIP-44 style paths where the first few levels
+    /// are hardened (purpose/coin_type/account) and the rest are normal.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,ignore
+    /// use bip32::DerivationPath;
+    /// use std::str::FromStr;
+    ///
+    /// let bip44 = DerivationPath::from_str("m/44'/0'/0'/0/1")?;
+    /// assert_eq!(bip44.hardened_prefix_length(), 3);
+    ///
+    /// let all_normal = DerivationPath::from_str("m/0/1/2")?;
+    /// assert_eq!(all_normal.hardened_prefix_length(), 0);
+    /// ```
+    pub fn hardened_prefix_length(&self) -> usize {
+        self.path
+            .iter()
+            .take_while(|child| child.is_hardened())
+            .count()
+    }
+
+    /// Returns the number of normal (non-hardened) derivations at the end of the path.
+    ///
+    /// This is useful for BIP-44 style paths where the last levels
+    /// are normal (change/address_index) for public key derivation.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,ignore
+    /// use bip32::DerivationPath;
+    /// use std::str::FromStr;
+    ///
+    /// let bip44 = DerivationPath::from_str("m/44'/0'/0'/0/1")?;
+    /// assert_eq!(bip44.normal_suffix_length(), 2);
+    ///
+    /// let all_hardened = DerivationPath::from_str("m/0'/1'/2'")?;
+    /// assert_eq!(all_hardened.normal_suffix_length(), 0);
+    /// ```
+    pub fn normal_suffix_length(&self) -> usize {
+        self.path
+            .iter()
+            .rev()
+            .take_while(|child| child.is_normal())
+            .count()
+    }
+
+    /// Converts the path to a vector of child numbers.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,ignore
+    /// use bip32::{DerivationPath, ChildNumber};
+    /// use std::str::FromStr;
+    ///
+    /// let path = DerivationPath::from_str("m/0'/1/2'")?;
+    /// let vec = path.to_vec();
+    /// assert_eq!(vec.len(), 3);
+    /// ```
+    pub fn to_vec(&self) -> Vec<ChildNumber> {
+        self.path.clone()
+    }
 }
 
 /// Parse a derivation path from a string.
@@ -682,5 +932,228 @@ mod tests {
         let expected = "m/0'/1'";
         let path = DerivationPath::from_str(input).unwrap();
         assert_eq!(path.to_string(), expected);
+    }
+
+    // ========================================================================
+    // Validation Tests (Task 31 - TDD)
+    // ========================================================================
+
+    #[test]
+    fn test_is_valid_always_true_for_parsed() {
+        // If a path was successfully parsed, it should be valid
+        let paths = vec![
+            "m",
+            "m/0",
+            "m/0'",
+            "m/44'/0'/0'/0/0",
+        ];
+
+        for path_str in paths {
+            let path = DerivationPath::from_str(path_str).unwrap();
+            assert!(path.is_valid());
+        }
+    }
+
+    #[test]
+    fn test_contains_hardened_derivation() {
+        let normal_only = DerivationPath::from_str("m/0/1/2").unwrap();
+        assert!(!normal_only.contains_hardened());
+
+        let hardened_only = DerivationPath::from_str("m/0'/1'/2'").unwrap();
+        assert!(hardened_only.contains_hardened());
+
+        let mixed = DerivationPath::from_str("m/0'/1/2").unwrap();
+        assert!(mixed.contains_hardened());
+
+        let master = DerivationPath::master();
+        assert!(!master.contains_hardened());
+    }
+
+    #[test]
+    fn test_is_public_derivable() {
+        // All normal = can derive from public key
+        let normal_only = DerivationPath::from_str("m/0/1/2").unwrap();
+        assert!(normal_only.is_public_derivable());
+
+        // Contains hardened = cannot derive from public key
+        let with_hardened = DerivationPath::from_str("m/0'/1/2").unwrap();
+        assert!(!with_hardened.is_public_derivable());
+
+        let all_hardened = DerivationPath::from_str("m/0'/1'/2'").unwrap();
+        assert!(!all_hardened.is_public_derivable());
+
+        // Master key is technically public derivable (no derivation needed)
+        let master = DerivationPath::master();
+        assert!(master.is_public_derivable());
+    }
+
+    #[test]
+    fn test_is_hardened_at_index() {
+        let path = DerivationPath::from_str("m/0'/1/2'/3").unwrap();
+        
+        assert!(path.is_hardened_at(0));  // 0' is hardened
+        assert!(!path.is_hardened_at(1)); // 1 is normal
+        assert!(path.is_hardened_at(2));  // 2' is hardened
+        assert!(!path.is_hardened_at(3)); // 3 is normal
+    }
+
+    #[test]
+    fn test_is_hardened_at_out_of_bounds() {
+        let path = DerivationPath::from_str("m/0/1").unwrap();
+        assert!(!path.is_hardened_at(2)); // Out of bounds returns false
+        assert!(!path.is_hardened_at(10));
+    }
+
+    #[test]
+    fn test_child_number_at() {
+        let path = DerivationPath::from_str("m/44'/0'/0'/0/5").unwrap();
+        
+        assert_eq!(path.child_number_at(0), Some(&ChildNumber::Hardened(44)));
+        assert_eq!(path.child_number_at(1), Some(&ChildNumber::Hardened(0)));
+        assert_eq!(path.child_number_at(2), Some(&ChildNumber::Hardened(0)));
+        assert_eq!(path.child_number_at(3), Some(&ChildNumber::Normal(0)));
+        assert_eq!(path.child_number_at(4), Some(&ChildNumber::Normal(5)));
+        assert_eq!(path.child_number_at(5), None); // Out of bounds
+    }
+
+    #[test]
+    fn test_parent_path() {
+        let path = DerivationPath::from_str("m/44'/0'/0'/0/0").unwrap();
+        
+        // Get parent (remove last component)
+        let parent = path.parent().unwrap();
+        assert_eq!(parent.to_string(), "m/44'/0'/0'/0");
+        
+        // Get grandparent
+        let grandparent = parent.parent().unwrap();
+        assert_eq!(grandparent.to_string(), "m/44'/0'/0'");
+        
+        // Master has no parent
+        let master = DerivationPath::master();
+        assert!(master.parent().is_none());
+    }
+
+    #[test]
+    fn test_parent_chain() {
+        let path = DerivationPath::from_str("m/0/1/2").unwrap();
+        
+        let p1 = path.parent().unwrap();
+        assert_eq!(p1.to_string(), "m/0/1");
+        
+        let p2 = p1.parent().unwrap();
+        assert_eq!(p2.to_string(), "m/0");
+        
+        let p3 = p2.parent().unwrap();
+        assert_eq!(p3.to_string(), "m");
+        
+        let p4 = p3.parent();
+        assert!(p4.is_none());
+    }
+
+    #[test]
+    fn test_extend_path() {
+        let base = DerivationPath::from_str("m/44'/0'").unwrap();
+        
+        let extended = base.extend(&[
+            ChildNumber::Hardened(0),
+            ChildNumber::Normal(0),
+            ChildNumber::Normal(0),
+        ]);
+        
+        assert_eq!(extended.to_string(), "m/44'/0'/0'/0/0");
+        assert_eq!(extended.depth(), 5);
+    }
+
+    #[test]
+    fn test_extend_empty_path() {
+        let master = DerivationPath::master();
+        
+        let extended = master.extend(&[
+            ChildNumber::Hardened(44),
+            ChildNumber::Hardened(0),
+        ]);
+        
+        assert_eq!(extended.to_string(), "m/44'/0'");
+    }
+
+    #[test]
+    fn test_extend_with_empty_slice() {
+        let path = DerivationPath::from_str("m/0").unwrap();
+        let same = path.extend(&[]);
+        
+        assert_eq!(path, same);
+    }
+
+    #[test]
+    fn test_starts_with() {
+        let path = DerivationPath::from_str("m/44'/0'/0'/0/0").unwrap();
+        let prefix = DerivationPath::from_str("m/44'/0'").unwrap();
+        let not_prefix = DerivationPath::from_str("m/49'/0'").unwrap();
+        
+        assert!(path.starts_with(&prefix));
+        assert!(!path.starts_with(&not_prefix));
+        
+        // Every path starts with master
+        let master = DerivationPath::master();
+        assert!(path.starts_with(&master));
+        
+        // Path starts with itself
+        assert!(path.starts_with(&path));
+    }
+
+    #[test]
+    fn test_starts_with_longer_prefix() {
+        let short = DerivationPath::from_str("m/0").unwrap();
+        let long = DerivationPath::from_str("m/0/1/2").unwrap();
+        
+        // Short path doesn't start with longer path
+        assert!(!short.starts_with(&long));
+    }
+
+    #[test]
+    fn test_hardened_prefix_length() {
+        let all_normal = DerivationPath::from_str("m/0/1/2").unwrap();
+        assert_eq!(all_normal.hardened_prefix_length(), 0);
+        
+        let starts_hardened = DerivationPath::from_str("m/44'/0'/0'/0/1").unwrap();
+        assert_eq!(starts_hardened.hardened_prefix_length(), 3);
+        
+        let all_hardened = DerivationPath::from_str("m/0'/1'/2'").unwrap();
+        assert_eq!(all_hardened.hardened_prefix_length(), 3);
+        
+        let mixed = DerivationPath::from_str("m/0/1'/2").unwrap();
+        assert_eq!(mixed.hardened_prefix_length(), 0); // First is normal
+        
+        let master = DerivationPath::master();
+        assert_eq!(master.hardened_prefix_length(), 0);
+    }
+
+    #[test]
+    fn test_normal_suffix_length() {
+        let all_normal = DerivationPath::from_str("m/0/1/2").unwrap();
+        assert_eq!(all_normal.normal_suffix_length(), 3);
+        
+        let bip44 = DerivationPath::from_str("m/44'/0'/0'/0/1").unwrap();
+        assert_eq!(bip44.normal_suffix_length(), 2); // Last 2 are normal
+        
+        let all_hardened = DerivationPath::from_str("m/0'/1'/2'").unwrap();
+        assert_eq!(all_hardened.normal_suffix_length(), 0);
+        
+        let ends_hardened = DerivationPath::from_str("m/0/1/2'").unwrap();
+        assert_eq!(ends_hardened.normal_suffix_length(), 0);
+        
+        let master = DerivationPath::master();
+        assert_eq!(master.normal_suffix_length(), 0);
+    }
+
+    #[test]
+    fn test_to_vec() {
+        let path = DerivationPath::from_str("m/0'/1/2'").unwrap();
+        let vec = path.to_vec();
+        
+        assert_eq!(vec.len(), 3);
+        assert_eq!(vec[0], ChildNumber::Hardened(0));
+        assert_eq!(vec[1], ChildNumber::Normal(1));
+        assert_eq!(vec[2], ChildNumber::Hardened(2));
     }
 }
