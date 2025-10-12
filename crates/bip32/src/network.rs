@@ -242,6 +242,10 @@ impl Network {
 
     /// Attempts to identify the network from extended private key version bytes.
     ///
+    /// This method iterates through all known networks and checks if the provided
+    /// version matches any of their xprv version bytes. This avoids hardcoding
+    /// version bytes in multiple places.
+    ///
     /// # Arguments
     ///
     /// * `version` - The 4-byte version prefix from an extended private key
@@ -261,14 +265,23 @@ impl Network {
     /// assert_eq!(Network::from_xprv_version(0xFFFFFFFF), None);
     /// ```
     pub fn from_xprv_version(version: u32) -> Option<Network> {
-        match version {
-            0x0488ADE4 => Some(Network::BitcoinMainnet),
-            0x04358394 => Some(Network::BitcoinTestnet),
-            _ => None,
+        // Iterate through all network variants
+        const NETWORKS: [Network; 2] = [Network::BitcoinMainnet, Network::BitcoinTestnet];
+        
+        for network in NETWORKS {
+            if network.xprv_version() == version {
+                return Some(network);
+            }
         }
+        
+        None
     }
 
     /// Attempts to identify the network from extended public key version bytes.
+    ///
+    /// This method iterates through all known networks and checks if the provided
+    /// version matches any of their xpub version bytes. This avoids hardcoding
+    /// version bytes in multiple places.
     ///
     /// # Arguments
     ///
@@ -289,11 +302,16 @@ impl Network {
     /// assert_eq!(Network::from_xpub_version(0xFFFFFFFF), None);
     /// ```
     pub fn from_xpub_version(version: u32) -> Option<Network> {
-        match version {
-            0x0488B21E => Some(Network::BitcoinMainnet),
-            0x043587CF => Some(Network::BitcoinTestnet),
-            _ => None,
+        // Iterate through all network variants
+        const NETWORKS: [Network; 2] = [Network::BitcoinMainnet, Network::BitcoinTestnet];
+        
+        for network in NETWORKS {
+            if network.xpub_version() == version {
+                return Some(network);
+            }
         }
+        
+        None
     }
 }
 

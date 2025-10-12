@@ -545,6 +545,107 @@ impl std::fmt::Display for ExtendedPrivateKey {
     }
 }
 
+impl std::str::FromStr for ExtendedPrivateKey {
+    type Err = Error;
+
+    /// Deserializes an extended private key from Base58Check encoding (xprv/tprv format).
+    ///
+    /// # Arguments
+    ///
+    /// * `s` - A Base58Check encoded extended private key string (xprv... or tprv...)
+    ///
+    /// # Returns
+    ///
+    /// Returns the deserialized `ExtendedPrivateKey` or an error if:
+    /// - The input is not valid Base58
+    /// - The checksum is invalid
+    /// - The data length is incorrect (must be 82 bytes)
+    /// - The version bytes are not recognized (not xprv or tprv)
+    /// - The key data is invalid
+    ///
+    /// # Examples
+    ///
+    /// ```rust,ignore
+    /// use bip32::ExtendedPrivateKey;
+    /// use std::str::FromStr;
+    ///
+    /// let xprv = "xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi";
+    /// let key = ExtendedPrivateKey::from_str(xprv)?;
+    /// # Ok::<(), bip32::Error>(())
+    /// ```
+    fn from_str(s: &str) -> Result<Self> {
+        use sha2::{Digest, Sha256};
+        
+        // 1. Base58 decode
+        let data = bs58::decode(s)
+            .into_vec()
+            .map_err(|_| Error::InvalidExtendedKey {
+                reason: "Invalid Base58 encoding".to_string(),
+            })?;
+        
+        // 2. Check length (78 bytes + 4 bytes checksum)
+        if data.len() != 82 {
+            return Err(Error::InvalidExtendedKey {
+                reason: format!("Invalid length: expected 82 bytes, got {}", data.len()),
+            });
+        }
+        
+        // 3. Verify checksum
+        let payload = &data[0..78];
+        let checksum = &data[78..82];
+        
+        let hash1 = Sha256::digest(payload);
+        let hash2 = Sha256::digest(&hash1);
+        let expected_checksum = &hash2[0..4];
+        
+        if checksum != expected_checksum {
+            return Err(Error::InvalidExtendedKey {
+                reason: "Invalid checksum".to_string(),
+            });
+        }
+        
+        // 4. Parse version bytes to determine network
+        let version = u32::from_be_bytes([data[0], data[1], data[2], data[3]]);
+        let network = Network::from_xprv_version(version).ok_or_else(|| {
+            Error::InvalidExtendedKey {
+                reason: format!("Unknown xprv version bytes: 0x{:08X}", version),
+            }
+        })?;
+        
+        // 5. Parse depth
+        let depth = data[4];
+        
+        // 6. Parse parent fingerprint
+        let parent_fingerprint = [data[5], data[6], data[7], data[8]];
+        
+        // 7. Parse child number
+        let child_index = u32::from_be_bytes([data[9], data[10], data[11], data[12]]);
+        let child_number = ChildNumber::from_index(child_index);
+        
+        // 8. Parse chain code (32 bytes)
+        let chain_code_bytes = &data[13..45];
+        let chain_code = ChainCode::from_bytes(chain_code_bytes)?;
+        
+        // 9. Parse private key (skip 0x00 prefix, then 32 bytes)
+        if data[45] != 0x00 {
+            return Err(Error::InvalidExtendedKey {
+                reason: "Private key data must start with 0x00".to_string(),
+            });
+        }
+        let private_key_bytes = &data[46..78];
+        let private_key = PrivateKey::from_bytes(private_key_bytes)?;
+        
+        Ok(ExtendedPrivateKey {
+            network,
+            depth,
+            parent_fingerprint,
+            child_number,
+            chain_code,
+            private_key,
+        })
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1696,5 +1797,203 @@ mod tests {
         
         // Depth should be 3
         assert_eq!(decoded[4], 3);
+    }
+
+    // ========================================================================
+    // Task 45: Tests for Base58Check deserialization (xprv format)
+    // ========================================================================
+
+    #[test]
+    fn test_deserialize_master_key_mainnet() {
+        // BIP-32 Test Vector 1: Master key
+        let xprv = "xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi";
+        
+        let key = ExtendedPrivateKey::from_str(xprv).unwrap();
+        
+        // Verify it's a master key
+        assert_eq!(key.depth(), 0);
+        assert_eq!(key.parent_fingerprint(), &[0, 0, 0, 0]);
+        assert_eq!(key.child_number(), ChildNumber::Normal(0));
+        assert_eq!(key.network(), Network::BitcoinMainnet);
+    }
+
+    #[test]
+    fn test_deserialize_master_key_testnet() {
+        // Create a testnet key, serialize it, then deserialize
+        let seed = hex::decode("000102030405060708090a0b0c0d0e0f").unwrap();
+        let original = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinTestnet).unwrap();
+        let tprv = original.to_string();
+        
+        let key = ExtendedPrivateKey::from_str(&tprv).unwrap();
+        
+        assert_eq!(key.depth(), 0);
+        assert_eq!(key.network(), Network::BitcoinTestnet);
+        assert_eq!(key, original);
+    }
+
+    #[test]
+    fn test_deserialize_derived_key_hardened() {
+        // BIP-32 Test Vector 1: m/0'
+        let xprv = "xprv9uHRZZhk6KAJC1avXpDAp4MDc3sQKNxDiPvvkX8Br5ngLNv1TxvUxt4cV1rGL5hj6KCesnDYUhd7oWgT11eZG7XnxHrnYeSvkzY7d2bhkJ7";
+        
+        let key = ExtendedPrivateKey::from_str(xprv).unwrap();
+        
+        assert_eq!(key.depth(), 1);
+        assert_eq!(key.child_number(), ChildNumber::Hardened(0));
+        assert_eq!(key.network(), Network::BitcoinMainnet);
+    }
+
+    #[test]
+    fn test_deserialize_derived_key_normal() {
+        // BIP-32 Test Vector 1: m/0'/1
+        let xprv = "xprv9wTYmMFdV23N2TdNG573QoEsfRrWKQgWeibmLntzniatZvR9BmLnvSxqu53Kw1UmYPxLgboyZQaXwTCg8MSY3H2EU4pWcQDnRnrVA1xe8fs";
+        
+        let key = ExtendedPrivateKey::from_str(xprv).unwrap();
+        
+        assert_eq!(key.depth(), 2);
+        assert_eq!(key.child_number(), ChildNumber::Normal(1));
+        assert_eq!(key.network(), Network::BitcoinMainnet);
+    }
+
+    #[test]
+    fn test_deserialize_deep_derivation() {
+        // BIP-32 Test Vector 1: m/0'/1/2'/2
+        let xprv = "xprvA2JDeKCSNNZky6uBCviVfJSKyQ1mDYahRjijr5idH2WwLsEd4Hsb2Tyh8RfQMuPh7f7RtyzTtdrbdqqsunu5Mm3wDvUAKRHSC34sJ7in334";
+        
+        let key = ExtendedPrivateKey::from_str(xprv).unwrap();
+        
+        assert_eq!(key.depth(), 4);
+        assert_eq!(key.child_number(), ChildNumber::Normal(2));
+        assert_eq!(key.network(), Network::BitcoinMainnet);
+    }
+
+    #[test]
+    fn test_deserialize_round_trip() {
+        // Create a key, serialize it, deserialize it back - should be identical
+        let seed = [0x42; 32];
+        let original = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        
+        let serialized = original.to_string();
+        let deserialized = ExtendedPrivateKey::from_str(&serialized).unwrap();
+        
+        assert_eq!(deserialized, original);
+    }
+
+    #[test]
+    fn test_deserialize_round_trip_derived() {
+        let seed = [0x43; 32];
+        let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let original = master.derive_path(&DerivationPath::from_str("m/44'/0'/0'").unwrap()).unwrap();
+        
+        let serialized = original.to_string();
+        let deserialized = ExtendedPrivateKey::from_str(&serialized).unwrap();
+        
+        assert_eq!(deserialized, original);
+        assert_eq!(deserialized.depth(), 3);
+        assert_eq!(deserialized.network(), Network::BitcoinMainnet);
+    }
+
+    #[test]
+    fn test_deserialize_invalid_base58() {
+        // Invalid base58 characters
+        let invalid = "xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPH0OIl";
+        
+        let result = ExtendedPrivateKey::from_str(invalid);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_deserialize_invalid_checksum() {
+        // Valid base58 but wrong checksum (last char changed)
+        let invalid = "xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHj";
+        
+        let result = ExtendedPrivateKey::from_str(invalid);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_deserialize_too_short() {
+        // Too short to be valid
+        let invalid = "xprv9s21ZrQH";
+        
+        let result = ExtendedPrivateKey::from_str(invalid);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_deserialize_wrong_prefix() {
+        // Valid xpub (public key) instead of xprv
+        let xpub = "xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8";
+        
+        let result = ExtendedPrivateKey::from_str(xpub);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_deserialize_preserves_all_fields() {
+        let seed = [0x44; 32];
+        let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let original = master.derive_path(&DerivationPath::from_str("m/44'/0'/5'").unwrap()).unwrap();
+        
+        let serialized = original.to_string();
+        let deserialized = ExtendedPrivateKey::from_str(&serialized).unwrap();
+        
+        // Check all fields are preserved
+        assert_eq!(deserialized.network(), original.network());
+        assert_eq!(deserialized.depth(), original.depth());
+        assert_eq!(deserialized.parent_fingerprint(), original.parent_fingerprint());
+        assert_eq!(deserialized.child_number(), original.child_number());
+        assert_eq!(deserialized.chain_code().as_bytes(), original.chain_code().as_bytes());
+        assert_eq!(deserialized.private_key().to_bytes(), original.private_key().to_bytes());
+    }
+
+    #[test]
+    fn test_deserialize_bip32_test_vector_2_master() {
+        // BIP-32 Test Vector 2: Master key
+        let xprv = "xprv9s21ZrQH143K31xYSDQpPDxsXRTUcvj2iNHm5NUtrGiGG5e2DtALGdso3pGz6ssrdK4PFmM8NSpSBHNqPqm55Qn3LqFtT2emdEXVYsCzC2U";
+        
+        let key = ExtendedPrivateKey::from_str(xprv).unwrap();
+        
+        assert_eq!(key.depth(), 0);
+        assert_eq!(key.network(), Network::BitcoinMainnet);
+        
+        // Verify it matches what we get from seed
+        let seed = hex::decode(
+            "fffcf9f6f3f0edeae7e4e1dedbd8d5d2cfccc9c6c3c0bdbab7b4b1aeaba8a5a29f9c999693908d8a8784817e7b7875726f6c696663605d5a5754514e4b484542"
+        ).unwrap();
+        let from_seed = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        
+        assert_eq!(key.private_key().to_bytes(), from_seed.private_key().to_bytes());
+        assert_eq!(key.chain_code().as_bytes(), from_seed.chain_code().as_bytes());
+    }
+
+    #[test]
+    fn test_deserialize_bip32_test_vector_2_derived() {
+        // BIP-32 Test Vector 2: m/0
+        let xprv = "xprv9vHkqa6EV4sPZHYqZznhT2NPtPCjKuDKGY38FBWLvgaDx45zo9WQRUT3dKYnjwih2yJD9mkrocEZXo1ex8G81dwSM1fwqWpWkeS3v86pgKt";
+        
+        let key = ExtendedPrivateKey::from_str(xprv).unwrap();
+        
+        assert_eq!(key.depth(), 1);
+        assert_eq!(key.child_number(), ChildNumber::Normal(0));
+    }
+
+    #[test]
+    fn test_deserialize_different_networks() {
+        let seed = [0x45; 32];
+        
+        // Mainnet
+        let mainnet_orig = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let mainnet_str = mainnet_orig.to_string();
+        let mainnet_parsed = ExtendedPrivateKey::from_str(&mainnet_str).unwrap();
+        assert_eq!(mainnet_parsed.network(), Network::BitcoinMainnet);
+        assert!(mainnet_str.starts_with("xprv"));
+        
+        // Testnet
+        let testnet_orig = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinTestnet).unwrap();
+        let testnet_str = testnet_orig.to_string();
+        let testnet_parsed = ExtendedPrivateKey::from_str(&testnet_str).unwrap();
+        assert_eq!(testnet_parsed.network(), Network::BitcoinTestnet);
+        assert!(testnet_str.starts_with("tprv"));
     }
 }
