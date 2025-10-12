@@ -348,6 +348,58 @@ impl ExtendedPublicKey {
             public_key: child_public_key,
         })
     }
+
+    /// Derives an extended public key from a derivation path.
+    ///
+    /// This is a convenience method that iteratively calls `derive_child()` for each
+    /// component in the path. **Important**: Only normal (non-hardened) derivation is
+    /// supported. Any hardened child number in the path will return an error.
+    ///
+    /// # Arguments
+    ///
+    /// * `path` - A `DerivationPath` specifying the full derivation
+    ///
+    /// # Returns
+    ///
+    /// Returns the extended public key at the end of the derivation path.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`Error::HardenedDerivationFromPublicKey`] if any step in the path is hardened.
+    /// Returns an error if any step of the derivation fails (e.g., max depth exceeded).
+    ///
+    /// # Examples
+    ///
+    /// ```rust,ignore
+    /// use bip32::{ExtendedPrivateKey, DerivationPath, Network};
+    /// use std::str::FromStr;
+    ///
+    /// let seed = [0u8; 64];
+    /// let master_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet)?;
+    /// let master_pub = master_priv.to_extended_public_key();
+    ///
+    /// // Normal derivation works
+    /// let path = DerivationPath::from_str("m/0/1/2")?;
+    /// let child = master_pub.derive_path(&path)?;
+    /// assert_eq!(child.depth(), 3);
+    ///
+    /// // Hardened derivation fails
+    /// let hardened_path = DerivationPath::from_str("m/0'/1")?;
+    /// assert!(master_pub.derive_path(&hardened_path).is_err());
+    /// # Ok::<(), bip32::Error>(())
+    /// ```
+    pub fn derive_path(&self, path: &crate::DerivationPath) -> Result<Self> {
+        // Start with current key
+        let mut current = self.clone();
+        
+        // Derive each child in the path
+        // Will fail if any child number is hardened
+        for child_number in path.iter() {
+            current = current.derive_child(*child_number)?;
+        }
+        
+        Ok(current)
+    }
 }
 
 impl std::fmt::Debug for ExtendedPublicKey {
@@ -366,7 +418,8 @@ impl std::fmt::Debug for ExtendedPublicKey {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ExtendedPrivateKey;
+    use crate::{DerivationPath, ExtendedPrivateKey};
+    use std::str::FromStr;
 
     // Helper to create an ExtendedPublicKey for testing
     fn create_test_extended_public_key() -> ExtendedPublicKey {
@@ -586,10 +639,6 @@ mod tests {
         assert_ne!(ext_pub1, ext_pub2);
         assert_ne!(ext_pub1.chain_code(), ext_pub2.chain_code());
     }
-
-    // ========================================================================
-    // Task 37: Tests for derive_child() (normal derivation only)
-    // ========================================================================
 
     #[test]
     fn test_derive_child_normal_basic() {
@@ -828,5 +877,197 @@ mod tests {
         }
         
         assert_eq!(ext_pub.depth(), 10);
+    }
+
+    #[test]
+    fn test_derive_path_master_key() {
+        let seed = [0x01; 32];
+        let ext_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let ext_pub = ext_priv.to_extended_public_key();
+        
+        // Master path "m" should return same key
+        let path = DerivationPath::from_str("m").unwrap();
+        let result = ext_pub.derive_path(&path).unwrap();
+        
+        assert_eq!(result, ext_pub);
+    }
+
+    #[test]
+    fn test_derive_path_single_level() {
+        let seed = [0x02; 32];
+        let ext_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let ext_pub = ext_priv.to_extended_public_key();
+        
+        // Single level path "m/0"
+        let path = DerivationPath::from_str("m/0").unwrap();
+        let derived = ext_pub.derive_path(&path).unwrap();
+        
+        // Should be same as derive_child
+        let expected = ext_pub.derive_child(ChildNumber::Normal(0)).unwrap();
+        assert_eq!(derived, expected);
+    }
+
+    #[test]
+    fn test_derive_path_multi_level() {
+        let seed = [0x03; 32];
+        let ext_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let ext_pub = ext_priv.to_extended_public_key();
+        
+        // Multi-level path "m/0/1/2" (all normal)
+        let path = DerivationPath::from_str("m/0/1/2").unwrap();
+        let derived = ext_pub.derive_path(&path).unwrap();
+        
+        // Manual derivation
+        let child_0 = ext_pub.derive_child(ChildNumber::Normal(0)).unwrap();
+        let child_0_1 = child_0.derive_child(ChildNumber::Normal(1)).unwrap();
+        let child_0_1_2 = child_0_1.derive_child(ChildNumber::Normal(2)).unwrap();
+        
+        assert_eq!(derived, child_0_1_2);
+        assert_eq!(derived.depth(), 3);
+    }
+
+    #[test]
+    fn test_derive_path_hardened_rejected() {
+        let seed = [0x04; 32];
+        let ext_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let ext_pub = ext_priv.to_extended_public_key();
+        
+        // Hardened path should fail
+        let path = DerivationPath::from_str("m/0'").unwrap();
+        let result = ext_pub.derive_path(&path);
+        
+        assert!(result.is_err());
+        match result {
+            Err(Error::HardenedDerivationFromPublicKey { .. }) => {
+                // Expected
+            }
+            _ => panic!("Expected HardenedDerivationFromPublicKey error"),
+        }
+    }
+
+    #[test]
+    fn test_derive_path_mixed_hardened_rejected() {
+        let seed = [0x05; 32];
+        let ext_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let ext_pub = ext_priv.to_extended_public_key();
+        
+        // Mixed path with hardened should fail at first hardened step
+        let path = DerivationPath::from_str("m/0/1'/2").unwrap();
+        let result = ext_pub.derive_path(&path);
+        
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_derive_path_matches_private_derivation() {
+        // Critical: public path derivation should match private path derivation for normal paths
+        let seed = [0x06; 32];
+        let ext_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let ext_pub = ext_priv.to_extended_public_key();
+        
+        let path = DerivationPath::from_str("m/0/1/2").unwrap();
+        
+        // Derive from private key and convert to public
+        let priv_derived = ext_priv.derive_path(&path).unwrap();
+        let pub_from_priv = priv_derived.to_extended_public_key();
+        
+        // Derive from public key
+        let pub_derived = ext_pub.derive_path(&path).unwrap();
+        
+        // Should produce identical public keys
+        assert_eq!(pub_from_priv, pub_derived);
+        assert_eq!(pub_from_priv.public_key().to_bytes(), pub_derived.public_key().to_bytes());
+        assert_eq!(pub_from_priv.chain_code().as_bytes(), pub_derived.chain_code().as_bytes());
+    }
+
+    #[test]
+    fn test_derive_path_deterministic() {
+        let seed = [0x07; 32];
+        let ext_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let ext_pub = ext_priv.to_extended_public_key();
+        
+        let path = DerivationPath::from_str("m/0/1/2").unwrap();
+        
+        // Derive same path twice
+        let derived1 = ext_pub.derive_path(&path).unwrap();
+        let derived2 = ext_pub.derive_path(&path).unwrap();
+        
+        assert_eq!(derived1, derived2);
+    }
+
+    #[test]
+    fn test_derive_path_preserves_network() {
+        let seed = [0x08; 32];
+        
+        let mainnet_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let mainnet_pub = mainnet_priv.to_extended_public_key();
+        
+        let testnet_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinTestnet).unwrap();
+        let testnet_pub = testnet_priv.to_extended_public_key();
+        
+        let path = DerivationPath::from_str("m/0/1").unwrap();
+        
+        let mainnet_derived = mainnet_pub.derive_path(&path).unwrap();
+        let testnet_derived = testnet_pub.derive_path(&path).unwrap();
+        
+        assert_eq!(mainnet_derived.network(), Network::BitcoinMainnet);
+        assert_eq!(testnet_derived.network(), Network::BitcoinTestnet);
+    }
+
+    #[test]
+    fn test_derive_path_deep() {
+        let seed = [0x09; 32];
+        let ext_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let ext_pub = ext_priv.to_extended_public_key();
+        
+        // Create a deep path (10 levels, all normal)
+        let path = DerivationPath::from_str("m/0/1/2/3/4/5/6/7/8/9").unwrap();
+        let derived = ext_pub.derive_path(&path).unwrap();
+        
+        assert_eq!(derived.depth(), 10);
+        assert_eq!(derived.child_number(), ChildNumber::Normal(9));
+    }
+
+    #[test]
+    fn test_derive_path_bip32_test_vector() {
+        // BIP-32 Test Vector 1: m/0/1 from public key (all normal)
+        let seed = hex::decode("000102030405060708090a0b0c0d0e0f").unwrap();
+        let master_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        
+        // First derive m/0' with private key (hardened)
+        let child_0h_priv = master_priv.derive_child(ChildNumber::Hardened(0)).unwrap();
+        let child_0h_pub = child_0h_priv.to_extended_public_key();
+        
+        // Now derive m/0'/1 from public key (normal from hardened parent)
+        let path = DerivationPath::from_str("m/1").unwrap();
+        let derived_pub = child_0h_pub.derive_path(&path).unwrap();
+        
+        // Verify against private derivation
+        let expected_priv = child_0h_priv.derive_child(ChildNumber::Normal(1)).unwrap();
+        let expected_pub = expected_priv.to_extended_public_key();
+        
+        assert_eq!(derived_pub.public_key().to_bytes(), expected_pub.public_key().to_bytes());
+    }
+
+    #[test]
+    fn test_derive_path_watch_only_use_case() {
+        // Real-world scenario: Watch-only wallet deriving addresses
+        let seed = [0x0A; 32];
+        let master_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        
+        // Derive account level with private key (m/44'/0'/0')
+        let account_priv = master_priv.derive_path(&DerivationPath::from_str("m/44'/0'/0'").unwrap()).unwrap();
+        
+        // Get account xpub (share this for watch-only)
+        let account_pub = account_priv.to_extended_public_key();
+        
+        // Watch-only wallet can now derive addresses (m/0/0, m/0/1, etc.)
+        for i in 0..5 {
+            let addr_path = DerivationPath::from_str(&format!("m/0/{}", i)).unwrap();
+            let address_pub = account_pub.derive_path(&addr_path).unwrap();
+            
+            assert_eq!(address_pub.depth(), account_pub.depth() + 2);
+            assert_eq!(address_pub.child_number(), ChildNumber::Normal(i));
+        }
     }
 }
