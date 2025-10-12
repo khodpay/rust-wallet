@@ -53,7 +53,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("✅ Master extended private key created");
     println!("   Network: {:?}", master_priv.network());
     println!("   Depth: {} (master key)", master_priv.depth());
-    println!("   Child number: {}", master_priv.child_number());
+    println!("   Child number: {:?}", master_priv.child_number());
     println!("   Parent fingerprint: {:02x?}", master_priv.parent_fingerprint());
     println!("   Fingerprint: {:02x?}", master_priv.fingerprint());
 
