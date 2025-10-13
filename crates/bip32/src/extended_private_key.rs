@@ -46,8 +46,8 @@ use sha2::{Digest, Sha256, Sha512};
 ///
 /// # Examples
 ///
-/// ```rust,ignore
-/// use bip32::{ExtendedPrivateKey, Network};
+/// ```rust
+/// use bip32::{ExtendedPrivateKey, Network, ChildNumber};
 ///
 /// // Generate master key from seed
 /// let seed = [0u8; 64]; // In practice, use BIP-39 mnemonic
@@ -55,11 +55,12 @@ use sha2::{Digest, Sha256, Sha512};
 ///
 /// // Master key properties
 /// assert_eq!(master.depth(), 0);
-/// assert_eq!(master.child_number(), 0);
+/// assert_eq!(master.child_number(), ChildNumber::Normal(0));
 ///
 /// // Derive a child key
-/// let child = master.derive_child(0)?;
+/// let child = master.derive_child(ChildNumber::Normal(0))?;
 /// assert_eq!(child.depth(), 1);
+/// # Ok::<(), bip32::Error>(())
 /// ```
 #[derive(Clone, PartialEq, Eq)]
 pub struct ExtendedPrivateKey {
@@ -140,7 +141,7 @@ impl ExtendedPrivateKey {
     /// # Examples
     ///
     /// ```rust
-    /// use bip32::{ExtendedPrivateKey, Network};
+    /// use bip32::{ExtendedPrivateKey, Network, ChildNumber};
     ///
     /// // Generate from a 64-byte seed (typically from BIP-39)
     /// let seed = [0x01; 64];
@@ -148,7 +149,7 @@ impl ExtendedPrivateKey {
     ///
     /// // Master key properties
     /// assert_eq!(master.depth(), 0);
-    /// assert_eq!(master.child_number(), 0);
+    /// assert_eq!(master.child_number(), ChildNumber::Normal(0));
     /// assert_eq!(master.parent_fingerprint(), &[0, 0, 0, 0]);
     /// # Ok::<(), bip32::Error>(())
     /// ```
@@ -354,7 +355,7 @@ impl ExtendedPrivateKey {
     ///
     /// # Examples
     ///
-    /// ```rust,ignore
+    /// ```rust
     /// use bip32::{ExtendedPrivateKey, ChildNumber, Network};
     ///
     /// let seed = [0u8; 64];
@@ -448,7 +449,7 @@ impl ExtendedPrivateKey {
     ///
     /// # Examples
     ///
-    /// ```rust,ignore
+    /// ```rust
     /// use bip32::{ExtendedPrivateKey, DerivationPath, Network};
     /// use std::str::FromStr;
     ///
@@ -565,7 +566,7 @@ impl std::str::FromStr for ExtendedPrivateKey {
     ///
     /// # Examples
     ///
-    /// ```rust,ignore
+    /// ```rust
     /// use bip32::ExtendedPrivateKey;
     /// use std::str::FromStr;
     ///
