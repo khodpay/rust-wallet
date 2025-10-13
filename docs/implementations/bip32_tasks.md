@@ -60,8 +60,8 @@ Here's your comprehensive task list organized by phases and priority. Each task 
 - ✅ Task 46: Implement ExtendedPrivateKey::from_str() deserialization (TDD)
 - ✅ Task 47: Write tests for ExtendedPublicKey Base58Check serialization (xpub)
 - ✅ Task 48: Implement ExtendedPublicKey::to_string() serialization (TDD)
-- 🔲 Task 49: Write tests for ExtendedPublicKey Base58Check deserialization
-- 🔲 Task 50: Implement ExtendedPublicKey::from_str() deserialization (TDD)
+- ✅ Task 49: Write tests for ExtendedPublicKey Base58Check deserialization
+- ✅ Task 50: Implement ExtendedPublicKey::from_str() deserialization (TDD)
 - 🔲 Task 51: Write tests for different network version bytes (mainnet/testnet)
 - 🔲 Task 52: Implement network-specific serialization (TDD)
 
