@@ -106,14 +106,122 @@ pub fn generate_master_keypair(
     Ok((private_key, public_key))
 }
 
+/// Derives a keypair (both private and public) from an extended private key using a derivation path.
+///
+/// This is a convenience function that combines [`ExtendedPrivateKey::derive_path()`]
+/// and [`ExtendedPrivateKey::to_extended_public_key()`] into a single call.
+///
+/// # Use Case
+///
+/// Most wallet applications need to derive account keys or address keys and require
+/// both the private key (for signing) and public key (for address generation). This
+/// function returns both in one call.
+///
+/// # Parameters
+///
+/// * `master_key` - The master or parent extended private key
+/// * `path` - The BIP-32 derivation path (e.g., "m/44'/0'/0'")
+///
+/// # Returns
+///
+/// A tuple containing:
+/// - `ExtendedPrivateKey` - Derived private key for signing
+/// - `ExtendedPublicKey` - Derived public key for address generation
+///
+/// Both keys will have:
+/// - Appropriate depth based on the path
+/// - Matching fingerprints
+/// - Same chain code (required for further derivation)
+/// - Network inherited from master key
+///
+/// # Errors
+///
+/// Returns an error if:
+/// - Attempting hardened derivation from a public key (not applicable here)
+/// - Invalid key derivation (extremely rare, < 2^-127 probability per step)
+///
+/// # Examples
+///
+/// ## Basic Usage
+///
+/// ```rust
+/// use bip32::{ExtendedPrivateKey, Network, DerivationPath, utils::derive_keypair_from_path};
+/// use std::str::FromStr;
+///
+/// let seed = [0x01; 64];
+/// let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet)?;
+///
+/// // Derive BIP-44 account keys
+/// let path = DerivationPath::from_str("m/44'/0'/0'")?;
+/// let (account_priv, account_pub) = derive_keypair_from_path(&master, &path)?;
+///
+/// assert_eq!(account_priv.depth(), 3);
+/// assert_eq!(account_pub.depth(), 3);
+/// assert_eq!(account_priv.fingerprint(), account_pub.fingerprint());
+/// # Ok::<(), Box<dyn std::error::Error>>(())
+/// ```
+///
+/// ## Complete BIP-44 Wallet
+///
+/// ```rust
+/// use bip32::{ExtendedPrivateKey, Network, DerivationPath, utils::derive_keypair_from_path};
+/// use bip39::{Mnemonic, WordCount, Language};
+/// use std::str::FromStr;
+///
+/// // 1. Generate mnemonic and master key
+/// let mnemonic = Mnemonic::generate(WordCount::Twelve, Language::English)?;
+/// let master = ExtendedPrivateKey::from_mnemonic(&mnemonic, None, Network::BitcoinMainnet)?;
+///
+/// // 2. Derive account (m/44'/0'/0')
+/// let account_path = DerivationPath::from_str("m/44'/0'/0'")?;
+/// let (account_priv, account_pub) = derive_keypair_from_path(&master, &account_path)?;
+///
+/// // 3. Export xpub for watch-only wallet
+/// let xpub = account_pub.to_string();
+/// assert!(xpub.starts_with("xpub"));
+///
+/// // 4. Derive first receiving address (relative path from account)
+/// let receive_path = DerivationPath::from_str("m/0/0")?;
+/// let (addr_priv, addr_pub) = derive_keypair_from_path(&account_priv, &receive_path)?;
+/// assert_eq!(addr_priv.depth(), 5);  // m/44'/0'/0'/0/0
+/// # Ok::<(), Box<dyn std::error::Error>>(())
+/// ```
+///
+/// ## Equivalent to Manual Approach
+///
+/// ```rust
+/// use bip32::{ExtendedPrivateKey, Network, DerivationPath, utils::derive_keypair_from_path};
+/// use std::str::FromStr;
+///
+/// let seed = [0x02; 64];
+/// let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet)?;
+/// let path = DerivationPath::from_str("m/0'/1")?;
+///
+/// // Using utility function
+/// let (priv1, pub1) = derive_keypair_from_path(&master, &path)?;
+///
+/// // Equivalent manual approach
+/// let priv2 = master.derive_path(&path)?;
+/// let pub2 = priv2.to_extended_public_key();
+///
+/// // Results are identical
+/// assert_eq!(priv1.private_key().to_bytes(), priv2.private_key().to_bytes());
+/// assert_eq!(pub1.public_key().to_bytes(), pub2.public_key().to_bytes());
+/// # Ok::<(), Box<dyn std::error::Error>>(())
+/// ```
+pub fn derive_keypair_from_path(
+    master_key: &ExtendedPrivateKey,
+    path: &crate::DerivationPath,
+) -> Result<(ExtendedPrivateKey, ExtendedPublicKey)> {
+    let private_key = master_key.derive_path(path)?;
+    let public_key = private_key.to_extended_public_key();
+    Ok((private_key, public_key))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::ChildNumber;
-
-    // ========================================================================
-    // Task 59: Tests for generate_master_keypair()
-    // ========================================================================
 
     #[test]
     fn test_generate_master_keypair_basic() {
@@ -295,5 +403,277 @@ mod tests {
         let result = generate_master_keypair(&seed, Network::BitcoinMainnet);
 
         assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_derive_keypair_from_path_basic() {
+        use crate::DerivationPath;
+        use std::str::FromStr;
+
+        let seed = [0x10; 64];
+        let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let path = DerivationPath::from_str("m/0").unwrap();
+
+        let result = derive_keypair_from_path(&master, &path);
+        assert!(result.is_ok());
+
+        let (priv_key, pub_key) = result.unwrap();
+        assert_eq!(priv_key.depth(), 1);
+        assert_eq!(pub_key.depth(), 1);
+    }
+
+    #[test]
+    fn test_derive_keypair_from_path_fingerprints_match() {
+        use crate::DerivationPath;
+        use std::str::FromStr;
+
+        let seed = [0x11; 64];
+        let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let path = DerivationPath::from_str("m/0'/1").unwrap();
+
+        let (priv_key, pub_key) = derive_keypair_from_path(&master, &path).unwrap();
+
+        assert_eq!(priv_key.fingerprint(), pub_key.fingerprint());
+    }
+
+    #[test]
+    fn test_derive_keypair_from_path_chain_codes_match() {
+        use crate::DerivationPath;
+        use std::str::FromStr;
+
+        let seed = [0x12; 64];
+        let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let path = DerivationPath::from_str("m/44'/0'/0'").unwrap();
+
+        let (priv_key, pub_key) = derive_keypair_from_path(&master, &path).unwrap();
+
+        assert_eq!(priv_key.chain_code().as_bytes(), pub_key.chain_code().as_bytes());
+    }
+
+    #[test]
+    fn test_derive_keypair_from_path_bip44_account() {
+        use crate::DerivationPath;
+        use std::str::FromStr;
+
+        let seed = [0x13; 64];
+        let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        
+        // BIP-44 account path: m/44'/0'/0'
+        let path = DerivationPath::from_str("m/44'/0'/0'").unwrap();
+        let (account_priv, account_pub) = derive_keypair_from_path(&master, &path).unwrap();
+
+        assert_eq!(account_priv.depth(), 3);
+        assert_eq!(account_pub.depth(), 3);
+        assert_eq!(account_priv.network(), Network::BitcoinMainnet);
+        assert_eq!(account_pub.network(), Network::BitcoinMainnet);
+    }
+
+    #[test]
+    fn test_derive_keypair_from_path_bip44_address() {
+        use crate::DerivationPath;
+        use std::str::FromStr;
+
+        let seed = [0x14; 64];
+        let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        
+        // Full BIP-44 path: m/44'/0'/0'/0/0
+        let path = DerivationPath::from_str("m/44'/0'/0'/0/0").unwrap();
+        let (addr_priv, addr_pub) = derive_keypair_from_path(&master, &path).unwrap();
+
+        assert_eq!(addr_priv.depth(), 5);
+        assert_eq!(addr_pub.depth(), 5);
+    }
+
+    #[test]
+    fn test_derive_keypair_from_path_hardened() {
+        use crate::DerivationPath;
+        use std::str::FromStr;
+
+        let seed = [0x15; 64];
+        let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let path = DerivationPath::from_str("m/0'/1'/2'").unwrap();
+
+        let result = derive_keypair_from_path(&master, &path);
+        assert!(result.is_ok());
+
+        let (priv_key, pub_key) = result.unwrap();
+        assert_eq!(priv_key.depth(), 3);
+        assert_eq!(pub_key.depth(), 3);
+    }
+
+    #[test]
+    fn test_derive_keypair_from_path_normal() {
+        use crate::DerivationPath;
+        use std::str::FromStr;
+
+        let seed = [0x16; 64];
+        let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let path = DerivationPath::from_str("m/0/1/2").unwrap();
+
+        let result = derive_keypair_from_path(&master, &path);
+        assert!(result.is_ok());
+
+        let (priv_key, pub_key) = result.unwrap();
+        assert_eq!(priv_key.depth(), 3);
+        assert_eq!(pub_key.depth(), 3);
+    }
+
+    #[test]
+    fn test_derive_keypair_from_path_mixed() {
+        use crate::DerivationPath;
+        use std::str::FromStr;
+
+        let seed = [0x17; 64];
+        let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        
+        // Mix of hardened and normal
+        let path = DerivationPath::from_str("m/44'/0'/0'/0/5").unwrap();
+        let (priv_key, pub_key) = derive_keypair_from_path(&master, &path).unwrap();
+
+        assert_eq!(priv_key.depth(), 5);
+        assert_eq!(pub_key.depth(), 5);
+        assert_eq!(priv_key.child_number(), ChildNumber::Normal(5));
+    }
+
+    #[test]
+    fn test_derive_keypair_from_path_equivalent_to_manual() {
+        use crate::DerivationPath;
+        use std::str::FromStr;
+
+        let seed = [0x18; 64];
+        let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let path = DerivationPath::from_str("m/0'/1/2'").unwrap();
+
+        // Using utility function
+        let (util_priv, util_pub) = derive_keypair_from_path(&master, &path).unwrap();
+
+        // Manual approach
+        let manual_priv = master.derive_path(&path).unwrap();
+        let manual_pub = manual_priv.to_extended_public_key();
+
+        // Should be identical
+        assert_eq!(util_priv.private_key().to_bytes(), manual_priv.private_key().to_bytes());
+        assert_eq!(util_pub.public_key().to_bytes(), manual_pub.public_key().to_bytes());
+    }
+
+    #[test]
+    fn test_derive_keypair_from_path_deterministic() {
+        use crate::DerivationPath;
+        use std::str::FromStr;
+
+        let seed = [0x19; 64];
+        let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let path = DerivationPath::from_str("m/44'/0'/0'").unwrap();
+
+        let (priv1, pub1) = derive_keypair_from_path(&master, &path).unwrap();
+        let (priv2, pub2) = derive_keypair_from_path(&master, &path).unwrap();
+
+        // Same path should produce same keys
+        assert_eq!(priv1.private_key().to_bytes(), priv2.private_key().to_bytes());
+        assert_eq!(pub1.public_key().to_bytes(), pub2.public_key().to_bytes());
+    }
+
+    #[test]
+    fn test_derive_keypair_from_path_network_inherited() {
+        use crate::DerivationPath;
+        use std::str::FromStr;
+
+        let seed = [0x1A; 64];
+        
+        // Mainnet
+        let mainnet_master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let path = DerivationPath::from_str("m/0").unwrap();
+        let (mainnet_priv, mainnet_pub) = derive_keypair_from_path(&mainnet_master, &path).unwrap();
+        
+        assert_eq!(mainnet_priv.network(), Network::BitcoinMainnet);
+        assert_eq!(mainnet_pub.network(), Network::BitcoinMainnet);
+
+        // Testnet
+        let testnet_master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinTestnet).unwrap();
+        let (testnet_priv, testnet_pub) = derive_keypair_from_path(&testnet_master, &path).unwrap();
+        
+        assert_eq!(testnet_priv.network(), Network::BitcoinTestnet);
+        assert_eq!(testnet_pub.network(), Network::BitcoinTestnet);
+    }
+
+    #[test]
+    fn test_derive_keypair_from_path_further_derivation() {
+        use crate::DerivationPath;
+        use std::str::FromStr;
+
+        let seed = [0x1B; 64];
+        let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        
+        // Derive account
+        let account_path = DerivationPath::from_str("m/44'/0'/0'").unwrap();
+        let (account_priv, _) = derive_keypair_from_path(&master, &account_path).unwrap();
+        
+        // Further derive from account
+        let receive_path = DerivationPath::from_str("m/0/0").unwrap();
+        let (addr_priv, addr_pub) = derive_keypair_from_path(&account_priv, &receive_path).unwrap();
+        
+        assert_eq!(addr_priv.depth(), 5);
+        assert_eq!(addr_pub.depth(), 5);
+    }
+
+    #[test]
+    fn test_derive_keypair_from_path_serialization() {
+        use crate::DerivationPath;
+        use std::str::FromStr;
+
+        let seed = [0x1C; 64];
+        let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let path = DerivationPath::from_str("m/44'/0'/0'").unwrap();
+        
+        let (priv_key, pub_key) = derive_keypair_from_path(&master, &path).unwrap();
+
+        // Should be able to serialize
+        let xprv = priv_key.to_string();
+        let xpub = pub_key.to_string();
+
+        assert!(xprv.starts_with("xprv"));
+        assert!(xpub.starts_with("xpub"));
+    }
+
+    #[test]
+    fn test_derive_keypair_from_path_with_mnemonic() {
+        use bip39::{Language, Mnemonic};
+        use crate::DerivationPath;
+        use std::str::FromStr;
+
+        let mnemonic = Mnemonic::from_phrase(
+            "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+            Language::English
+        ).unwrap();
+        
+        let master = ExtendedPrivateKey::from_mnemonic(&mnemonic, None, Network::BitcoinMainnet).unwrap();
+        let path = DerivationPath::from_str("m/44'/0'/0'").unwrap();
+        
+        let (priv_key, pub_key) = derive_keypair_from_path(&master, &path).unwrap();
+
+        assert_eq!(priv_key.depth(), 3);
+        assert_eq!(pub_key.depth(), 3);
+        assert_eq!(priv_key.fingerprint(), pub_key.fingerprint());
+    }
+
+    #[test]
+    fn test_derive_keypair_from_path_watch_only_workflow() {
+        use crate::DerivationPath;
+        use std::str::FromStr;
+
+        let seed = [0x1D; 64];
+        let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        
+        // Derive account
+        let account_path = DerivationPath::from_str("m/44'/0'/0'").unwrap();
+        let (_account_priv, account_pub) = derive_keypair_from_path(&master, &account_path).unwrap();
+        
+        // Export xpub for watch-only wallet
+        let xpub = account_pub.to_string();
+        assert!(xpub.starts_with("xpub"));
+        
+        // Verify can derive addresses from public key
+        let receive_child = account_pub.derive_child(ChildNumber::Normal(0)).unwrap();
+        assert_eq!(receive_child.depth(), 4);
     }
 }

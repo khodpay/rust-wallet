@@ -76,8 +76,8 @@ Here's your comprehensive task list organized by phases and priority. Each task 
 ## 🎨 PHASE 8: Utility Functions & Convenience Methods (LOW Priority)
 - ✅ Task 59: Write tests for keypair generation helper
 - ✅ Task 60: Implement generate_master_keypair() utility (TDD)
-- 🔲 Task 61: Write tests for derive_keypair_from_path() helper
-- 🔲 Task 62: Implement derive_keypair_from_path() utility (TDD)
+- ✅ Task 61: Write tests for derive_keypair_from_path() helper
+- ✅ Task 62: Implement derive_keypair_from_path() utility (TDD)
 
 ## 🛡️ PHASE 9: Security & Edge Cases (LOW → MEDIUM Priority)
 - 🔲 Task 63: Write tests for invalid curve points detection
