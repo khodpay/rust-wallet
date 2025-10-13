@@ -65,32 +65,69 @@ impl PrivateKey {
 
     /// Creates a `PrivateKey` from a byte slice.
     ///
+    /// Performs comprehensive validation to ensure the bytes represent a valid
+    /// secp256k1 private key scalar within the allowed range.
+    ///
     /// # Arguments
     ///
     /// * `bytes` - A byte slice that must be exactly 32 bytes and represent a valid
     ///   secp256k1 private key (non-zero and less than the curve order)
     ///
+    /// # Validation
+    ///
+    /// This function performs multiple validation checks:
+    ///
+    /// 1. **Length validation**: Must be exactly 32 bytes
+    /// 2. **Range validation**: The key value must satisfy: **1 ≤ key < n**
+    ///    - Where **n** is the secp256k1 curve order:
+    ///    - **n = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141**
+    /// 3. **Zero check**: The key must not be zero (invalid for ECDSA)
+    /// 4. **Overflow check**: The key must be strictly less than the curve order n
+    ///
+    /// # Valid Range
+    ///
+    /// - **Minimum valid**: `0x0000...0001` (1)
+    /// - **Maximum valid**: `0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364140` (n - 1)
+    ///
     /// # Errors
     ///
     /// Returns [`Error::InvalidPrivateKey`] if:
     /// - The slice is not exactly 32 bytes
-    /// - The bytes represent an invalid secp256k1 key (zero or >= curve order)
+    /// - The key value is zero (0)
+    /// - The key value equals or exceeds the curve order (key >= n)
+    ///
+    /// # Security
+    ///
+    /// Range validation is critical for security. Keys outside the valid range could:
+    /// - Lead to predictable signatures (zero key)
+    /// - Cause undefined behavior in ECDSA operations
+    /// - Enable cryptographic attacks
+    /// - Violate the discrete logarithm problem security assumptions
     ///
     /// # Examples
     ///
     /// ```rust
     /// use bip32::PrivateKey;
     ///
-    /// // Valid key
+    /// // Valid key in range [1, n-1]
     /// let bytes = [1u8; 32];
     /// let private_key = PrivateKey::from_bytes(&bytes)?;
     ///
-    /// // Invalid length
-    /// let invalid = [0u8; 16];
-    /// assert!(PrivateKey::from_bytes(&invalid).is_err());
+    /// // Invalid: wrong length
+    /// let invalid_length = [0u8; 16];
+    /// assert!(PrivateKey::from_bytes(&invalid_length).is_err());
+    ///
+    /// // Invalid: zero key
+    /// let zero_key = [0u8; 32];
+    /// assert!(PrivateKey::from_bytes(&zero_key).is_err());
+    ///
+    /// // Invalid: exceeds curve order
+    /// let overflow = [0xFFu8; 32];
+    /// assert!(PrivateKey::from_bytes(&overflow).is_err());
     /// # Ok::<(), bip32::Error>(())
     /// ```
     pub fn from_bytes(bytes: &[u8]) -> Result<Self> {
+        // Validation 1: Length check
         if bytes.len() != Self::LENGTH {
             return Err(Error::InvalidPrivateKey {
                 reason: format!(
@@ -101,6 +138,11 @@ impl PrivateKey {
             });
         }
 
+        // Validation 2-4: Range validation (zero check + overflow check)
+        // The secp256k1 library validates that:
+        // - key != 0 (zero check)
+        // - key < n (overflow check, where n is the curve order)
+        // This ensures the key is in the valid range [1, n-1]
         let secret_key = SecretKey::from_slice(bytes).map_err(|e| Error::InvalidPrivateKey {
             reason: format!("Invalid secp256k1 private key: {}", e),
         })?;
@@ -110,9 +152,19 @@ impl PrivateKey {
 
     /// Creates a `PrivateKey` from a 32-byte array.
     ///
+    /// This is a convenience wrapper around [`from_bytes`](Self::from_bytes) that
+    /// accepts a fixed-size array instead of a slice. The same validation rules apply.
+    ///
     /// # Arguments
     ///
     /// * `bytes` - A 32-byte array representing a valid secp256k1 private key
+    ///
+    /// # Validation
+    ///
+    /// Performs the same validation as [`from_bytes`](Self::from_bytes):
+    /// - Key must not be zero
+    /// - Key must be less than curve order n
+    /// - Valid range: **1 ≤ key < n**
     ///
     /// # Errors
     ///
@@ -124,8 +176,13 @@ impl PrivateKey {
     /// ```rust
     /// use bip32::PrivateKey;
     ///
+    /// // Valid key
     /// let bytes = [1u8; 32];
     /// let private_key = PrivateKey::from_array(bytes)?;
+    ///
+    /// // Invalid: zero key
+    /// let zero = [0u8; 32];
+    /// assert!(PrivateKey::from_array(zero).is_err());
     /// # Ok::<(), bip32::Error>(())
     /// ```
     pub fn from_array(bytes: [u8; 32]) -> Result<Self> {
@@ -532,5 +589,244 @@ mod tests {
         let pub2 = key2.public_key();
         
         assert_ne!(pub1.serialize(), pub2.serialize());
+    }
+
+    // secp256k1 curve order n:
+    // n = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
+
+    #[test]
+    fn test_key_overflow_exactly_curve_order() {
+        // Key value exactly equal to curve order n (invalid)
+        let n = [
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE,
+            0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B,
+            0xBF, 0xD2, 0x5E, 0x8C, 0xD0, 0x36, 0x41, 0x41,
+        ];
+        
+        let result = PrivateKey::from_bytes(&n);
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), Error::InvalidPrivateKey { .. }));
+    }
+
+    #[test]
+    fn test_key_overflow_one_more_than_curve_order() {
+        // Key value n + 1 (invalid - exceeds curve order)
+        let n_plus_1 = [
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE,
+            0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B,
+            0xBF, 0xD2, 0x5E, 0x8C, 0xD0, 0x36, 0x41, 0x42,
+        ];
+        
+        let result = PrivateKey::from_bytes(&n_plus_1);
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), Error::InvalidPrivateKey { .. }));
+    }
+
+    #[test]
+    fn test_key_overflow_max_u256() {
+        // Maximum possible 256-bit value (invalid - far exceeds curve order)
+        let max_u256 = [0xFF; 32];
+        
+        let result = PrivateKey::from_bytes(&max_u256);
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), Error::InvalidPrivateKey { .. }));
+    }
+
+    #[test]
+    fn test_key_overflow_one_less_than_curve_order() {
+        // Key value n - 1 (valid - just below curve order)
+        let n_minus_1 = [
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE,
+            0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B,
+            0xBF, 0xD2, 0x5E, 0x8C, 0xD0, 0x36, 0x41, 0x40,
+        ];
+        
+        let result = PrivateKey::from_bytes(&n_minus_1);
+        assert!(result.is_ok(), "n-1 should be valid");
+    }
+
+    #[test]
+    fn test_key_overflow_max_valid_key() {
+        // Maximum valid private key (n - 1)
+        let n_minus_1 = [
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE,
+            0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B,
+            0xBF, 0xD2, 0x5E, 0x8C, 0xD0, 0x36, 0x41, 0x40,
+        ];
+        
+        let private_key = PrivateKey::from_bytes(&n_minus_1).unwrap();
+        
+        // Should be able to derive public key
+        let public_key = private_key.public_key();
+        assert_eq!(public_key.serialize().len(), 33);
+        
+        // Should be able to convert back to bytes
+        let bytes = private_key.to_bytes();
+        assert_eq!(bytes, n_minus_1);
+    }
+
+    #[test]
+    fn test_key_overflow_min_valid_key() {
+        // Minimum valid private key (1)
+        let mut one = [0u8; 32];
+        one[31] = 0x01;
+        
+        let private_key = PrivateKey::from_bytes(&one).unwrap();
+        
+        // Should be able to derive public key
+        let public_key = private_key.public_key();
+        assert_eq!(public_key.serialize().len(), 33);
+    }
+
+    #[test]
+    fn test_key_overflow_boundary_values() {
+        // Test various boundary values near curve order
+        
+        // Valid: n - 2
+        let n_minus_2 = [
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE,
+            0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B,
+            0xBF, 0xD2, 0x5E, 0x8C, 0xD0, 0x36, 0x41, 0x3F,
+        ];
+        assert!(PrivateKey::from_bytes(&n_minus_2).is_ok());
+        
+        // Valid: n - 100
+        let n_minus_100 = [
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE,
+            0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B,
+            0xBF, 0xD2, 0x5E, 0x8C, 0xD0, 0x36, 0x40, 0xDD,
+        ];
+        assert!(PrivateKey::from_bytes(&n_minus_100).is_ok());
+    }
+
+    #[test]
+    fn test_key_overflow_high_values() {
+        // Test various high values that exceed curve order
+        
+        // All 0xFF (definitely > n)
+        let all_ff = [0xFF; 32];
+        assert!(PrivateKey::from_bytes(&all_ff).is_err());
+        
+        // High value in first byte
+        let high_first = [
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
+        ];
+        assert!(PrivateKey::from_bytes(&high_first).is_err());
+    }
+
+    #[test]
+    fn test_key_overflow_from_array() {
+        // Test overflow detection with from_array method
+        let n = [
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE,
+            0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B,
+            0xBF, 0xD2, 0x5E, 0x8C, 0xD0, 0x36, 0x41, 0x41,
+        ];
+        
+        let result = PrivateKey::from_array(n);
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), Error::InvalidPrivateKey { .. }));
+    }
+
+    #[test]
+    fn test_key_overflow_error_message() {
+        // Verify error message is informative
+        let n = [
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE,
+            0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B,
+            0xBF, 0xD2, 0x5E, 0x8C, 0xD0, 0x36, 0x41, 0x41,
+        ];
+        
+        let result = PrivateKey::from_bytes(&n);
+        assert!(result.is_err());
+        
+        let error_msg = result.unwrap_err().to_string();
+        assert!(error_msg.contains("Invalid private key") || error_msg.contains("secp256k1"));
+    }
+
+    #[test]
+    fn test_key_overflow_try_from_slice() {
+        // Test overflow detection with TryFrom trait
+        let n: &[u8] = &[
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE,
+            0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B,
+            0xBF, 0xD2, 0x5E, 0x8C, 0xD0, 0x36, 0x41, 0x41,
+        ];
+        
+        let result = PrivateKey::try_from(n);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_key_overflow_try_from_array() {
+        // Test overflow detection with TryFrom trait for arrays
+        let n = [
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE,
+            0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B,
+            0xBF, 0xD2, 0x5E, 0x8C, 0xD0, 0x36, 0x41, 0x41,
+        ];
+        
+        let result = PrivateKey::try_from(n);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_key_overflow_valid_range() {
+        // Test that valid keys across the range work
+        
+        // Small value
+        let small = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x42];
+        assert!(PrivateKey::from_bytes(&small).is_ok());
+        
+        // Medium value
+        let medium = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                      0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0,
+                      0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0];
+        assert!(PrivateKey::from_bytes(&medium).is_ok());
+        
+        // Large but valid value (well below n)
+        let large = [0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF];
+        assert!(PrivateKey::from_bytes(&large).is_ok());
+    }
+
+    #[test]
+    fn test_key_overflow_derived_keys_valid() {
+        // Ensure that even max valid keys can be used for derivation
+        let n_minus_1 = [
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE,
+            0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B,
+            0xBF, 0xD2, 0x5E, 0x8C, 0xD0, 0x36, 0x41, 0x40,
+        ];
+        
+        let private_key = PrivateKey::from_bytes(&n_minus_1).unwrap();
+        
+        // Should be able to get public key
+        let public_key = private_key.public_key();
+        assert!(public_key.serialize().len() > 0);
+        
+        // Should be able to get secret key reference
+        let secret_key = private_key.secret_key();
+        assert_eq!(secret_key.secret_bytes(), n_minus_1);
     }
 }
