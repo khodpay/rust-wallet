@@ -62,12 +62,12 @@ Here's your comprehensive task list organized by phases and priority. Each task 
 - ✅ Task 48: Implement ExtendedPublicKey::to_string() serialization (TDD)
 - ✅ Task 49: Write tests for ExtendedPublicKey Base58Check deserialization
 - ✅ Task 50: Implement ExtendedPublicKey::from_str() deserialization (TDD)
-- 🔲 Task 51: Write tests for different network version bytes (mainnet/testnet)
-- 🔲 Task 52: Implement network-specific serialization (TDD)
+- ✅ Task 51: Write tests for different network version bytes (mainnet/testnet) [Completed in Tasks 43-50]
+- ✅ Task 52: Implement network-specific serialization (TDD) [Completed in Tasks 43-50]
 
 ## 🔗 PHASE 7: BIP39 Integration (MEDIUM Priority)
-- 🔲 Task 53: Write tests for master key generation from BIP39 mnemonic
-- 🔲 Task 54: Implement ExtendedPrivateKey::from_mnemonic() (TDD)
+- ✅ Task 53: Write tests for master key generation from BIP39 mnemonic
+- ✅ Task 54: Implement ExtendedPrivateKey::from_mnemonic() (TDD)
 - 🔲 Task 55: Write tests for complete BIP39 → BIP32 derivation workflow
 - 🔲 Task 56: Create integration test for mnemonic → seed → master key → derived keys
 - 🔲 Task 57: Write tests for passphrase handling in BIP39 → BIP32 flow

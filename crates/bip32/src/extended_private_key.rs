@@ -187,6 +187,126 @@ impl ExtendedPrivateKey {
         })
     }
 
+    /// Creates an extended private key from a BIP39 mnemonic phrase.
+    ///
+    /// This method provides convenient integration with BIP39 mnemonic phrases,
+    /// converting the mnemonic to a seed and then generating the master extended
+    /// private key. This is the standard way to create hierarchical deterministic
+    /// wallets from recovery phrases.
+    ///
+    /// # Process
+    ///
+    /// 1. Convert mnemonic to 512-bit seed using PBKDF2-HMAC-SHA512 (BIP39)
+    /// 2. Generate master extended private key from seed (BIP32)
+    ///
+    /// # Parameters
+    ///
+    /// * `mnemonic` - A validated BIP39 mnemonic phrase
+    /// * `passphrase` - Optional passphrase for additional security (BIP39 "25th word")
+    ///   - `None` or `Some("")` = no passphrase (standard)
+    ///   - `Some("password")` = additional security layer
+    /// * `network` - The cryptocurrency network (Bitcoin mainnet, testnet, etc.)
+    ///
+    /// # Passphrase Security
+    ///
+    /// The passphrase acts as a "25th word" that:
+    /// - Provides plausible deniability (different passphrases = different wallets)
+    /// - Adds protection if mnemonic is compromised
+    /// - Must be remembered separately (not written with mnemonic)
+    /// - **Warning**: Lost passphrase = lost access to funds
+    ///
+    /// # Returns
+    ///
+    /// A master extended private key with:
+    /// - `depth` = 0
+    /// - `parent_fingerprint` = [0, 0, 0, 0]
+    /// - `child_number` = 0
+    /// - Derived private key and chain code from the seed
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    /// - Seed generation fails (BIP39 internal error)
+    /// - The derived private key is invalid (extremely rare, < 2^-127 probability)
+    ///
+    /// # Examples
+    ///
+    /// ## Basic Usage (No Passphrase)
+    ///
+    /// ```rust
+    /// use bip32::{ExtendedPrivateKey, Network};
+    /// use bip39::{Mnemonic, Language};
+    ///
+    /// // User's recovery phrase
+    /// let phrase = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
+    /// let mnemonic = Mnemonic::from_phrase(phrase, Language::English)?;
+    ///
+    /// // Generate master key (no passphrase)
+    /// let master = ExtendedPrivateKey::from_mnemonic(&mnemonic, None, Network::BitcoinMainnet)?;
+    ///
+    /// assert_eq!(master.depth(), 0);
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
+    /// ```
+    ///
+    /// ## With Passphrase (Enhanced Security)
+    ///
+    /// ```rust
+    /// use bip32::{ExtendedPrivateKey, Network};
+    /// use bip39::{Mnemonic, Language};
+    ///
+    /// let phrase = "legal winner thank year wave sausage worth useful legal winner thank yellow";
+    /// let mnemonic = Mnemonic::from_phrase(phrase, Language::English)?;
+    ///
+    /// // Same mnemonic, different passphrases = different wallets
+    /// let wallet1 = ExtendedPrivateKey::from_mnemonic(&mnemonic, None, Network::BitcoinMainnet)?;
+    /// let wallet2 = ExtendedPrivateKey::from_mnemonic(&mnemonic, Some("secret"), Network::BitcoinMainnet)?;
+    ///
+    /// assert_ne!(wallet1.private_key().to_bytes(), wallet2.private_key().to_bytes());
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
+    /// ```
+    ///
+    /// ## Complete Wallet Creation Workflow
+    ///
+    /// ```rust
+    /// use bip32::{ExtendedPrivateKey, Network, DerivationPath};
+    /// use bip39::{Mnemonic, Language};
+    /// use std::str::FromStr;
+    ///
+    /// // 1. Parse user's recovery phrase
+    /// let phrase = "letter advice cage absurd amount doctor acoustic avoid letter advice cage above";
+    /// let mnemonic = Mnemonic::from_phrase(phrase, Language::English)?;
+    ///
+    /// // 2. Generate master key with optional passphrase
+    /// let master = ExtendedPrivateKey::from_mnemonic(
+    ///     &mnemonic,
+    ///     Some("my secure passphrase"),
+    ///     Network::BitcoinMainnet
+    /// )?;
+    ///
+    /// // 3. Derive BIP-44 account key (m/44'/0'/0')
+    /// let account_path = DerivationPath::from_str("m/44'/0'/0'")?;
+    /// let account = master.derive_path(&account_path)?;
+    ///
+    /// // 4. Derive first receiving address (m/44'/0'/0'/0/0)
+    /// let receive_path = DerivationPath::from_str("m/0/0")?;
+    /// let address_key = account.derive_path(&receive_path)?;
+    ///
+    /// assert_eq!(address_key.depth(), 5);
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
+    /// ```
+    pub fn from_mnemonic(
+        mnemonic: &bip39::Mnemonic,
+        passphrase: Option<&str>,
+        network: Network,
+    ) -> Result<Self> {
+        // Convert mnemonic to seed using BIP39
+        // passphrase.unwrap_or("") follows BIP39 spec: empty string if no passphrase
+        let seed = mnemonic.to_seed(passphrase.unwrap_or(""))?;
+        
+        // Use existing from_seed implementation
+        Self::from_seed(&seed, network)
+    }
+
     /// Returns the network this key belongs to.
     pub fn network(&self) -> Network {
         self.network
@@ -1996,5 +2116,242 @@ mod tests {
         let testnet_parsed = ExtendedPrivateKey::from_str(&testnet_str).unwrap();
         assert_eq!(testnet_parsed.network(), Network::BitcoinTestnet);
         assert!(testnet_str.starts_with("tprv"));
+    }
+
+    // ========================================================================
+    // Task 53: Tests for BIP39 mnemonic integration
+    // ========================================================================
+
+    #[test]
+    fn test_from_mnemonic_basic() {
+        // Standard BIP39 test vector
+        let mnemonic = bip39::Mnemonic::from_phrase(
+            "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+            bip39::Language::English
+        ).unwrap();
+        
+        let master = ExtendedPrivateKey::from_mnemonic(&mnemonic, None, Network::BitcoinMainnet).unwrap();
+        
+        assert_eq!(master.depth(), 0);
+        assert_eq!(master.child_number(), ChildNumber::Normal(0));
+        assert_eq!(master.parent_fingerprint(), &[0, 0, 0, 0]);
+        assert_eq!(master.network(), Network::BitcoinMainnet);
+    }
+
+    #[test]
+    fn test_from_mnemonic_with_passphrase() {
+        let mnemonic = bip39::Mnemonic::from_phrase(
+            "legal winner thank year wave sausage worth useful legal winner thank yellow",
+            bip39::Language::English
+        ).unwrap();
+        
+        let master_no_pass = ExtendedPrivateKey::from_mnemonic(&mnemonic, None, Network::BitcoinMainnet).unwrap();
+        let master_with_pass = ExtendedPrivateKey::from_mnemonic(&mnemonic, Some("TREZOR"), Network::BitcoinMainnet).unwrap();
+        
+        // Different passphrases should produce different keys
+        assert_ne!(master_no_pass.private_key().to_bytes(), master_with_pass.private_key().to_bytes());
+        assert_ne!(master_no_pass.chain_code().as_bytes(), master_with_pass.chain_code().as_bytes());
+    }
+
+    #[test]
+    fn test_from_mnemonic_deterministic() {
+        let mnemonic = bip39::Mnemonic::from_phrase(
+            "letter advice cage absurd amount doctor acoustic avoid letter advice cage above",
+            bip39::Language::English
+        ).unwrap();
+        
+        // Same mnemonic should produce same key
+        let master1 = ExtendedPrivateKey::from_mnemonic(&mnemonic, None, Network::BitcoinMainnet).unwrap();
+        let master2 = ExtendedPrivateKey::from_mnemonic(&mnemonic, None, Network::BitcoinMainnet).unwrap();
+        
+        assert_eq!(master1.private_key().to_bytes(), master2.private_key().to_bytes());
+        assert_eq!(master1.chain_code().as_bytes(), master2.chain_code().as_bytes());
+    }
+
+    #[test]
+    fn test_from_mnemonic_different_networks() {
+        let mnemonic = bip39::Mnemonic::from_phrase(
+            "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong",
+            bip39::Language::English
+        ).unwrap();
+        
+        let mainnet = ExtendedPrivateKey::from_mnemonic(&mnemonic, None, Network::BitcoinMainnet).unwrap();
+        let testnet = ExtendedPrivateKey::from_mnemonic(&mnemonic, None, Network::BitcoinTestnet).unwrap();
+        
+        assert_eq!(mainnet.network(), Network::BitcoinMainnet);
+        assert_eq!(testnet.network(), Network::BitcoinTestnet);
+        
+        // Keys should be same (network doesn't affect derivation from seed)
+        assert_eq!(mainnet.private_key().to_bytes(), testnet.private_key().to_bytes());
+    }
+
+    #[test]
+    fn test_from_mnemonic_12_words() {
+        let mnemonic = bip39::Mnemonic::from_phrase(
+            "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+            bip39::Language::English
+        ).unwrap();
+        
+        let master = ExtendedPrivateKey::from_mnemonic(&mnemonic, None, Network::BitcoinMainnet).unwrap();
+        
+        assert_eq!(master.depth(), 0);
+    }
+
+    #[test]
+    fn test_from_mnemonic_24_words() {
+        let mnemonic = bip39::Mnemonic::from_phrase(
+            "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon art",
+            bip39::Language::English
+        ).unwrap();
+        
+        let master = ExtendedPrivateKey::from_mnemonic(&mnemonic, None, Network::BitcoinMainnet).unwrap();
+        
+        assert_eq!(master.depth(), 0);
+        assert_eq!(master.network(), Network::BitcoinMainnet);
+    }
+
+    #[test]
+    fn test_from_mnemonic_derivation_works() {
+        let mnemonic = bip39::Mnemonic::from_phrase(
+            "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+            bip39::Language::English
+        ).unwrap();
+        
+        let master = ExtendedPrivateKey::from_mnemonic(&mnemonic, None, Network::BitcoinMainnet).unwrap();
+        
+        // Should be able to derive children
+        let child = master.derive_child(ChildNumber::Hardened(44)).unwrap();
+        assert_eq!(child.depth(), 1);
+        assert_eq!(child.child_number(), ChildNumber::Hardened(44));
+    }
+
+    #[test]
+    fn test_from_mnemonic_to_bip44_path() {
+        let mnemonic = bip39::Mnemonic::from_phrase(
+            "letter advice cage absurd amount doctor acoustic avoid letter advice cage above",
+            bip39::Language::English
+        ).unwrap();
+        
+        let master = ExtendedPrivateKey::from_mnemonic(&mnemonic, None, Network::BitcoinMainnet).unwrap();
+        
+        // Derive BIP-44 path: m/44'/0'/0'/0/0
+        let path = DerivationPath::from_str("m/44'/0'/0'/0/0").unwrap();
+        let account_key = master.derive_path(&path).unwrap();
+        
+        assert_eq!(account_key.depth(), 5);
+        assert_eq!(account_key.child_number(), ChildNumber::Normal(0));
+    }
+
+    #[test]
+    fn test_from_mnemonic_passphrase_affects_derivation() {
+        let mnemonic = bip39::Mnemonic::from_phrase(
+            "void come effort suffer camp survey warrior heavy shoot primary clutch crush open amazing screen patrol group space point ten exist slush involve unfold",
+            bip39::Language::English
+        ).unwrap();
+        
+        let master1 = ExtendedPrivateKey::from_mnemonic(&mnemonic, None, Network::BitcoinMainnet).unwrap();
+        let master2 = ExtendedPrivateKey::from_mnemonic(&mnemonic, Some("mypassphrase"), Network::BitcoinMainnet).unwrap();
+        
+        // Derive same path from both
+        let child1 = master1.derive_child(ChildNumber::Normal(0)).unwrap();
+        let child2 = master2.derive_child(ChildNumber::Normal(0)).unwrap();
+        
+        // Children should be different
+        assert_ne!(child1.private_key().to_bytes(), child2.private_key().to_bytes());
+    }
+
+    #[test]
+    fn test_from_mnemonic_empty_passphrase_vs_none() {
+        let mnemonic = bip39::Mnemonic::from_phrase(
+            "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+            bip39::Language::English
+        ).unwrap();
+        
+        let master_none = ExtendedPrivateKey::from_mnemonic(&mnemonic, None, Network::BitcoinMainnet).unwrap();
+        let master_empty = ExtendedPrivateKey::from_mnemonic(&mnemonic, Some(""), Network::BitcoinMainnet).unwrap();
+        
+        // None and empty string should produce same result (BIP39 spec)
+        assert_eq!(master_none.private_key().to_bytes(), master_empty.private_key().to_bytes());
+        assert_eq!(master_none.chain_code().as_bytes(), master_empty.chain_code().as_bytes());
+    }
+
+    #[test]
+    fn test_from_mnemonic_serialization_roundtrip() {
+        let mnemonic = bip39::Mnemonic::from_phrase(
+            "legal winner thank year wave sausage worth useful legal winner thank yellow",
+            bip39::Language::English
+        ).unwrap();
+        
+        let original = ExtendedPrivateKey::from_mnemonic(&mnemonic, None, Network::BitcoinMainnet).unwrap();
+        
+        // Serialize and deserialize
+        let serialized = original.to_string();
+        let deserialized = ExtendedPrivateKey::from_str(&serialized).unwrap();
+        
+        assert_eq!(original, deserialized);
+    }
+
+    #[test]
+    fn test_from_mnemonic_watch_only_export() {
+        let mnemonic = bip39::Mnemonic::from_phrase(
+            "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong",
+            bip39::Language::English
+        ).unwrap();
+        
+        let master = ExtendedPrivateKey::from_mnemonic(&mnemonic, None, Network::BitcoinMainnet).unwrap();
+        
+        // Derive account
+        let account = master.derive_path(&DerivationPath::from_str("m/44'/0'/0'").unwrap()).unwrap();
+        
+        // Export public key for watch-only
+        let account_pub = account.to_extended_public_key();
+        let xpub = account_pub.to_string();
+        
+        assert!(xpub.starts_with("xpub"));
+    }
+
+    #[test]
+    fn test_from_mnemonic_bip39_test_vector_1() {
+        // BIP39 official test vector
+        let mnemonic = bip39::Mnemonic::from_phrase(
+            "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+            bip39::Language::English
+        ).unwrap();
+        
+        let master = ExtendedPrivateKey::from_mnemonic(&mnemonic, Some("TREZOR"), Network::BitcoinMainnet).unwrap();
+        
+        // Verify it produces a valid master key
+        assert_eq!(master.depth(), 0);
+        assert_eq!(master.parent_fingerprint(), &[0, 0, 0, 0]);
+        
+        // Should be able to serialize
+        let xprv = master.to_string();
+        assert!(xprv.starts_with("xprv"));
+    }
+
+    #[test]
+    fn test_from_mnemonic_real_world_scenario() {
+        // Simulate wallet creation workflow
+        
+        // 1. User creates/imports mnemonic
+        let mnemonic = bip39::Mnemonic::from_phrase(
+            "letter advice cage absurd amount doctor acoustic avoid letter advice cage above",
+            bip39::Language::English
+        ).unwrap();
+        
+        // 2. Optional passphrase for additional security
+        let passphrase = Some("my secure passphrase");
+        
+        // 3. Generate master key
+        let master = ExtendedPrivateKey::from_mnemonic(&mnemonic, passphrase, Network::BitcoinMainnet).unwrap();
+        
+        // 4. Derive BIP-44 account
+        let account = master.derive_path(&DerivationPath::from_str("m/44'/0'/0'").unwrap()).unwrap();
+        
+        // 5. Generate first receiving address key
+        let receiving = account.derive_path(&DerivationPath::from_str("m/0/0").unwrap()).unwrap();
+        
+        assert_eq!(receiving.depth(), 5);
+        assert_eq!(receiving.child_number(), ChildNumber::Normal(0));
     }
 }
