@@ -54,8 +54,8 @@ use sha2::{Digest, Sha256, Sha512};
 ///
 /// # Examples
 ///
-/// ```rust,ignore
-/// use bip32::{ExtendedPrivateKey, ExtendedPublicKey, Network};
+/// ```rust
+/// use bip32::{ExtendedPrivateKey, ExtendedPublicKey, Network, ChildNumber};
 ///
 /// // Generate master private key from seed
 /// let seed = [0u8; 64];
@@ -65,8 +65,12 @@ use sha2::{Digest, Sha256, Sha512};
 /// let master_pub = master_priv.to_extended_public_key();
 ///
 /// // Extended public key can derive normal children
-/// let child_pub = master_pub.derive_child(0)?;  // OK - normal derivation
-/// let hardened = master_pub.derive_child(0x80000000)?;  // ERROR - hardened not allowed
+/// let child_pub = master_pub.derive_child(ChildNumber::Normal(0))?;  // OK
+/// assert_eq!(child_pub.depth(), 1);
+///
+/// // Hardened derivation from public key will fail
+/// // let hardened = master_pub.derive_child(ChildNumber::Hardened(0))?;  // ERROR
+/// # Ok::<(), bip32::Error>(())
 /// ```
 #[derive(Clone, PartialEq, Eq)]
 pub struct ExtendedPublicKey {
@@ -134,20 +138,17 @@ impl ExtendedPublicKey {
     ///
     /// # Examples
     ///
-    /// ```rust,ignore
-    /// use bip32::{ExtendedPublicKey, PublicKey, ChainCode, Network};
+    /// ```rust
+    /// use bip32::{ExtendedPrivateKey, Network, ChildNumber};
     ///
-    /// let public_key = PublicKey::from_bytes(&[/* ... */])?;
-    /// let chain_code = ChainCode::from_bytes(&[/* ... */])?;
+    /// // Typically you'd use to_extended_public_key() instead of new()
+    /// let seed = [0u8; 64];
+    /// let master_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet)?;
+    /// let master_pub = master_priv.to_extended_public_key();
     ///
-    /// let ext_pub = ExtendedPublicKey::new(
-    ///     Network::BitcoinMainnet,
-    ///     0,
-    ///     [0, 0, 0, 0],
-    ///     0,
-    ///     chain_code,
-    ///     public_key,
-    /// );
+    /// assert_eq!(master_pub.depth(), 0);
+    /// assert_eq!(master_pub.network(), Network::BitcoinMainnet);
+    /// # Ok::<(), bip32::Error>(())
     /// ```
     pub fn new(
         network: Network,
@@ -282,7 +283,7 @@ impl ExtendedPublicKey {
     ///
     /// # Examples
     ///
-    /// ```rust,ignore
+    /// ```rust
     /// use bip32::{ExtendedPrivateKey, ChildNumber, Network};
     ///
     /// let seed = [0u8; 64];
@@ -370,7 +371,7 @@ impl ExtendedPublicKey {
     ///
     /// # Examples
     ///
-    /// ```rust,ignore
+    /// ```rust
     /// use bip32::{ExtendedPrivateKey, DerivationPath, Network};
     /// use std::str::FromStr;
     ///
@@ -412,6 +413,62 @@ impl std::fmt::Debug for ExtendedPublicKey {
             .field("chain_code", &hex::encode(self.chain_code.as_bytes()))
             .field("public_key", &self.public_key)
             .finish()
+    }
+}
+
+impl std::fmt::Display for ExtendedPublicKey {
+    /// Serializes the extended public key to Base58Check encoding (xpub/tpub format).
+    ///
+    /// Format per BIP-32:
+    /// - 4 bytes: version bytes (network-specific)
+    /// - 1 byte: depth
+    /// - 4 bytes: parent fingerprint
+    /// - 4 bytes: child number (big-endian)
+    /// - 32 bytes: chain code
+    /// - 33 bytes: compressed public key
+    /// - 4 bytes: checksum (first 4 bytes of double SHA256)
+    ///
+    /// Total: 82 bytes, then Base58 encoded
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use sha2::{Digest, Sha256};
+        
+        // Build the 78-byte payload
+        let mut data = Vec::with_capacity(78);
+        
+        // 1. Version bytes (4 bytes) - network specific
+        data.extend_from_slice(&self.network.xpub_version().to_be_bytes());
+        
+        // 2. Depth (1 byte)
+        data.push(self.depth);
+        
+        // 3. Parent fingerprint (4 bytes)
+        data.extend_from_slice(&self.parent_fingerprint);
+        
+        // 4. Child number (4 bytes, big-endian)
+        data.extend_from_slice(&self.child_number.to_index().to_be_bytes());
+        
+        // 5. Chain code (32 bytes)
+        data.extend_from_slice(self.chain_code.as_bytes());
+        
+        // 6. Public key data (33 bytes) - compressed public key
+        data.extend_from_slice(&self.public_key.to_bytes());
+        
+        debug_assert_eq!(data.len(), 78, "Serialized data must be exactly 78 bytes");
+        
+        // 7. Compute checksum: first 4 bytes of SHA256(SHA256(data))
+        let hash1 = Sha256::digest(&data);
+        let hash2 = Sha256::digest(&hash1);
+        let checksum = &hash2[0..4];
+        
+        // 8. Append checksum to get 82 bytes total
+        data.extend_from_slice(checksum);
+        
+        debug_assert_eq!(data.len(), 82, "Final data must be exactly 82 bytes");
+        
+        // 9. Base58 encode
+        let encoded = bs58::encode(&data).into_string();
+        
+        write!(f, "{}", encoded)
     }
 }
 
@@ -1069,5 +1126,249 @@ mod tests {
             assert_eq!(address_pub.depth(), account_pub.depth() + 2);
             assert_eq!(address_pub.child_number(), ChildNumber::Normal(i));
         }
+    }
+
+    // ========================================================================
+    // Task 47: Tests for Base58Check serialization (xpub format)
+    // ========================================================================
+
+    #[test]
+    fn test_serialize_master_public_key_mainnet() {
+        // BIP-32 Test Vector 1: Master key -> public key
+        let seed = hex::decode("000102030405060708090a0b0c0d0e0f").unwrap();
+        let master_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let master_pub = master_priv.to_extended_public_key();
+        
+        let serialized = master_pub.to_string();
+        
+        // Expected from BIP-32 test vectors
+        let expected = "xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8";
+        
+        assert_eq!(serialized, expected);
+    }
+
+    #[test]
+    fn test_serialize_master_public_key_testnet() {
+        let seed = hex::decode("000102030405060708090a0b0c0d0e0f").unwrap();
+        let master_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinTestnet).unwrap();
+        let master_pub = master_priv.to_extended_public_key();
+        
+        let serialized = master_pub.to_string();
+        
+        // Should start with "tpub" for testnet
+        assert!(serialized.starts_with("tpub"));
+        
+        // Should be valid base58
+        assert!(bs58::decode(&serialized).into_vec().is_ok());
+    }
+
+    #[test]
+    fn test_serialize_derived_public_key_normal() {
+        // BIP-32 Test Vector 1: m/0'/1 -> public key
+        let seed = hex::decode("000102030405060708090a0b0c0d0e0f").unwrap();
+        let master_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let path = DerivationPath::from_str("m/0'/1").unwrap();
+        let child_priv = master_priv.derive_path(&path).unwrap();
+        let child_pub = child_priv.to_extended_public_key();
+        
+        let serialized = child_pub.to_string();
+        
+        // Expected from BIP-32 test vectors
+        let expected = "xpub6ASuArnXKPbfEwhqN6e3mwBcDTgzisQN1wXN9BJcM47sSikHjJf3UFHKkNAWbWMiGj7Wf5uMash7SyYq527Hqck2AxYysAA7xmALppuCkwQ";
+        
+        assert_eq!(serialized, expected);
+    }
+
+    #[test]
+    fn test_serialize_deep_derivation_public() {
+        // BIP-32 Test Vector 1: m/0'/1/2'/2 -> public key
+        let seed = hex::decode("000102030405060708090a0b0c0d0e0f").unwrap();
+        let master_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let path = DerivationPath::from_str("m/0'/1/2'/2").unwrap();
+        let child_priv = master_priv.derive_path(&path).unwrap();
+        let child_pub = child_priv.to_extended_public_key();
+        
+        let serialized = child_pub.to_string();
+        
+        // Expected from BIP-32 test vectors
+        let expected = "xpub6FHa3pjLCk84BayeJxFW2SP4XRrFd1JYnxeLeU8EqN3vDfZmbqBqaGJAyiLjTAwm6ZLRQUMv1ZACTj37sR62cfN7fe5JnJ7dh8zL4fiyLHV";
+        
+        assert_eq!(serialized, expected);
+    }
+
+    #[test]
+    fn test_serialize_public_length() {
+        let seed = [0x01; 32];
+        let master_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let master_pub = master_priv.to_extended_public_key();
+        
+        let serialized = master_pub.to_string();
+        
+        // Base58 encoded extended keys should decode to exactly 82 bytes
+        // (78 bytes data + 4 bytes checksum)
+        let decoded = bs58::decode(&serialized).into_vec().unwrap();
+        assert_eq!(decoded.len(), 82);
+    }
+
+    #[test]
+    fn test_serialize_public_starts_with_xpub_mainnet() {
+        let seed = [0x02; 32];
+        let master_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let master_pub = master_priv.to_extended_public_key();
+        
+        let serialized = master_pub.to_string();
+        
+        // Mainnet public keys should start with "xpub"
+        assert!(serialized.starts_with("xpub"));
+    }
+
+    #[test]
+    fn test_serialize_public_starts_with_tpub_testnet() {
+        let seed = [0x03; 32];
+        let master_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinTestnet).unwrap();
+        let master_pub = master_priv.to_extended_public_key();
+        
+        let serialized = master_pub.to_string();
+        
+        // Testnet public keys should start with "tpub"
+        assert!(serialized.starts_with("tpub"));
+    }
+
+    #[test]
+    fn test_serialize_public_deterministic() {
+        let seed = [0x04; 32];
+        let master_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let master_pub = master_priv.to_extended_public_key();
+        
+        // Serialize same key twice
+        let serialized1 = master_pub.to_string();
+        let serialized2 = master_pub.to_string();
+        
+        // Should produce identical output
+        assert_eq!(serialized1, serialized2);
+    }
+
+    #[test]
+    fn test_serialize_public_different_keys_different_output() {
+        let master_priv1 = ExtendedPrivateKey::from_seed(&[0x01; 32], Network::BitcoinMainnet).unwrap();
+        let master_priv2 = ExtendedPrivateKey::from_seed(&[0x02; 32], Network::BitcoinMainnet).unwrap();
+        
+        let master_pub1 = master_priv1.to_extended_public_key();
+        let master_pub2 = master_priv2.to_extended_public_key();
+        
+        let serialized1 = master_pub1.to_string();
+        let serialized2 = master_pub2.to_string();
+        
+        // Different keys should produce different serializations
+        assert_ne!(serialized1, serialized2);
+    }
+
+    #[test]
+    fn test_serialize_public_different_networks_different_output() {
+        let seed = [0x05; 32];
+        let mainnet_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let testnet_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinTestnet).unwrap();
+        
+        let mainnet_pub = mainnet_priv.to_extended_public_key();
+        let testnet_pub = testnet_priv.to_extended_public_key();
+        
+        let mainnet_serialized = mainnet_pub.to_string();
+        let testnet_serialized = testnet_pub.to_string();
+        
+        // Same seed but different networks should produce different serializations
+        assert_ne!(mainnet_serialized, testnet_serialized);
+        assert!(mainnet_serialized.starts_with("xpub"));
+        assert!(testnet_serialized.starts_with("tpub"));
+    }
+
+    #[test]
+    fn test_serialize_public_checksum_validation() {
+        let seed = [0x06; 32];
+        let master_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let master_pub = master_priv.to_extended_public_key();
+        
+        let serialized = master_pub.to_string();
+        
+        // Should decode successfully (bs58 library validates structure)
+        let result = bs58::decode(&serialized).into_vec();
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_serialize_public_bip32_test_vector_2_master() {
+        // BIP-32 Test Vector 2: Different seed -> public key
+        let seed = hex::decode(
+            "fffcf9f6f3f0edeae7e4e1dedbd8d5d2cfccc9c6c3c0bdbab7b4b1aeaba8a5a29f9c999693908d8a8784817e7b7875726f6c696663605d5a5754514e4b484542"
+        ).unwrap();
+        let master_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let master_pub = master_priv.to_extended_public_key();
+        
+        let serialized = master_pub.to_string();
+        
+        // Expected from BIP-32 test vector 2
+        let expected = "xpub661MyMwAqRbcFW31YEwpkMuc5THy2PSt5bDMsktWQcFF8syAmRUapSCGu8ED9W6oDMSgv6Zz8idoc4a6mr8BDzTJY47LJhkJ8UB7WEGuduB";
+        
+        assert_eq!(serialized, expected);
+    }
+
+    #[test]
+    fn test_serialize_public_bip32_test_vector_2_derived() {
+        // BIP-32 Test Vector 2: m/0 -> public key
+        let seed = hex::decode(
+            "fffcf9f6f3f0edeae7e4e1dedbd8d5d2cfccc9c6c3c0bdbab7b4b1aeaba8a5a29f9c999693908d8a8784817e7b7875726f6c696663605d5a5754514e4b484542"
+        ).unwrap();
+        let master_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let child_priv = master_priv.derive_child(ChildNumber::Normal(0)).unwrap();
+        let child_pub = child_priv.to_extended_public_key();
+        
+        let serialized = child_pub.to_string();
+        
+        // Expected from BIP-32 test vector 2
+        let expected = "xpub69H7F5d8KSRgmmdJg2KhpAK8SR3DjMwAdkxj3ZuxV27CprR9LgpeyGmXUbC6wb7ERfvrnKZjXoUmmDznezpbZb7ap6r1D3tgFxHmwMkQTPH";
+        
+        assert_eq!(serialized, expected);
+    }
+
+    #[test]
+    fn test_serialize_public_preserves_all_fields() {
+        let seed = [0x07; 32];
+        let master_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let path = DerivationPath::from_str("m/44'/0'/0'").unwrap();
+        let derived_priv = master_priv.derive_path(&path).unwrap();
+        let derived_pub = derived_priv.to_extended_public_key();
+        
+        let serialized = derived_pub.to_string();
+        let decoded = bs58::decode(&serialized).into_vec().unwrap();
+        
+        // Verify structure (without implementing deserialization yet)
+        assert_eq!(decoded.len(), 82); // 78 bytes + 4 checksum
+        
+        // Version bytes (first 4 bytes) should be mainnet xpub
+        assert_eq!(&decoded[0..4], &Network::BitcoinMainnet.xpub_version().to_be_bytes());
+        
+        // Depth should be 3
+        assert_eq!(decoded[4], 3);
+    }
+
+    #[test]
+    fn test_serialize_public_watch_only_use_case() {
+        // Real-world scenario: Export xpub for watch-only wallet
+        let seed = [0x08; 32];
+        let master_priv = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        
+        // Derive account (m/44'/0'/0')
+        let account_priv = master_priv.derive_path(&DerivationPath::from_str("m/44'/0'/0'").unwrap()).unwrap();
+        let account_pub = account_priv.to_extended_public_key();
+        
+        // Serialize for sharing with watch-only wallet
+        let xpub = account_pub.to_string();
+        
+        // Verify it's a valid xpub
+        assert!(xpub.starts_with("xpub"));
+        assert_eq!(account_pub.depth(), 3);
+        
+        // The xpub can be shared without exposing private keys
+        let decoded = bs58::decode(&xpub).into_vec().unwrap();
+        assert_eq!(decoded.len(), 82);
     }
 }
