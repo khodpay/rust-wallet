@@ -71,23 +71,53 @@
 ///
 /// # Examples
 ///
-/// ```rust,ignore
+/// ## Basic Usage
+///
+/// ```
 /// use bip32::ChildNumber;
 ///
 /// // Normal child numbers (for address generation)
 /// let normal_0 = ChildNumber::Normal(0);
 /// let normal_5 = ChildNumber::Normal(5);
 ///
+/// assert!(!normal_0.is_hardened());
+/// assert_eq!(normal_0.to_index(), 0);
+/// assert_eq!(normal_5.to_index(), 5);
+/// ```
+///
+/// ## Hardened Derivation
+///
+/// ```
+/// use bip32::ChildNumber;
+///
 /// // Hardened child numbers (for account/coin levels)
 /// let hardened_0 = ChildNumber::Hardened(0);   // Often written as 0'
 /// let hardened_44 = ChildNumber::Hardened(44); // Often written as 44'
 ///
-/// // BIP-44 path components
+/// assert!(hardened_0.is_hardened());
+/// assert_eq!(hardened_44.to_index(), 0x8000002C); // 2^31 + 44
+/// ```
+///
+/// ## BIP-44 Path Components
+///
+/// ```
+/// use bip32::ChildNumber;
+///
+/// // Building a BIP-44 path: m/44'/0'/0'/0/0
 /// let purpose = ChildNumber::Hardened(44);     // m/44'
 /// let coin_type = ChildNumber::Hardened(0);    // /0' (Bitcoin)
 /// let account = ChildNumber::Hardened(0);      // /0' (first account)
 /// let change = ChildNumber::Normal(0);         // /0 (external chain)
 /// let index = ChildNumber::Normal(0);          // /0 (first address)
+///
+/// // Upper levels are hardened for security
+/// assert!(purpose.is_hardened());
+/// assert!(coin_type.is_hardened());
+/// assert!(account.is_hardened());
+///
+/// // Lower levels are normal for watch-only wallets
+/// assert!(!change.is_hardened());
+/// assert!(!index.is_hardened());
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum ChildNumber {

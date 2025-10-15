@@ -14,11 +14,26 @@
 //!
 //! # Examples
 //!
-//! ```text
-//! m/44'/0'/0'/0/0    - BIP-44 Bitcoin address derivation
-//! m/0                - First normal child
-//! m/0'/1/2'          - Mixed hardened and normal derivation
-//! m/1/2/3/4/5        - Deep normal derivation path
+//! ```
+//! use bip32::DerivationPath;
+//! use std::str::FromStr;
+//!
+//! // BIP-44 Bitcoin address derivation
+//! let bip44 = DerivationPath::from_str("m/44'/0'/0'/0/0")?;
+//! assert_eq!(bip44.depth(), 5);
+//!
+//! // First normal child
+//! let simple = DerivationPath::from_str("m/0")?;
+//! assert_eq!(simple.depth(), 1);
+//!
+//! // Mixed hardened and normal derivation
+//! let mixed = DerivationPath::from_str("m/0'/1/2'")?;
+//! assert!(mixed.contains_hardened());
+//!
+//! // Deep normal derivation path
+//! let deep = DerivationPath::from_str("m/1/2/3/4/5")?;
+//! assert!(deep.is_public_derivable());
+//! # Ok::<(), bip32::Error>(())
 //! ```
 //!
 //! # Generic Design
@@ -51,16 +66,41 @@ use std::str::FromStr;
 ///
 /// # Examples
 ///
-/// ```rust,ignore
-/// use bip32::DerivationPath;
+/// ## Basic Usage
 ///
-/// // Parse a BIP-44 path (future functionality)
+/// ```
+/// use bip32::DerivationPath;
+/// use std::str::FromStr;
+///
+/// // Parse a BIP-44 path
 /// let path = DerivationPath::from_str("m/44'/0'/0'/0/0")?;
 /// assert_eq!(path.depth(), 5);
+/// assert!(path.contains_hardened());
 ///
 /// // Empty path represents master key
 /// let master_path = DerivationPath::master();
 /// assert_eq!(master_path.depth(), 0);
+/// assert!(master_path.is_master());
+/// # Ok::<(), bip32::Error>(())
+/// ```
+///
+/// ## Building Paths Programmatically
+///
+/// ```
+/// use bip32::{DerivationPath, ChildNumber};
+///
+/// // Start with master
+/// let mut path = DerivationPath::master();
+///
+/// // Build m/44'/0'/0'
+/// path = path.extend(&[
+///     ChildNumber::Hardened(44),
+///     ChildNumber::Hardened(0),
+///     ChildNumber::Hardened(0),
+/// ]);
+///
+/// assert_eq!(path.depth(), 3);
+/// assert_eq!(path.to_string(), "m/44'/0'/0'");
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DerivationPath {

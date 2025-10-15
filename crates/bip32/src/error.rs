@@ -5,7 +5,7 @@
 //!
 //! # Error Types
 //!
-//! The main [`Error`] enum covers all possible failure modes:
+//! The main [`enum@Error`] enum covers all possible failure modes:
 //! - **Seed errors**: Invalid seed length
 //! - **Key errors**: Invalid keys, zero keys, key overflow
 //! - **Derivation errors**: Invalid paths, hardened derivation from public keys
