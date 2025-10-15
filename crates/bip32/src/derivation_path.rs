@@ -351,7 +351,9 @@ impl DerivationPath {
     /// assert!(path.is_hardened_at(2));  // 1' is hardened
     /// ```
     pub fn is_hardened_at(&self, index: usize) -> bool {
-        self.path.get(index).map_or(false, |child| child.is_hardened())
+        self.path
+            .get(index)
+            .map_or(false, |child| child.is_hardened())
     }
 
     /// Returns a reference to the child number at the given index.
@@ -450,7 +452,7 @@ impl DerivationPath {
         if prefix.path.len() > self.path.len() {
             return false;
         }
-        
+
         self.path.starts_with(&prefix.path)
     }
 
@@ -574,7 +576,8 @@ impl FromStr for DerivationPath {
         if components.iter().any(|c| c.is_empty()) {
             return Err(Error::InvalidDerivationPath {
                 path: path.to_string(),
-                reason: "Path contains empty components (double slash or trailing slash)".to_string(),
+                reason: "Path contains empty components (double slash or trailing slash)"
+                    .to_string(),
             });
         }
 
@@ -587,13 +590,15 @@ impl FromStr for DerivationPath {
 
         // Parse each component
         let mut child_numbers = Vec::with_capacity(components.len());
-        
+
         for component in components {
             let child_number = parse_child_number(component, path)?;
             child_numbers.push(child_number);
         }
 
-        Ok(DerivationPath { path: child_numbers })
+        Ok(DerivationPath {
+            path: child_numbers,
+        })
     }
 }
 
@@ -618,10 +623,15 @@ fn parse_child_number(component: &str, full_path: &str) -> Result<ChildNumber> {
     };
 
     // Parse the number
-    let index: u32 = number_str.parse().map_err(|_| Error::InvalidDerivationPath {
-        path: full_path.to_string(),
-        reason: format!("Invalid number '{}' in path component '{}'", number_str, component),
-    })?;
+    let index: u32 = number_str
+        .parse()
+        .map_err(|_| Error::InvalidDerivationPath {
+            path: full_path.to_string(),
+            reason: format!(
+                "Invalid number '{}' in path component '{}'",
+                number_str, component
+            ),
+        })?;
 
     // Check for overflow when creating hardened indices
     if is_hardened && index > ChildNumber::MAX_NORMAL_INDEX {
@@ -650,14 +660,14 @@ fn parse_child_number(component: &str, full_path: &str) -> Result<ChildNumber> {
 impl fmt::Display for DerivationPath {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "m")?;
-        
+
         for child_number in &self.path {
             match child_number {
                 ChildNumber::Normal(index) => write!(f, "/{}", index)?,
                 ChildNumber::Hardened(index) => write!(f, "/{}'", index)?,
             }
         }
-        
+
         Ok(())
     }
 }
@@ -797,7 +807,10 @@ mod tests {
         assert!(result.is_err());
         if let Err(Error::InvalidDerivationPath { path, reason }) = result {
             assert_eq!(path, "m/abc");
-            assert!(reason.to_lowercase().contains("invalid") || reason.to_lowercase().contains("number"));
+            assert!(
+                reason.to_lowercase().contains("invalid")
+                    || reason.to_lowercase().contains("number")
+            );
         } else {
             panic!("Expected InvalidDerivationPath error");
         }
@@ -988,12 +1001,7 @@ mod tests {
     #[test]
     fn test_is_valid_always_true_for_parsed() {
         // If a path was successfully parsed, it should be valid
-        let paths = vec![
-            "m",
-            "m/0",
-            "m/0'",
-            "m/44'/0'/0'/0/0",
-        ];
+        let paths = vec!["m", "m/0", "m/0'", "m/44'/0'/0'/0/0"];
 
         for path_str in paths {
             let path = DerivationPath::from_str(path_str).unwrap();
@@ -1037,10 +1045,10 @@ mod tests {
     #[test]
     fn test_is_hardened_at_index() {
         let path = DerivationPath::from_str("m/0'/1/2'/3").unwrap();
-        
-        assert!(path.is_hardened_at(0));  // 0' is hardened
+
+        assert!(path.is_hardened_at(0)); // 0' is hardened
         assert!(!path.is_hardened_at(1)); // 1 is normal
-        assert!(path.is_hardened_at(2));  // 2' is hardened
+        assert!(path.is_hardened_at(2)); // 2' is hardened
         assert!(!path.is_hardened_at(3)); // 3 is normal
     }
 
@@ -1054,7 +1062,7 @@ mod tests {
     #[test]
     fn test_child_number_at() {
         let path = DerivationPath::from_str("m/44'/0'/0'/0/5").unwrap();
-        
+
         assert_eq!(path.child_number_at(0), Some(&ChildNumber::Hardened(44)));
         assert_eq!(path.child_number_at(1), Some(&ChildNumber::Hardened(0)));
         assert_eq!(path.child_number_at(2), Some(&ChildNumber::Hardened(0)));
@@ -1066,15 +1074,15 @@ mod tests {
     #[test]
     fn test_parent_path() {
         let path = DerivationPath::from_str("m/44'/0'/0'/0/0").unwrap();
-        
+
         // Get parent (remove last component)
         let parent = path.parent().unwrap();
         assert_eq!(parent.to_string(), "m/44'/0'/0'/0");
-        
+
         // Get grandparent
         let grandparent = parent.parent().unwrap();
         assert_eq!(grandparent.to_string(), "m/44'/0'/0'");
-        
+
         // Master has no parent
         let master = DerivationPath::master();
         assert!(master.parent().is_none());
@@ -1083,16 +1091,16 @@ mod tests {
     #[test]
     fn test_parent_chain() {
         let path = DerivationPath::from_str("m/0/1/2").unwrap();
-        
+
         let p1 = path.parent().unwrap();
         assert_eq!(p1.to_string(), "m/0/1");
-        
+
         let p2 = p1.parent().unwrap();
         assert_eq!(p2.to_string(), "m/0");
-        
+
         let p3 = p2.parent().unwrap();
         assert_eq!(p3.to_string(), "m");
-        
+
         let p4 = p3.parent();
         assert!(p4.is_none());
     }
@@ -1100,13 +1108,13 @@ mod tests {
     #[test]
     fn test_extend_path() {
         let base = DerivationPath::from_str("m/44'/0'").unwrap();
-        
+
         let extended = base.extend(&[
             ChildNumber::Hardened(0),
             ChildNumber::Normal(0),
             ChildNumber::Normal(0),
         ]);
-        
+
         assert_eq!(extended.to_string(), "m/44'/0'/0'/0/0");
         assert_eq!(extended.depth(), 5);
     }
@@ -1114,12 +1122,9 @@ mod tests {
     #[test]
     fn test_extend_empty_path() {
         let master = DerivationPath::master();
-        
-        let extended = master.extend(&[
-            ChildNumber::Hardened(44),
-            ChildNumber::Hardened(0),
-        ]);
-        
+
+        let extended = master.extend(&[ChildNumber::Hardened(44), ChildNumber::Hardened(0)]);
+
         assert_eq!(extended.to_string(), "m/44'/0'");
     }
 
@@ -1127,7 +1132,7 @@ mod tests {
     fn test_extend_with_empty_slice() {
         let path = DerivationPath::from_str("m/0").unwrap();
         let same = path.extend(&[]);
-        
+
         assert_eq!(path, same);
     }
 
@@ -1136,14 +1141,14 @@ mod tests {
         let path = DerivationPath::from_str("m/44'/0'/0'/0/0").unwrap();
         let prefix = DerivationPath::from_str("m/44'/0'").unwrap();
         let not_prefix = DerivationPath::from_str("m/49'/0'").unwrap();
-        
+
         assert!(path.starts_with(&prefix));
         assert!(!path.starts_with(&not_prefix));
-        
+
         // Every path starts with master
         let master = DerivationPath::master();
         assert!(path.starts_with(&master));
-        
+
         // Path starts with itself
         assert!(path.starts_with(&path));
     }
@@ -1152,7 +1157,7 @@ mod tests {
     fn test_starts_with_longer_prefix() {
         let short = DerivationPath::from_str("m/0").unwrap();
         let long = DerivationPath::from_str("m/0/1/2").unwrap();
-        
+
         // Short path doesn't start with longer path
         assert!(!short.starts_with(&long));
     }
@@ -1161,16 +1166,16 @@ mod tests {
     fn test_hardened_prefix_length() {
         let all_normal = DerivationPath::from_str("m/0/1/2").unwrap();
         assert_eq!(all_normal.hardened_prefix_length(), 0);
-        
+
         let starts_hardened = DerivationPath::from_str("m/44'/0'/0'/0/1").unwrap();
         assert_eq!(starts_hardened.hardened_prefix_length(), 3);
-        
+
         let all_hardened = DerivationPath::from_str("m/0'/1'/2'").unwrap();
         assert_eq!(all_hardened.hardened_prefix_length(), 3);
-        
+
         let mixed = DerivationPath::from_str("m/0/1'/2").unwrap();
         assert_eq!(mixed.hardened_prefix_length(), 0); // First is normal
-        
+
         let master = DerivationPath::master();
         assert_eq!(master.hardened_prefix_length(), 0);
     }
@@ -1179,16 +1184,16 @@ mod tests {
     fn test_normal_suffix_length() {
         let all_normal = DerivationPath::from_str("m/0/1/2").unwrap();
         assert_eq!(all_normal.normal_suffix_length(), 3);
-        
+
         let bip44 = DerivationPath::from_str("m/44'/0'/0'/0/1").unwrap();
         assert_eq!(bip44.normal_suffix_length(), 2); // Last 2 are normal
-        
+
         let all_hardened = DerivationPath::from_str("m/0'/1'/2'").unwrap();
         assert_eq!(all_hardened.normal_suffix_length(), 0);
-        
+
         let ends_hardened = DerivationPath::from_str("m/0/1/2'").unwrap();
         assert_eq!(ends_hardened.normal_suffix_length(), 0);
-        
+
         let master = DerivationPath::master();
         assert_eq!(master.normal_suffix_length(), 0);
     }
@@ -1197,7 +1202,7 @@ mod tests {
     fn test_to_vec() {
         let path = DerivationPath::from_str("m/0'/1/2'").unwrap();
         let vec = path.to_vec();
-        
+
         assert_eq!(vec.len(), 3);
         assert_eq!(vec[0], ChildNumber::Hardened(0));
         assert_eq!(vec[1], ChildNumber::Normal(1));

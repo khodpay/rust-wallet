@@ -241,7 +241,12 @@ pub const INVALID_EXTENDED_KEYS: &[(&str, &str)] = &[
 
 /// Returns all valid test vectors (1-4)
 pub fn all_test_vectors() -> Vec<&'static TestVector> {
-    vec![&TEST_VECTOR_1, &TEST_VECTOR_2, &TEST_VECTOR_3, &TEST_VECTOR_4]
+    vec![
+        &TEST_VECTOR_1,
+        &TEST_VECTOR_2,
+        &TEST_VECTOR_3,
+        &TEST_VECTOR_4,
+    ]
 }
 
 /// Helper function to convert hex string to bytes
@@ -255,26 +260,38 @@ mod tests {
 
     #[test]
     fn test_vector_1_accessibility() {
-        assert_eq!(TEST_VECTOR_1.description, "Test Vector 1: Basic derivation paths");
+        assert_eq!(
+            TEST_VECTOR_1.description,
+            "Test Vector 1: Basic derivation paths"
+        );
         assert_eq!(TEST_VECTOR_1.seed_hex, "000102030405060708090a0b0c0d0e0f");
         assert_eq!(TEST_VECTOR_1.derivations.len(), 6);
     }
 
     #[test]
     fn test_vector_2_accessibility() {
-        assert_eq!(TEST_VECTOR_2.description, "Test Vector 2: Maximum hardened derivation values");
+        assert_eq!(
+            TEST_VECTOR_2.description,
+            "Test Vector 2: Maximum hardened derivation values"
+        );
         assert_eq!(TEST_VECTOR_2.derivations.len(), 6);
     }
 
     #[test]
     fn test_vector_3_accessibility() {
-        assert_eq!(TEST_VECTOR_3.description, "Test Vector 3: Retention of leading zeros (bitpay/bitcore-lib#47)");
+        assert_eq!(
+            TEST_VECTOR_3.description,
+            "Test Vector 3: Retention of leading zeros (bitpay/bitcore-lib#47)"
+        );
         assert_eq!(TEST_VECTOR_3.derivations.len(), 2);
     }
 
     #[test]
     fn test_vector_4_accessibility() {
-        assert_eq!(TEST_VECTOR_4.description, "Test Vector 4: Retention of leading zeros (btcsuite/btcutil#172)");
+        assert_eq!(
+            TEST_VECTOR_4.description,
+            "Test Vector 4: Retention of leading zeros (btcsuite/btcutil#172)"
+        );
         assert_eq!(TEST_VECTOR_4.derivations.len(), 3);
     }
 
@@ -368,8 +385,7 @@ mod tests {
 
         // Test m/0H
         let step = &TEST_VECTOR_1.derivations[1];
-        validate_derivation_step(&master_key, step)
-            .expect("Failed to validate m/0H derivation");
+        validate_derivation_step(&master_key, step).expect("Failed to validate m/0H derivation");
     }
 
     #[test]
@@ -380,8 +396,7 @@ mod tests {
 
         // Test m/0H/1
         let step = &TEST_VECTOR_1.derivations[2];
-        validate_derivation_step(&master_key, step)
-            .expect("Failed to validate m/0H/1 derivation");
+        validate_derivation_step(&master_key, step).expect("Failed to validate m/0H/1 derivation");
     }
 
     #[test]
@@ -471,8 +486,7 @@ mod tests {
 
         // Test m/0
         let step = &TEST_VECTOR_2.derivations[1];
-        validate_derivation_step(&master_key, step)
-            .expect("Failed to validate m/0 derivation");
+        validate_derivation_step(&master_key, step).expect("Failed to validate m/0 derivation");
     }
 
     #[test]
@@ -574,8 +588,7 @@ mod tests {
 
         // Test m/0H
         let step = &TEST_VECTOR_3.derivations[1];
-        validate_derivation_step(&master_key, step)
-            .expect("Failed to validate m/0H derivation");
+        validate_derivation_step(&master_key, step).expect("Failed to validate m/0H derivation");
     }
 
     #[test]
@@ -819,11 +832,7 @@ mod tests {
                 let path = DerivationPath::from_str(step.path).unwrap();
                 let parent = path.parent();
 
-                assert!(
-                    parent.is_some(),
-                    "Path {} should have a parent",
-                    step.path
-                );
+                assert!(parent.is_some(), "Path {} should have a parent", step.path);
 
                 let parent = parent.unwrap();
                 assert_eq!(
@@ -837,7 +846,10 @@ mod tests {
 
         // Master key should have no parent
         let master = DerivationPath::from_str("m").unwrap();
-        assert!(master.parent().is_none(), "Master key should have no parent");
+        assert!(
+            master.parent().is_none(),
+            "Master key should have no parent"
+        );
     }
 
     #[test]
@@ -918,10 +930,15 @@ mod tests {
         let mut successful_derivations = 0;
 
         for test_vector in all_test_vectors() {
-            let seed = hex_to_bytes(test_vector.seed_hex)
-                .expect(&format!("Failed to decode seed for {}", test_vector.description));
-            let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet)
-                .expect(&format!("Failed to create master key for {}", test_vector.description));
+            let seed = hex_to_bytes(test_vector.seed_hex).expect(&format!(
+                "Failed to decode seed for {}",
+                test_vector.description
+            ));
+            let master =
+                ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).expect(&format!(
+                    "Failed to create master key for {}",
+                    test_vector.description
+                ));
 
             for step in test_vector.derivations {
                 total_paths += 1;
@@ -931,7 +948,8 @@ mod tests {
                     .expect(&format!("Failed to parse path {}", step.path));
 
                 // Derive key
-                let derived = master.derive_path(&path)
+                let derived = master
+                    .derive_path(&path)
                     .expect(&format!("Failed to derive path {}", step.path));
 
                 // Verify serialization matches
@@ -947,8 +965,14 @@ mod tests {
         }
 
         // Verify we tested all expected paths
-        assert_eq!(total_paths, 17, "Expected 17 total derivation paths across all vectors (6 + 6 + 2 + 3)");
-        assert_eq!(successful_derivations, total_paths, "All paths should derive successfully");
+        assert_eq!(
+            total_paths, 17,
+            "Expected 17 total derivation paths across all vectors (6 + 6 + 2 + 3)"
+        );
+        assert_eq!(
+            successful_derivations, total_paths,
+            "All paths should derive successfully"
+        );
     }
 
     // ============================================================================
@@ -1018,8 +1042,10 @@ mod tests {
         for test_vector in all_test_vectors() {
             for step in test_vector.derivations {
                 // Deserialize from string
-                let deserialized = ExtendedPrivateKey::from_str(step.ext_prv)
-                    .expect(&format!("Failed to deserialize xprv for path {}", step.path));
+                let deserialized = ExtendedPrivateKey::from_str(step.ext_prv).expect(&format!(
+                    "Failed to deserialize xprv for path {}",
+                    step.path
+                ));
 
                 // Re-serialize
                 let reserialized = deserialized.to_string();
@@ -1039,8 +1065,10 @@ mod tests {
         for test_vector in all_test_vectors() {
             for step in test_vector.derivations {
                 // Deserialize from string
-                let deserialized = ExtendedPublicKey::from_str(step.ext_pub)
-                    .expect(&format!("Failed to deserialize xpub for path {}", step.path));
+                let deserialized = ExtendedPublicKey::from_str(step.ext_pub).expect(&format!(
+                    "Failed to deserialize xpub for path {}",
+                    step.path
+                ));
 
                 // Re-serialize
                 let reserialized = deserialized.to_string();
@@ -1061,14 +1089,16 @@ mod tests {
             for step in test_vector.derivations {
                 // Check xprv format
                 assert_eq!(
-                    step.ext_prv.len(), 111,
+                    step.ext_prv.len(),
+                    111,
                     "xprv for path {} should be 111 characters (Base58Check of 78 bytes)",
                     step.path
                 );
 
                 // Check xpub format
                 assert_eq!(
-                    step.ext_pub.len(), 111,
+                    step.ext_pub.len(),
+                    111,
                     "xpub for path {} should be 111 characters (Base58Check of 78 bytes)",
                     step.path
                 );
@@ -1078,7 +1108,8 @@ mod tests {
                     assert!(
                         "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".contains(ch),
                         "Invalid Base58 character '{}' in xprv for path {}",
-                        ch, step.path
+                        ch,
+                        step.path
                     );
                 }
 
@@ -1086,7 +1117,8 @@ mod tests {
                     assert!(
                         "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".contains(ch),
                         "Invalid Base58 character '{}' in xpub for path {}",
-                        ch, step.path
+                        ch,
+                        step.path
                     );
                 }
             }
@@ -1317,18 +1349,28 @@ mod tests {
                 }
 
                 // Test xprv deserialization
-                let _ = ExtendedPrivateKey::from_str(step.ext_prv)
-                    .expect(&format!("Failed to deserialize xprv for path {}", step.path));
+                let _ = ExtendedPrivateKey::from_str(step.ext_prv).expect(&format!(
+                    "Failed to deserialize xprv for path {}",
+                    step.path
+                ));
 
                 // Test xpub deserialization
-                let _ = ExtendedPublicKey::from_str(step.ext_pub)
-                    .expect(&format!("Failed to deserialize xpub for path {}", step.path));
+                let _ = ExtendedPublicKey::from_str(step.ext_pub).expect(&format!(
+                    "Failed to deserialize xpub for path {}",
+                    step.path
+                ));
             }
         }
 
         assert_eq!(total_keys, 17, "Expected 17 total keys across all vectors");
-        assert_eq!(successful_xprv, total_keys, "All xprv serializations should match");
-        assert_eq!(successful_xpub, total_keys, "All xpub serializations should match");
+        assert_eq!(
+            successful_xprv, total_keys,
+            "All xprv serializations should match"
+        );
+        assert_eq!(
+            successful_xpub, total_keys,
+            "All xpub serializations should match"
+        );
     }
 
     // ============================================================================
@@ -1339,21 +1381,21 @@ mod tests {
     fn test_testnet_key_deserialization() {
         // Test compatibility with testnet extended keys (tprv/tpub)
         // Generate a testnet key from the same seed as Test Vector 1
-        
+
         let seed = hex_to_bytes("000102030405060708090a0b0c0d0e0f").unwrap();
         let testnet_master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinTestnet).unwrap();
-        
+
         // Verify it's a testnet key
         assert_eq!(testnet_master.network(), Network::BitcoinTestnet);
         assert!(testnet_master.to_string().starts_with("tprv"));
-        
+
         let testnet_pub = testnet_master.to_extended_public_key();
         assert!(testnet_pub.to_string().starts_with("tpub"));
 
         // Test roundtrip serialization
         let tprv_str = testnet_master.to_string();
         let tpub_str = testnet_pub.to_string();
-        
+
         let deserialized_prv = ExtendedPrivateKey::from_str(&tprv_str).unwrap();
         let deserialized_pub = ExtendedPublicKey::from_str(&tpub_str).unwrap();
 
@@ -1369,7 +1411,7 @@ mod tests {
     fn test_electrum_compatible_keys() {
         // Test compatibility with Electrum wallet keys
         // Using keys from the official test vectors which Electrum also supports
-        
+
         let test_cases = vec![
             // Master key from Test Vector 1
             (
@@ -1407,7 +1449,7 @@ mod tests {
     fn test_bitcoin_core_compatible_derivation() {
         // Test that our derivation matches Bitcoin Core's implementation
         // Using paths commonly used in Bitcoin Core
-        
+
         let seed = hex_to_bytes("000102030405060708090a0b0c0d0e0f").unwrap();
         let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
 
@@ -1426,7 +1468,7 @@ mod tests {
         // Test deriving receive address path: m/44'/0'/0'/0/0
         let receive_path = DerivationPath::from_str("m/44'/0'/0'/0/0").unwrap();
         let receive_key = master.derive_path(&receive_path).unwrap();
-        
+
         assert_eq!(receive_key.depth(), 5);
         assert!(receive_key.to_string().starts_with("xprv"));
     }
@@ -1435,7 +1477,7 @@ mod tests {
     fn test_trezor_compatible_keys() {
         // Test compatibility with Trezor hardware wallet keys
         // Trezor uses standard BIP32/BIP44 derivation
-        
+
         let seed = hex_to_bytes("fffcf9f6f3f0edeae7e4e1dedbd8d5d2cfccc9c6c3c0bdbab7b4b1aeaba8a5a29f9c999693908d8a8784817e7b7875726f6c696663605d5a5754514e4b484542").unwrap();
         let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
 
@@ -1446,11 +1488,11 @@ mod tests {
         // Test typical Trezor derivation path for Bitcoin: m/44'/0'/0'
         let account_path = DerivationPath::from_str("m/44'/0'/0'").unwrap();
         let account = master.derive_path(&account_path).unwrap();
-        
+
         // Verify account key properties
         assert_eq!(account.depth(), 3);
         assert!(account.to_string().starts_with("xprv"));
-        
+
         // Verify can derive further
         let address_path = DerivationPath::from_str("m/44'/0'/0'/0/0").unwrap();
         let address_key = master.derive_path(&address_path).unwrap();
@@ -1461,7 +1503,7 @@ mod tests {
     fn test_ledger_compatible_keys() {
         // Test compatibility with Ledger hardware wallet keys
         // Ledger also uses standard BIP32/BIP44
-        
+
         let test_vectors = vec![
             // Test Vector 1 master key (compatible with Ledger)
             (
@@ -1479,10 +1521,10 @@ mod tests {
 
         for (xprv_str, _path_str, expected_depth) in test_vectors {
             let key = ExtendedPrivateKey::from_str(xprv_str).unwrap();
-            
+
             assert_eq!(key.depth(), expected_depth);
             assert_eq!(key.to_string(), xprv_str);
-            
+
             // Verify can derive further (Ledger compatibility)
             if expected_depth < 5 {
                 let further = key.derive_child(ChildNumber::Normal(0)).unwrap();
@@ -1495,7 +1537,7 @@ mod tests {
     fn test_bitpay_bitcore_compatibility() {
         // Test compatibility with Bitpay/Bitcore implementation
         // Test Vector 3 specifically tests for bitpay/bitcore-lib#47
-        
+
         let seed = hex_to_bytes("4b381541583be4423346c643850da4b320e46a87ae3d2a4e6da11eba819cd4acba45d239319ac14f863b8d5ab5a0d0c64d2e8a1e7d1457df2e5a3c51c73235be").unwrap();
         let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
 
@@ -1506,7 +1548,7 @@ mod tests {
         // Test derivation with leading zeros (bitcore-lib#47 issue)
         let path = DerivationPath::from_str("m/0H").unwrap();
         let derived = master.derive_path(&path).unwrap();
-        
+
         let expected_xprv = "xprv9uPDJpEQgRQfDcW7BkF7eTya6RPxXeJCqCJGHuCJ4GiRVLzkTXBAJMu2qaMWPrS7AANYqdq6vcBcBUdJCVVFceUvJFjaPdGZ2y9WACViL4L";
         assert_eq!(derived.to_string(), expected_xprv);
     }
@@ -1515,8 +1557,9 @@ mod tests {
     fn test_btcsuite_compatibility() {
         // Test compatibility with btcsuite/btcutil implementation
         // Test Vector 4 specifically tests for btcsuite/btcutil#172
-        
-        let seed = hex_to_bytes("3ddd5602285899a946114506157c7997e5444528f3003f6134712147db19b678").unwrap();
+
+        let seed = hex_to_bytes("3ddd5602285899a946114506157c7997e5444528f3003f6134712147db19b678")
+            .unwrap();
         let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
 
         // Expected values from Test Vector 4 (btcsuite compatibility test)
@@ -1526,14 +1569,14 @@ mod tests {
         // Test derivation path from btcsuite test
         let path = DerivationPath::from_str("m/0H").unwrap();
         let derived = master.derive_path(&path).unwrap();
-        
+
         let expected_xprv = "xprv9vB7xEWwNp9kh1wQRfCCQMnZUEG21LpbR9NPCNN1dwhiZkjjeGRnaALmPXCX7SgjFTiCTT6bXes17boXtjq3xLpcDjzEuGLQBM5ohqkao9G";
         assert_eq!(derived.to_string(), expected_xprv);
 
         // Further derivation
         let path2 = DerivationPath::from_str("m/0H/1H").unwrap();
         let derived2 = master.derive_path(&path2).unwrap();
-        
+
         let expected_xprv2 = "xprv9xJocDuwtYCMNAo3Zw76WENQeAS6WGXQ55RCy7tDJ8oALr4FWkuVoHJeHVAcAqiZLE7Je3vZJHxspZdFHfnBEjHqU5hG1Jaj32dVoS6XLT1";
         assert_eq!(derived2.to_string(), expected_xprv2);
     }
@@ -1542,7 +1585,7 @@ mod tests {
     fn test_cross_implementation_public_derivation() {
         // Test that public key derivation is compatible across implementations
         // This is crucial for watch-only wallets
-        
+
         let seed = hex_to_bytes("000102030405060708090a0b0c0d0e0f").unwrap();
         let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
 
@@ -1553,7 +1596,10 @@ mod tests {
 
         // Now derive child keys from public key (normal derivation only)
         let child0_from_pub = account_pub.derive_child(ChildNumber::Normal(0)).unwrap();
-        let child0_from_prv = account_prv.derive_child(ChildNumber::Normal(0)).unwrap().to_extended_public_key();
+        let child0_from_prv = account_prv
+            .derive_child(ChildNumber::Normal(0))
+            .unwrap()
+            .to_extended_public_key();
 
         // Both methods should produce the same public key
         assert_eq!(
@@ -1563,10 +1609,15 @@ mod tests {
         );
 
         // Test multiple levels
-        let child0_0_from_pub = child0_from_pub.derive_child(ChildNumber::Normal(0)).unwrap();
-        
+        let child0_0_from_pub = child0_from_pub
+            .derive_child(ChildNumber::Normal(0))
+            .unwrap();
+
         let full_path = DerivationPath::from_str("m/44'/0'/0'/0/0").unwrap();
-        let child0_0_from_prv = master.derive_path(&full_path).unwrap().to_extended_public_key();
+        let child0_0_from_prv = master
+            .derive_path(&full_path)
+            .unwrap()
+            .to_extended_public_key();
 
         assert_eq!(
             child0_0_from_pub.to_string(),
@@ -1579,19 +1630,25 @@ mod tests {
     fn test_network_version_compatibility() {
         // Test that we correctly handle different network version bytes
         // This ensures compatibility with multi-network wallets
-        
+
         let seed = hex_to_bytes("000102030405060708090a0b0c0d0e0f").unwrap();
-        
+
         // Mainnet keys
         let mainnet_master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
         assert!(mainnet_master.to_string().starts_with("xprv"));
-        assert!(mainnet_master.to_extended_public_key().to_string().starts_with("xpub"));
-        
+        assert!(mainnet_master
+            .to_extended_public_key()
+            .to_string()
+            .starts_with("xpub"));
+
         // Testnet keys
         let testnet_master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinTestnet).unwrap();
         assert!(testnet_master.to_string().starts_with("tprv"));
-        assert!(testnet_master.to_extended_public_key().to_string().starts_with("tpub"));
-        
+        assert!(testnet_master
+            .to_extended_public_key()
+            .to_string()
+            .starts_with("tpub"));
+
         // Same seed, different networks should produce different serializations
         assert_ne!(
             mainnet_master.to_string(),
@@ -1608,27 +1665,28 @@ mod tests {
 
         // BIP44 standard paths
         let test_paths = vec![
-            "m/44'/0'/0'",           // Bitcoin account 0
-            "m/44'/0'/0'/0",         // External chain (receive)
-            "m/44'/0'/0'/1",         // Internal chain (change)
-            "m/44'/0'/0'/0/0",       // First receive address
-            "m/44'/0'/0'/1/0",       // First change address
-            "m/44'/0'/1'",           // Bitcoin account 1
-            "m/49'/0'/0'",           // P2WPKH-nested-in-P2SH (BIP49)
-            "m/84'/0'/0'",           // P2WPKH (BIP84)
+            "m/44'/0'/0'",     // Bitcoin account 0
+            "m/44'/0'/0'/0",   // External chain (receive)
+            "m/44'/0'/0'/1",   // Internal chain (change)
+            "m/44'/0'/0'/0/0", // First receive address
+            "m/44'/0'/0'/1/0", // First change address
+            "m/44'/0'/1'",     // Bitcoin account 1
+            "m/49'/0'/0'",     // P2WPKH-nested-in-P2SH (BIP49)
+            "m/84'/0'/0'",     // P2WPKH (BIP84)
         ];
 
         for path_str in test_paths {
             let path = DerivationPath::from_str(path_str)
                 .expect(&format!("Failed to parse BIP44 path: {}", path_str));
-            
-            let derived = master.derive_path(&path)
+
+            let derived = master
+                .derive_path(&path)
                 .expect(&format!("Failed to derive BIP44 path: {}", path_str));
-            
+
             // Verify key is valid
             assert!(derived.to_string().starts_with("xprv"));
             assert_eq!(derived.to_string().len(), 111);
-            
+
             // Verify can convert to public
             let pub_key = derived.to_extended_public_key();
             assert!(pub_key.to_string().starts_with("xpub"));
@@ -1639,12 +1697,12 @@ mod tests {
     fn test_all_implementations_comprehensive() {
         // Comprehensive test ensuring compatibility with all major implementations
         let mut tested_implementations = 0;
-        
+
         // Test each test vector (these are used by all implementations)
         for test_vector in all_test_vectors() {
             let seed = hex_to_bytes(test_vector.seed_hex).unwrap();
             let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
-            
+
             // Verify master key matches (all implementations should agree)
             assert_eq!(
                 master.to_string(),
@@ -1652,27 +1710,35 @@ mod tests {
                 "{}: Master key mismatch",
                 test_vector.description
             );
-            
+
             tested_implementations += 1;
         }
-        
+
         // Verify we tested all vectors
         assert_eq!(tested_implementations, 4, "Should test all 4 test vectors");
-        
+
         // Additionally verify we can handle keys from different sources
         let known_keys = vec![
             // Mainnet keys
             ("xprv", "xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi"),
             ("xpub", "xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8"),
         ];
-        
+
         for (key_type, key_str) in known_keys {
             if key_type == "xprv" {
                 let key = ExtendedPrivateKey::from_str(key_str);
-                assert!(key.is_ok(), "Failed to deserialize {} from known implementation", key_type);
+                assert!(
+                    key.is_ok(),
+                    "Failed to deserialize {} from known implementation",
+                    key_type
+                );
             } else {
                 let key = ExtendedPublicKey::from_str(key_str);
-                assert!(key.is_ok(), "Failed to deserialize {} from known implementation", key_type);
+                assert!(
+                    key.is_ok(),
+                    "Failed to deserialize {} from known implementation",
+                    key_type
+                );
             }
         }
     }

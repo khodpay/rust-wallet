@@ -15,3 +15,12 @@ zeroize = { version = "1.7", features = ["derive"] }
 hex = "0.4"
 
 [dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "key_derivation"
+harness = false
+
+[[bench]]
+name = "serialization"
+harness = false

@@ -35,6 +35,7 @@ version = "0.1.0"
 dependencies = [
  "bip39 0.1.0",
  "bs58",
+ "criterion",
  "hex",
  "hmac",
  "ripemd",

@@ -246,10 +246,9 @@ impl PartialEq for Error {
             (Error::InvalidSeedLength { length: l1 }, Error::InvalidSeedLength { length: l2 }) => {
                 l1 == l2
             }
-            (
-                Error::InvalidPrivateKey { reason: r1 },
-                Error::InvalidPrivateKey { reason: r2 },
-            ) => r1 == r2,
+            (Error::InvalidPrivateKey { reason: r1 }, Error::InvalidPrivateKey { reason: r2 }) => {
+                r1 == r2
+            }
             (Error::InvalidPublicKey { reason: r1 }, Error::InvalidPublicKey { reason: r2 }) => {
                 r1 == r2
             }
@@ -392,9 +391,7 @@ mod tests {
 
     #[test]
     fn test_hardened_derivation_from_public_key_error() {
-        let error = Error::HardenedDerivationFromPublicKey {
-            index: 2147483648,
-        };
+        let error = Error::HardenedDerivationFromPublicKey { index: 2147483648 };
         assert_eq!(
             error.to_string(),
             "Cannot perform hardened derivation (index 2147483648) from public key"
@@ -432,9 +429,6 @@ mod tests {
     #[test]
     fn test_max_depth_exceeded_error() {
         let error = Error::MaxDepthExceeded { depth: 255 };
-        assert_eq!(
-            error.to_string(),
-            "Maximum derivation depth exceeded: 255"
-        );
+        assert_eq!(error.to_string(), "Maximum derivation depth exceeded: 255");
     }
 }
