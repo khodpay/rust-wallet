@@ -204,8 +204,7 @@ fn bench_network_serialization(c: &mut Criterion) {
     let mut group = c.benchmark_group("network_serialization");
 
     // Mainnet
-    let mainnet_key =
-        ExtendedPrivateKey::from_seed(seed, Network::BitcoinMainnet).unwrap();
+    let mainnet_key = ExtendedPrivateKey::from_seed(seed, Network::BitcoinMainnet).unwrap();
     group.bench_function("mainnet_xprv", |b| {
         b.iter(|| {
             let _ = black_box(&mainnet_key).to_string();
@@ -213,8 +212,7 @@ fn bench_network_serialization(c: &mut Criterion) {
     });
 
     // Testnet
-    let testnet_key =
-        ExtendedPrivateKey::from_seed(seed, Network::BitcoinTestnet).unwrap();
+    let testnet_key = ExtendedPrivateKey::from_seed(seed, Network::BitcoinTestnet).unwrap();
     group.bench_function("testnet_tprv", |b| {
         b.iter(|| {
             let _ = black_box(&testnet_key).to_string();

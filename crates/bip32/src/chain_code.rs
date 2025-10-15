@@ -335,10 +335,10 @@ mod tests {
         bytes[1] = 0xCD;
         bytes[2] = 0xEF;
         bytes[3] = 0x01;
-        
+
         let chain_code = ChainCode::new(bytes);
         let debug_str = format!("{:?}", chain_code);
-        
+
         assert!(debug_str.contains("ChainCode"));
         assert!(debug_str.contains("ab"));
         assert!(debug_str.contains("cd"));

@@ -27,10 +27,8 @@ fn bench_master_key_from_seed(c: &mut Criterion) {
 
     c.bench_function("master_key_from_seed", |b| {
         b.iter(|| {
-            let _ = ExtendedPrivateKey::from_seed(
-                black_box(seed),
-                black_box(Network::BitcoinMainnet),
-            );
+            let _ =
+                ExtendedPrivateKey::from_seed(black_box(seed), black_box(Network::BitcoinMainnet));
         })
     });
 }
@@ -60,7 +58,7 @@ fn bench_single_child_hardened(c: &mut Criterion) {
 /// Benchmark path derivation at various depths
 fn bench_path_derivation_by_depth(c: &mut Criterion) {
     let master = setup_master_key();
-    
+
     let paths = vec![
         ("depth_1", "m/0"),
         ("depth_2", "m/0/0"),
@@ -70,7 +68,7 @@ fn bench_path_derivation_by_depth(c: &mut Criterion) {
     ];
 
     let mut group = c.benchmark_group("path_derivation_by_depth");
-    
+
     for (name, path_str) in paths {
         let path = DerivationPath::from_str(path_str).unwrap();
         group.bench_with_input(BenchmarkId::from_parameter(name), &path, |b, path| {
@@ -79,14 +77,14 @@ fn bench_path_derivation_by_depth(c: &mut Criterion) {
             })
         });
     }
-    
+
     group.finish();
 }
 
 /// Benchmark BIP-44 standard paths
 fn bench_bip44_paths(c: &mut Criterion) {
     let master = setup_master_key();
-    
+
     let paths = vec![
         ("bip44_account", "m/44'/0'/0'"),
         ("bip44_receive", "m/44'/0'/0'/0/0"),
@@ -94,7 +92,7 @@ fn bench_bip44_paths(c: &mut Criterion) {
     ];
 
     let mut group = c.benchmark_group("bip44_standard_paths");
-    
+
     for (name, path_str) in paths {
         let path = DerivationPath::from_str(path_str).unwrap();
         group.bench_with_input(BenchmarkId::from_parameter(name), &path, |b, path| {
@@ -103,7 +101,7 @@ fn bench_bip44_paths(c: &mut Criterion) {
             })
         });
     }
-    
+
     group.finish();
 }
 
@@ -211,11 +209,15 @@ fn bench_path_parsing(c: &mut Criterion) {
     let mut group = c.benchmark_group("path_parsing");
 
     for (name, path_str) in paths {
-        group.bench_with_input(BenchmarkId::from_parameter(name), &path_str, |b, path_str| {
-            b.iter(|| {
-                let _ = DerivationPath::from_str(black_box(path_str));
-            })
-        });
+        group.bench_with_input(
+            BenchmarkId::from_parameter(name),
+            &path_str,
+            |b, path_str| {
+                b.iter(|| {
+                    let _ = DerivationPath::from_str(black_box(path_str));
+                })
+            },
+        );
     }
 
     group.finish();

@@ -86,7 +86,7 @@ impl PublicKey {
     /// This function performs multiple validation checks:
     ///
     /// 1. **Length validation**: Must be exactly 33 or 65 bytes
-    /// 2. **Prefix validation**: 
+    /// 2. **Prefix validation**:
     ///    - Compressed (33 bytes): Must start with 0x02 or 0x03
     ///    - Uncompressed (65 bytes): Must start with 0x04
     /// 3. **Curve point validation**: The coordinates must satisfy the secp256k1
@@ -342,11 +342,12 @@ impl PublicKey {
             reason: "Invalid tweak scalar".to_string(),
         })?;
 
-        let tweaked = self.inner.add_exp_tweak(SECP256K1, &scalar).map_err(|e| {
-            Error::InvalidPublicKey {
-                reason: format!("Failed to add tweak: {}", e),
-            }
-        })?;
+        let tweaked =
+            self.inner
+                .add_exp_tweak(SECP256K1, &scalar)
+                .map_err(|e| Error::InvalidPublicKey {
+                    reason: format!("Failed to add tweak: {}", e),
+                })?;
 
         Ok(PublicKey { inner: tweaked })
     }
@@ -686,9 +687,12 @@ mod tests {
         // All zeros is not a valid point on the curve
         let bytes = [0x00; 33];
         let result = PublicKey::from_bytes(&bytes);
-        
+
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), Error::InvalidPublicKey { .. }));
+        assert!(matches!(
+            result.unwrap_err(),
+            Error::InvalidPublicKey { .. }
+        ));
     }
 
     #[test]
@@ -696,20 +700,23 @@ mod tests {
         // All 0xFF is not a valid point on the curve
         let bytes = [0xFF; 33];
         let result = PublicKey::from_bytes(&bytes);
-        
+
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), Error::InvalidPublicKey { .. }));
+        assert!(matches!(
+            result.unwrap_err(),
+            Error::InvalidPublicKey { .. }
+        ));
     }
 
     #[test]
     fn test_invalid_curve_point_wrong_compressed_prefix() {
         // Compressed keys must start with 0x02 or 0x03
         let invalid_prefixes = [0x00, 0x01, 0x04, 0x05, 0x06, 0xFF];
-        
+
         for prefix in invalid_prefixes {
             let mut bytes = [0xAA; 33];
             bytes[0] = prefix;
-            
+
             let result = PublicKey::from_bytes(&bytes);
             assert!(
                 result.is_err(),
@@ -723,11 +730,11 @@ mod tests {
     fn test_invalid_curve_point_wrong_uncompressed_prefix() {
         // Uncompressed keys must start with 0x04
         let invalid_prefixes = [0x00, 0x01, 0x02, 0x03, 0x05, 0x06, 0xFF];
-        
+
         for prefix in invalid_prefixes {
             let mut bytes = [0xAA; 65];
             bytes[0] = prefix;
-            
+
             let result = PublicKey::from_bytes(&bytes);
             assert!(
                 result.is_err(),
@@ -741,9 +748,21 @@ mod tests {
     fn test_invalid_curve_point_random_bytes() {
         // Random bytes that don't represent a valid curve point
         let test_cases = vec![
-            [0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
-            [0x03, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF],
-            [0x02, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11],
+            [
+                0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00,
+            ],
+            [
+                0x03, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            ],
+            [
+                0x02, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
+                0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
+                0x11, 0x11, 0x11, 0x11, 0x11,
+            ],
         ];
 
         for bytes in test_cases {
@@ -761,12 +780,11 @@ mod tests {
         // Using pattern that secp256k1 library will reject as not on curve
         // This uses an x-coordinate with no valid y
         let bytes = [
-            0x02, 0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0,
-            0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0, 0x12,
-            0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0, 0x12, 0x34,
-            0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0, 0x12
+            0x02, 0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0, 0x12, 0x34, 0x56, 0x78, 0x9A,
+            0xBC, 0xDE, 0xF0, 0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0, 0x12, 0x34, 0x56,
+            0x78, 0x9A, 0xBC, 0xDE, 0xF0, 0x12,
         ];
-        
+
         let result = PublicKey::from_bytes(&bytes);
         // This may or may not be on the curve - secp256k1 library handles validation
         // We're testing that invalid points are rejected
@@ -776,7 +794,10 @@ mod tests {
             assert!(true);
         } else {
             // If it's invalid, verify we get the right error
-            assert!(matches!(result.unwrap_err(), Error::InvalidPublicKey { .. }));
+            assert!(matches!(
+                result.unwrap_err(),
+                Error::InvalidPublicKey { .. }
+            ));
         }
     }
 
@@ -784,12 +805,11 @@ mod tests {
     fn test_invalid_curve_point_exceeds_field_prime() {
         // x-coordinate exceeds the field prime p = 2^256 - 2^32 - 977
         let bytes = [
-            0x02, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+            0x02, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
         ];
-        
+
         let result = PublicKey::from_bytes(&bytes);
         assert!(result.is_err());
     }
@@ -798,16 +818,19 @@ mod tests {
     fn test_invalid_curve_point_empty_bytes() {
         let bytes = [];
         let result = PublicKey::from_bytes(&bytes);
-        
+
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), Error::InvalidPublicKey { .. }));
+        assert!(matches!(
+            result.unwrap_err(),
+            Error::InvalidPublicKey { .. }
+        ));
     }
 
     #[test]
     fn test_invalid_curve_point_single_byte() {
         let bytes = [0x02];
         let result = PublicKey::from_bytes(&bytes);
-        
+
         assert!(result.is_err());
     }
 
@@ -815,27 +838,36 @@ mod tests {
     fn test_invalid_curve_point_wrong_length_34() {
         let bytes = [0x02; 34];
         let result = PublicKey::from_bytes(&bytes);
-        
+
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("must be 33 or 65 bytes"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("must be 33 or 65 bytes"));
     }
 
     #[test]
     fn test_invalid_curve_point_wrong_length_64() {
         let bytes = [0x04; 64];
         let result = PublicKey::from_bytes(&bytes);
-        
+
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("must be 33 or 65 bytes"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("must be 33 or 65 bytes"));
     }
 
     #[test]
     fn test_invalid_curve_point_wrong_length_66() {
         let bytes = [0x04; 66];
         let result = PublicKey::from_bytes(&bytes);
-        
+
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("must be 33 or 65 bytes"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("must be 33 or 65 bytes"));
     }
 
     #[test]
@@ -843,13 +875,16 @@ mod tests {
         // Start with a valid key, then corrupt it
         let private_key = create_test_private_key();
         let mut valid_bytes = PublicKey::from_private_key(&private_key).to_bytes();
-        
+
         // Corrupt the prefix to make it definitely invalid
         valid_bytes[0] = 0x05; // Invalid prefix
-        
+
         let result = PublicKey::from_bytes(&valid_bytes);
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), Error::InvalidPublicKey { .. }));
+        assert!(matches!(
+            result.unwrap_err(),
+            Error::InvalidPublicKey { .. }
+        ));
     }
 
     #[test]
@@ -857,7 +892,7 @@ mod tests {
         // Uncompressed format with all zeros (except prefix)
         let mut bytes = [0x00; 65];
         bytes[0] = 0x04;
-        
+
         let result = PublicKey::from_bytes(&bytes);
         assert!(result.is_err());
     }
@@ -867,7 +902,7 @@ mod tests {
         // Uncompressed format with coordinates not on curve
         let mut bytes = [0xAA; 65];
         bytes[0] = 0x04;
-        
+
         let result = PublicKey::from_bytes(&bytes);
         assert!(result.is_err());
     }
@@ -878,10 +913,10 @@ mod tests {
         let private_key = PrivateKey::from_bytes(&[0x01; 32]).unwrap();
         let public_key = PublicKey::from_private_key(&private_key);
         let bytes = public_key.to_bytes();
-        
+
         // Should start with 0x02 or 0x03
         assert!(bytes[0] == 0x02 || bytes[0] == 0x03);
-        
+
         // Should be parseable
         let result = PublicKey::from_bytes(&bytes);
         assert!(result.is_ok());
@@ -892,14 +927,14 @@ mod tests {
         // Ensure conversion between compressed and uncompressed works
         let private_key = create_test_private_key();
         let public_key = PublicKey::from_private_key(&private_key);
-        
+
         let compressed = public_key.to_bytes();
         let uncompressed = public_key.to_uncompressed();
-        
+
         // Both should be valid
         assert!(PublicKey::from_bytes(&compressed).is_ok());
         assert!(PublicKey::from_bytes(&uncompressed).is_ok());
-        
+
         // And should represent the same point
         let pub1 = PublicKey::from_bytes(&compressed).unwrap();
         let pub2 = PublicKey::from_bytes(&uncompressed).unwrap();
@@ -911,11 +946,11 @@ mod tests {
         // Test that invalid points are caught when deserializing extended keys
         // This is tested indirectly through the from_str implementation
         use crate::{ExtendedPrivateKey, Network};
-        
+
         let seed = [0x01; 64];
         let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
         let xpub = master.to_extended_public_key().to_string();
-        
+
         // Valid xpub should parse successfully
         let result = xpub.parse::<crate::ExtendedPublicKey>();
         assert!(result.is_ok());

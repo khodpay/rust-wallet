@@ -267,13 +267,13 @@ impl Network {
     pub fn from_xprv_version(version: u32) -> Option<Network> {
         // Iterate through all network variants
         const NETWORKS: [Network; 2] = [Network::BitcoinMainnet, Network::BitcoinTestnet];
-        
+
         for network in NETWORKS {
             if network.xprv_version() == version {
                 return Some(network);
             }
         }
-        
+
         None
     }
 
@@ -304,13 +304,13 @@ impl Network {
     pub fn from_xpub_version(version: u32) -> Option<Network> {
         // Iterate through all network variants
         const NETWORKS: [Network; 2] = [Network::BitcoinMainnet, Network::BitcoinTestnet];
-        
+
         for network in NETWORKS {
             if network.xpub_version() == version {
                 return Some(network);
             }
         }
-        
+
         None
     }
 }
@@ -473,7 +473,7 @@ mod tests {
         let network1 = Network::BitcoinMainnet;
         let network2 = network1; // Copy
         let network3 = network1.clone(); // Clone
-        
+
         assert_eq!(network1, network2);
         assert_eq!(network1, network3);
     }

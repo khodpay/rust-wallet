@@ -33,14 +33,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("{}", "-".repeat(60));
 
     let passphrase = None; // Optional passphrase for extra security (BIP39 "25th word")
-    let master_priv = ExtendedPrivateKey::from_mnemonic(&mnemonic, passphrase, Network::BitcoinMainnet)?;
+    let master_priv =
+        ExtendedPrivateKey::from_mnemonic(&mnemonic, passphrase, Network::BitcoinMainnet)?;
 
     println!("✅ Master extended private key created from mnemonic");
     println!("   Process: Mnemonic → Seed (BIP39) → Master Key (BIP32)");
     println!("   Network: {:?}", master_priv.network());
     println!("   Depth: {} (master key)", master_priv.depth());
     println!("   Child number: {:?}", master_priv.child_number());
-    println!("   Parent fingerprint: {:02x?}", master_priv.parent_fingerprint());
+    println!(
+        "   Parent fingerprint: {:02x?}",
+        master_priv.parent_fingerprint()
+    );
     println!("   Fingerprint: {:02x?}", master_priv.fingerprint());
 
     // ========================================================================
@@ -85,11 +89,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("📝 Using mnemonic to recover wallet...");
 
     let recovered_mnemonic = Mnemonic::from_phrase(&mnemonic_phrase, Language::English)?;
-    let recovered_key = ExtendedPrivateKey::from_mnemonic(&recovered_mnemonic, passphrase, Network::BitcoinMainnet)?;
+    let recovered_key = ExtendedPrivateKey::from_mnemonic(
+        &recovered_mnemonic,
+        passphrase,
+        Network::BitcoinMainnet,
+    )?;
 
     println!("✅ Wallet recovered successfully!");
-    println!("   Original fingerprint:  {:02x?}", master_priv.fingerprint());
-    println!("   Recovered fingerprint: {:02x?}", recovered_key.fingerprint());
+    println!(
+        "   Original fingerprint:  {:02x?}",
+        master_priv.fingerprint()
+    );
+    println!(
+        "   Recovered fingerprint: {:02x?}",
+        recovered_key.fingerprint()
+    );
 
     if master_priv.fingerprint() == recovered_key.fingerprint() {
         println!("   ✅ Fingerprints match - recovery successful!");

@@ -194,7 +194,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("   {}", receive_from_public);
     println!();
 
-    let keys_match = receive_from_private.to_extended_public_key().to_string() 
+    let keys_match = receive_from_private.to_extended_public_key().to_string()
         == receive_from_public.to_string();
     println!("🎯 Keys match: {}", keys_match);
 

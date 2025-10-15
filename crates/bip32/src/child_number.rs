@@ -358,15 +358,15 @@ mod tests {
     fn test_constants_values() {
         assert_eq!(ChildNumber::HARDENED_BIT, 0x80000000);
         assert_eq!(ChildNumber::HARDENED_BIT, 2_147_483_648);
-        
+
         assert_eq!(ChildNumber::MAX_NORMAL_INDEX, 0x7FFFFFFF);
         assert_eq!(ChildNumber::MAX_NORMAL_INDEX, 2_147_483_647);
-        
+
         assert_eq!(ChildNumber::MAX_BASE_INDEX, 2_147_483_647);
-        
+
         assert_eq!(ChildNumber::MIN_HARDENED_INDEX, 0x80000000);
         assert_eq!(ChildNumber::MIN_HARDENED_INDEX, 2_147_483_648);
-        
+
         assert_eq!(ChildNumber::MAX_HARDENED_INDEX, 0xFFFFFFFF);
         assert_eq!(ChildNumber::MAX_HARDENED_INDEX, u32::MAX);
     }
@@ -375,10 +375,10 @@ mod tests {
     fn test_constants_relationships() {
         // MAX_NORMAL_INDEX is one less than HARDENED_BIT
         assert_eq!(ChildNumber::MAX_NORMAL_INDEX + 1, ChildNumber::HARDENED_BIT);
-        
+
         // MIN_HARDENED_INDEX equals HARDENED_BIT
         assert_eq!(ChildNumber::MIN_HARDENED_INDEX, ChildNumber::HARDENED_BIT);
-        
+
         // MAX_BASE_INDEX equals MAX_NORMAL_INDEX
         assert_eq!(ChildNumber::MAX_BASE_INDEX, ChildNumber::MAX_NORMAL_INDEX);
     }
@@ -391,7 +391,7 @@ mod tests {
     fn test_normal_creation() {
         let normal_0 = ChildNumber::Normal(0);
         assert!(matches!(normal_0, ChildNumber::Normal(0)));
-        
+
         let normal_max = ChildNumber::Normal(ChildNumber::MAX_NORMAL_INDEX);
         assert!(matches!(normal_max, ChildNumber::Normal(_)));
     }
@@ -400,10 +400,10 @@ mod tests {
     fn test_hardened_creation() {
         let hardened_0 = ChildNumber::Hardened(0);
         assert!(matches!(hardened_0, ChildNumber::Hardened(0)));
-        
+
         let hardened_44 = ChildNumber::Hardened(44);
         assert!(matches!(hardened_44, ChildNumber::Hardened(44)));
-        
+
         let hardened_max = ChildNumber::Hardened(ChildNumber::MAX_NORMAL_INDEX);
         assert!(matches!(hardened_max, ChildNumber::Hardened(_)));
     }
@@ -433,11 +433,11 @@ mod tests {
         // Normal variants order by their index
         assert!(ChildNumber::Normal(0) < ChildNumber::Normal(1));
         assert!(ChildNumber::Normal(1) < ChildNumber::Normal(100));
-        
+
         // Hardened variants order by their index
         assert!(ChildNumber::Hardened(0) < ChildNumber::Hardened(1));
         assert!(ChildNumber::Hardened(1) < ChildNumber::Hardened(100));
-        
+
         // Normal comes before Hardened (enum variant order)
         assert!(ChildNumber::Normal(0) < ChildNumber::Hardened(0));
         assert!(ChildNumber::Normal(999) < ChildNumber::Hardened(0));
@@ -448,7 +448,7 @@ mod tests {
         let original = ChildNumber::Normal(42);
         let cloned = original.clone();
         let copied = original;
-        
+
         assert_eq!(original, cloned);
         assert_eq!(original, copied);
     }
@@ -456,12 +456,12 @@ mod tests {
     #[test]
     fn test_hash() {
         use std::collections::HashSet;
-        
+
         let mut set = HashSet::new();
         set.insert(ChildNumber::Normal(0));
         set.insert(ChildNumber::Normal(1));
         set.insert(ChildNumber::Hardened(0));
-        
+
         assert!(set.contains(&ChildNumber::Normal(0)));
         assert!(set.contains(&ChildNumber::Hardened(0)));
         assert!(!set.contains(&ChildNumber::Normal(2)));
@@ -471,10 +471,10 @@ mod tests {
     fn test_debug_format() {
         let normal = ChildNumber::Normal(42);
         let hardened = ChildNumber::Hardened(44);
-        
+
         let normal_debug = format!("{:?}", normal);
         let hardened_debug = format!("{:?}", hardened);
-        
+
         assert!(normal_debug.contains("Normal"));
         assert!(normal_debug.contains("42"));
         assert!(hardened_debug.contains("Hardened"));
@@ -490,12 +490,15 @@ mod tests {
         // Normal indices (0 to 2^31-1)
         let child_0 = ChildNumber::from_index(0);
         assert_eq!(child_0, ChildNumber::Normal(0));
-        
+
         let child_1 = ChildNumber::from_index(1);
         assert_eq!(child_1, ChildNumber::Normal(1));
-        
+
         let child_max = ChildNumber::from_index(ChildNumber::MAX_NORMAL_INDEX);
-        assert_eq!(child_max, ChildNumber::Normal(ChildNumber::MAX_NORMAL_INDEX));
+        assert_eq!(
+            child_max,
+            ChildNumber::Normal(ChildNumber::MAX_NORMAL_INDEX)
+        );
     }
 
     #[test]
@@ -503,15 +506,18 @@ mod tests {
         // Hardened indices (2^31 to 2^32-1)
         let child_h0 = ChildNumber::from_index(ChildNumber::HARDENED_BIT);
         assert_eq!(child_h0, ChildNumber::Hardened(0));
-        
+
         let child_h1 = ChildNumber::from_index(ChildNumber::HARDENED_BIT + 1);
         assert_eq!(child_h1, ChildNumber::Hardened(1));
-        
+
         let child_h44 = ChildNumber::from_index(ChildNumber::HARDENED_BIT + 44);
         assert_eq!(child_h44, ChildNumber::Hardened(44));
-        
+
         let child_max = ChildNumber::from_index(u32::MAX);
-        assert_eq!(child_max, ChildNumber::Hardened(ChildNumber::MAX_NORMAL_INDEX));
+        assert_eq!(
+            child_max,
+            ChildNumber::Hardened(ChildNumber::MAX_NORMAL_INDEX)
+        );
     }
 
     #[test]
@@ -519,7 +525,7 @@ mod tests {
         // Test boundary between normal and hardened
         let last_normal = ChildNumber::from_index(0x7FFFFFFF);
         assert!(matches!(last_normal, ChildNumber::Normal(_)));
-        
+
         let first_hardened = ChildNumber::from_index(0x80000000);
         assert!(matches!(first_hardened, ChildNumber::Hardened(_)));
     }
@@ -533,16 +539,30 @@ mod tests {
         assert_eq!(ChildNumber::Normal(0).to_index(), 0);
         assert_eq!(ChildNumber::Normal(1).to_index(), 1);
         assert_eq!(ChildNumber::Normal(42).to_index(), 42);
-        assert_eq!(ChildNumber::Normal(ChildNumber::MAX_NORMAL_INDEX).to_index(), 
-                   ChildNumber::MAX_NORMAL_INDEX);
+        assert_eq!(
+            ChildNumber::Normal(ChildNumber::MAX_NORMAL_INDEX).to_index(),
+            ChildNumber::MAX_NORMAL_INDEX
+        );
     }
 
     #[test]
     fn test_to_u32_hardened() {
-        assert_eq!(ChildNumber::Hardened(0).to_index(), ChildNumber::HARDENED_BIT);
-        assert_eq!(ChildNumber::Hardened(1).to_index(), ChildNumber::HARDENED_BIT + 1);
-        assert_eq!(ChildNumber::Hardened(44).to_index(), ChildNumber::HARDENED_BIT + 44);
-        assert_eq!(ChildNumber::Hardened(ChildNumber::MAX_NORMAL_INDEX).to_index(), u32::MAX);
+        assert_eq!(
+            ChildNumber::Hardened(0).to_index(),
+            ChildNumber::HARDENED_BIT
+        );
+        assert_eq!(
+            ChildNumber::Hardened(1).to_index(),
+            ChildNumber::HARDENED_BIT + 1
+        );
+        assert_eq!(
+            ChildNumber::Hardened(44).to_index(),
+            ChildNumber::HARDENED_BIT + 44
+        );
+        assert_eq!(
+            ChildNumber::Hardened(ChildNumber::MAX_NORMAL_INDEX).to_index(),
+            u32::MAX
+        );
     }
 
     #[test]
@@ -552,7 +572,7 @@ mod tests {
             let child = ChildNumber::from_index(i);
             assert_eq!(child.to_index(), i);
         }
-        
+
         // Hardened values
         for i in [
             ChildNumber::HARDENED_BIT,
@@ -574,7 +594,7 @@ mod tests {
         assert!(ChildNumber::Normal(0).is_normal());
         assert!(ChildNumber::Normal(42).is_normal());
         assert!(ChildNumber::Normal(ChildNumber::MAX_NORMAL_INDEX).is_normal());
-        
+
         assert!(!ChildNumber::Hardened(0).is_normal());
         assert!(!ChildNumber::Hardened(44).is_normal());
     }
@@ -583,7 +603,7 @@ mod tests {
     fn test_is_hardened() {
         assert!(!ChildNumber::Normal(0).is_hardened());
         assert!(!ChildNumber::Normal(42).is_hardened());
-        
+
         assert!(ChildNumber::Hardened(0).is_hardened());
         assert!(ChildNumber::Hardened(44).is_hardened());
         assert!(ChildNumber::Hardened(ChildNumber::MAX_NORMAL_INDEX).is_hardened());
@@ -594,7 +614,7 @@ mod tests {
         let normal = ChildNumber::Normal(42);
         assert!(normal.is_normal());
         assert!(!normal.is_hardened());
-        
+
         let hardened = ChildNumber::Hardened(42);
         assert!(!hardened.is_normal());
         assert!(hardened.is_hardened());
@@ -608,8 +628,10 @@ mod tests {
     fn test_value_normal() {
         assert_eq!(ChildNumber::Normal(0).value(), 0);
         assert_eq!(ChildNumber::Normal(42).value(), 42);
-        assert_eq!(ChildNumber::Normal(ChildNumber::MAX_NORMAL_INDEX).value(), 
-                   ChildNumber::MAX_NORMAL_INDEX);
+        assert_eq!(
+            ChildNumber::Normal(ChildNumber::MAX_NORMAL_INDEX).value(),
+            ChildNumber::MAX_NORMAL_INDEX
+        );
     }
 
     #[test]
@@ -617,8 +639,10 @@ mod tests {
         // value() returns the stored value (without hardened bit)
         assert_eq!(ChildNumber::Hardened(0).value(), 0);
         assert_eq!(ChildNumber::Hardened(44).value(), 44);
-        assert_eq!(ChildNumber::Hardened(ChildNumber::MAX_NORMAL_INDEX).value(), 
-                   ChildNumber::MAX_NORMAL_INDEX);
+        assert_eq!(
+            ChildNumber::Hardened(ChildNumber::MAX_NORMAL_INDEX).value(),
+            ChildNumber::MAX_NORMAL_INDEX
+        );
     }
 
     #[test]
@@ -626,7 +650,7 @@ mod tests {
         // For Normal: value() == to_index()
         let normal = ChildNumber::Normal(42);
         assert_eq!(normal.value(), normal.to_index());
-        
+
         // For Hardened: value() != to_index() (to_index adds HARDENED_BIT)
         let hardened = ChildNumber::Hardened(44);
         assert_eq!(hardened.value(), 44);

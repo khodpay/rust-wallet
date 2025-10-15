@@ -312,7 +312,9 @@ impl PrivateKey {
             reason: "Invalid tweak scalar".to_string(),
         })?;
 
-        let tweaked = self.inner.add_tweak(&scalar)
+        let tweaked = self
+            .inner
+            .add_tweak(&scalar)
             .map_err(|_| Error::KeyOverflow)?;
 
         Ok(PrivateKey { inner: tweaked })
@@ -403,7 +405,10 @@ mod tests {
         let bytes = [0u8; 32];
         let result = PrivateKey::from_bytes(&bytes);
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("Invalid secp256k1"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("Invalid secp256k1"));
     }
 
     #[test]
@@ -450,7 +455,7 @@ mod tests {
         let bytes = [1u8; 32];
         let private_key = PrivateKey::from_bytes(&bytes).unwrap();
         let public_key = private_key.public_key();
-        
+
         // Verify we got a valid public key (33 bytes compressed)
         assert_eq!(public_key.serialize().len(), 33);
     }
@@ -461,10 +466,10 @@ mod tests {
         let bytes = [1u8; 32];
         let private_key1 = PrivateKey::from_bytes(&bytes).unwrap();
         let private_key2 = PrivateKey::from_bytes(&bytes).unwrap();
-        
+
         let public_key1 = private_key1.public_key();
         let public_key2 = private_key2.public_key();
-        
+
         assert_eq!(public_key1.serialize(), public_key2.serialize());
     }
 
@@ -472,10 +477,10 @@ mod tests {
     fn test_private_key_tweak_add_valid() {
         let bytes = [1u8; 32];
         let private_key = PrivateKey::from_bytes(&bytes).unwrap();
-        
+
         let tweak = [2u8; 32];
         let derived = private_key.tweak_add(&tweak).unwrap();
-        
+
         // Derived key should be different from original
         assert_ne!(derived.to_bytes(), private_key.to_bytes());
     }
@@ -484,7 +489,7 @@ mod tests {
     fn test_private_key_tweak_add_invalid_length() {
         let bytes = [1u8; 32];
         let private_key = PrivateKey::from_bytes(&bytes).unwrap();
-        
+
         // Tweak too short
         let tweak = [1u8; 16];
         let result = private_key.tweak_add(&tweak);
@@ -496,7 +501,7 @@ mod tests {
     fn test_private_key_tweak_add_zero() {
         let bytes = [5u8; 32];
         let private_key = PrivateKey::from_bytes(&bytes).unwrap();
-        
+
         // Adding zero should give same key
         let tweak = [0u8; 32];
         let derived = private_key.tweak_add(&tweak).unwrap();
@@ -508,7 +513,7 @@ mod tests {
         let bytes = [99u8; 32];
         let private_key1 = PrivateKey::from_bytes(&bytes).unwrap();
         let private_key2 = private_key1.clone();
-        
+
         assert_eq!(private_key1, private_key2);
         assert_eq!(private_key1.to_bytes(), private_key2.to_bytes());
     }
@@ -518,11 +523,11 @@ mod tests {
         let bytes1 = [1u8; 32];
         let bytes2 = [1u8; 32];
         let bytes3 = [2u8; 32];
-        
+
         let key1 = PrivateKey::from_bytes(&bytes1).unwrap();
         let key2 = PrivateKey::from_bytes(&bytes2).unwrap();
         let key3 = PrivateKey::from_bytes(&bytes3).unwrap();
-        
+
         assert_eq!(key1, key2);
         assert_ne!(key1, key3);
         assert_ne!(key2, key3);
@@ -533,7 +538,7 @@ mod tests {
         let bytes = [1u8; 32];
         let private_key = PrivateKey::from_bytes(&bytes).unwrap();
         let debug_str = format!("{:?}", private_key);
-        
+
         assert!(debug_str.contains("PrivateKey"));
         assert!(debug_str.contains("REDACTED"));
         // Should NOT contain actual key bytes
@@ -584,7 +589,7 @@ mod tests {
     fn test_private_key_different_values() {
         let key1 = PrivateKey::from_bytes(&[1u8; 32]).unwrap();
         let key2 = PrivateKey::from_bytes(&[2u8; 32]).unwrap();
-        
+
         assert_ne!(key1, key2);
         assert_ne!(key1.to_bytes(), key2.to_bytes());
     }
@@ -594,13 +599,13 @@ mod tests {
         // Test that (key + a) + b should give a valid result
         let bytes = [10u8; 32];
         let key = PrivateKey::from_bytes(&bytes).unwrap();
-        
+
         let tweak1 = [1u8; 32];
         let tweak2 = [2u8; 32];
-        
+
         let derived1 = key.tweak_add(&tweak1).unwrap();
         let derived2 = derived1.tweak_add(&tweak2).unwrap();
-        
+
         assert_ne!(derived2.to_bytes(), key.to_bytes());
     }
 
@@ -608,10 +613,10 @@ mod tests {
     fn test_private_key_public_key_different_for_different_keys() {
         let key1 = PrivateKey::from_bytes(&[1u8; 32]).unwrap();
         let key2 = PrivateKey::from_bytes(&[2u8; 32]).unwrap();
-        
+
         let pub1 = key1.public_key();
         let pub2 = key2.public_key();
-        
+
         assert_ne!(pub1.serialize(), pub2.serialize());
     }
 
@@ -622,52 +627,58 @@ mod tests {
     fn test_key_overflow_exactly_curve_order() {
         // Key value exactly equal to curve order n (invalid)
         let n = [
-            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE,
-            0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B,
-            0xBF, 0xD2, 0x5E, 0x8C, 0xD0, 0x36, 0x41, 0x41,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFE, 0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B, 0xBF, 0xD2, 0x5E, 0x8C,
+            0xD0, 0x36, 0x41, 0x41,
         ];
-        
+
         let result = PrivateKey::from_bytes(&n);
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), Error::InvalidPrivateKey { .. }));
+        assert!(matches!(
+            result.unwrap_err(),
+            Error::InvalidPrivateKey { .. }
+        ));
     }
 
     #[test]
     fn test_key_overflow_one_more_than_curve_order() {
         // Key value n + 1 (invalid - exceeds curve order)
         let n_plus_1 = [
-            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE,
-            0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B,
-            0xBF, 0xD2, 0x5E, 0x8C, 0xD0, 0x36, 0x41, 0x42,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFE, 0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B, 0xBF, 0xD2, 0x5E, 0x8C,
+            0xD0, 0x36, 0x41, 0x42,
         ];
-        
+
         let result = PrivateKey::from_bytes(&n_plus_1);
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), Error::InvalidPrivateKey { .. }));
+        assert!(matches!(
+            result.unwrap_err(),
+            Error::InvalidPrivateKey { .. }
+        ));
     }
 
     #[test]
     fn test_key_overflow_max_u256() {
         // Maximum possible 256-bit value (invalid - far exceeds curve order)
         let max_u256 = [0xFF; 32];
-        
+
         let result = PrivateKey::from_bytes(&max_u256);
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), Error::InvalidPrivateKey { .. }));
+        assert!(matches!(
+            result.unwrap_err(),
+            Error::InvalidPrivateKey { .. }
+        ));
     }
 
     #[test]
     fn test_key_overflow_one_less_than_curve_order() {
         // Key value n - 1 (valid - just below curve order)
         let n_minus_1 = [
-            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE,
-            0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B,
-            0xBF, 0xD2, 0x5E, 0x8C, 0xD0, 0x36, 0x41, 0x40,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFE, 0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B, 0xBF, 0xD2, 0x5E, 0x8C,
+            0xD0, 0x36, 0x41, 0x40,
         ];
-        
+
         let result = PrivateKey::from_bytes(&n_minus_1);
         assert!(result.is_ok(), "n-1 should be valid");
     }
@@ -676,18 +687,17 @@ mod tests {
     fn test_key_overflow_max_valid_key() {
         // Maximum valid private key (n - 1)
         let n_minus_1 = [
-            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE,
-            0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B,
-            0xBF, 0xD2, 0x5E, 0x8C, 0xD0, 0x36, 0x41, 0x40,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFE, 0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B, 0xBF, 0xD2, 0x5E, 0x8C,
+            0xD0, 0x36, 0x41, 0x40,
         ];
-        
+
         let private_key = PrivateKey::from_bytes(&n_minus_1).unwrap();
-        
+
         // Should be able to derive public key
         let public_key = private_key.public_key();
         assert_eq!(public_key.serialize().len(), 33);
-        
+
         // Should be able to convert back to bytes
         let bytes = private_key.to_bytes();
         assert_eq!(bytes, n_minus_1);
@@ -698,9 +708,9 @@ mod tests {
         // Minimum valid private key (1)
         let mut one = [0u8; 32];
         one[31] = 0x01;
-        
+
         let private_key = PrivateKey::from_bytes(&one).unwrap();
-        
+
         // Should be able to derive public key
         let public_key = private_key.public_key();
         assert_eq!(public_key.serialize().len(), 33);
@@ -709,22 +719,20 @@ mod tests {
     #[test]
     fn test_key_overflow_boundary_values() {
         // Test various boundary values near curve order
-        
+
         // Valid: n - 2
         let n_minus_2 = [
-            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE,
-            0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B,
-            0xBF, 0xD2, 0x5E, 0x8C, 0xD0, 0x36, 0x41, 0x3F,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFE, 0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B, 0xBF, 0xD2, 0x5E, 0x8C,
+            0xD0, 0x36, 0x41, 0x3F,
         ];
         assert!(PrivateKey::from_bytes(&n_minus_2).is_ok());
-        
+
         // Valid: n - 100
         let n_minus_100 = [
-            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE,
-            0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B,
-            0xBF, 0xD2, 0x5E, 0x8C, 0xD0, 0x36, 0x40, 0xDD,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFE, 0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B, 0xBF, 0xD2, 0x5E, 0x8C,
+            0xD0, 0x36, 0x40, 0xDD,
         ];
         assert!(PrivateKey::from_bytes(&n_minus_100).is_ok());
     }
@@ -732,17 +740,16 @@ mod tests {
     #[test]
     fn test_key_overflow_high_values() {
         // Test various high values that exceed curve order
-        
+
         // All 0xFF (definitely > n)
         let all_ff = [0xFF; 32];
         assert!(PrivateKey::from_bytes(&all_ff).is_err());
-        
+
         // High value in first byte
         let high_first = [
-            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x01,
         ];
         assert!(PrivateKey::from_bytes(&high_first).is_err());
     }
@@ -751,30 +758,31 @@ mod tests {
     fn test_key_overflow_from_array() {
         // Test overflow detection with from_array method
         let n = [
-            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE,
-            0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B,
-            0xBF, 0xD2, 0x5E, 0x8C, 0xD0, 0x36, 0x41, 0x41,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFE, 0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B, 0xBF, 0xD2, 0x5E, 0x8C,
+            0xD0, 0x36, 0x41, 0x41,
         ];
-        
+
         let result = PrivateKey::from_array(n);
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), Error::InvalidPrivateKey { .. }));
+        assert!(matches!(
+            result.unwrap_err(),
+            Error::InvalidPrivateKey { .. }
+        ));
     }
 
     #[test]
     fn test_key_overflow_error_message() {
         // Verify error message is informative
         let n = [
-            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE,
-            0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B,
-            0xBF, 0xD2, 0x5E, 0x8C, 0xD0, 0x36, 0x41, 0x41,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFE, 0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B, 0xBF, 0xD2, 0x5E, 0x8C,
+            0xD0, 0x36, 0x41, 0x41,
         ];
-        
+
         let result = PrivateKey::from_bytes(&n);
         assert!(result.is_err());
-        
+
         let error_msg = result.unwrap_err().to_string();
         assert!(error_msg.contains("Invalid private key") || error_msg.contains("secp256k1"));
     }
@@ -783,12 +791,11 @@ mod tests {
     fn test_key_overflow_try_from_slice() {
         // Test overflow detection with TryFrom trait
         let n: &[u8] = &[
-            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE,
-            0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B,
-            0xBF, 0xD2, 0x5E, 0x8C, 0xD0, 0x36, 0x41, 0x41,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFE, 0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B, 0xBF, 0xD2, 0x5E, 0x8C,
+            0xD0, 0x36, 0x41, 0x41,
         ];
-        
+
         let result = PrivateKey::try_from(n);
         assert!(result.is_err());
     }
@@ -797,12 +804,11 @@ mod tests {
     fn test_key_overflow_try_from_array() {
         // Test overflow detection with TryFrom trait for arrays
         let n = [
-            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE,
-            0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B,
-            0xBF, 0xD2, 0x5E, 0x8C, 0xD0, 0x36, 0x41, 0x41,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFE, 0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B, 0xBF, 0xD2, 0x5E, 0x8C,
+            0xD0, 0x36, 0x41, 0x41,
         ];
-        
+
         let result = PrivateKey::try_from(n);
         assert!(result.is_err());
     }
@@ -810,26 +816,29 @@ mod tests {
     #[test]
     fn test_key_overflow_valid_range() {
         // Test that valid keys across the range work
-        
+
         // Small value
-        let small = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x42];
+        let small = [
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x42,
+        ];
         assert!(PrivateKey::from_bytes(&small).is_ok());
-        
+
         // Medium value
-        let medium = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                      0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0,
-                      0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0];
+        let medium = [
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0, 0x12, 0x34, 0x56, 0x78,
+            0x9A, 0xBC, 0xDE, 0xF0,
+        ];
         assert!(PrivateKey::from_bytes(&medium).is_ok());
-        
+
         // Large but valid value (well below n)
-        let large = [0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF];
+        let large = [
+            0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF,
+        ];
         assert!(PrivateKey::from_bytes(&large).is_ok());
     }
 
@@ -837,18 +846,17 @@ mod tests {
     fn test_key_overflow_derived_keys_valid() {
         // Ensure that even max valid keys can be used for derivation
         let n_minus_1 = [
-            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE,
-            0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B,
-            0xBF, 0xD2, 0x5E, 0x8C, 0xD0, 0x36, 0x41, 0x40,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFE, 0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B, 0xBF, 0xD2, 0x5E, 0x8C,
+            0xD0, 0x36, 0x41, 0x40,
         ];
-        
+
         let private_key = PrivateKey::from_bytes(&n_minus_1).unwrap();
-        
+
         // Should be able to get public key
         let public_key = private_key.public_key();
         assert!(public_key.serialize().len() > 0);
-        
+
         // Should be able to get secret key reference
         let secret_key = private_key.secret_key();
         assert_eq!(secret_key.secret_bytes(), n_minus_1);
@@ -859,9 +867,12 @@ mod tests {
         // All zeros is invalid
         let zero = [0x00; 32];
         let result = PrivateKey::from_bytes(&zero);
-        
+
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), Error::InvalidPrivateKey { .. }));
+        assert!(matches!(
+            result.unwrap_err(),
+            Error::InvalidPrivateKey { .. }
+        ));
     }
 
     #[test]
@@ -869,9 +880,12 @@ mod tests {
         // Test zero key rejection with from_array
         let zero = [0x00; 32];
         let result = PrivateKey::from_array(zero);
-        
+
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), Error::InvalidPrivateKey { .. }));
+        assert!(matches!(
+            result.unwrap_err(),
+            Error::InvalidPrivateKey { .. }
+        ));
     }
 
     #[test]
@@ -879,7 +893,7 @@ mod tests {
         // Test zero key rejection with TryFrom trait
         let zero: &[u8] = &[0x00; 32];
         let result = PrivateKey::try_from(zero);
-        
+
         assert!(result.is_err());
     }
 
@@ -888,7 +902,7 @@ mod tests {
         // Test zero key rejection with TryFrom trait for arrays
         let zero = [0x00; 32];
         let result = PrivateKey::try_from(zero);
-        
+
         assert!(result.is_err());
     }
 
@@ -897,7 +911,7 @@ mod tests {
         // Verify error message is clear
         let zero = [0x00; 32];
         let result = PrivateKey::from_bytes(&zero);
-        
+
         assert!(result.is_err());
         let error_msg = result.unwrap_err().to_string();
         assert!(
@@ -913,20 +927,26 @@ mod tests {
         let zero = [0x00; 32];
         let mut one = [0x00; 32];
         one[31] = 0x01;
-        
-        assert!(PrivateKey::from_bytes(&zero).is_err(), "Zero key should be rejected");
-        assert!(PrivateKey::from_bytes(&one).is_ok(), "Key value 1 should be valid");
+
+        assert!(
+            PrivateKey::from_bytes(&zero).is_err(),
+            "Zero key should be rejected"
+        );
+        assert!(
+            PrivateKey::from_bytes(&one).is_ok(),
+            "Key value 1 should be valid"
+        );
     }
 
     #[test]
     fn test_zero_key_prevents_public_key_generation() {
         // Zero key should never reach public key generation
         let zero = [0x00; 32];
-        
+
         // Should fail at key creation
         let result = PrivateKey::from_bytes(&zero);
         assert!(result.is_err());
-        
+
         // Never gets to public key derivation
         // This test verifies the validation happens early
     }
@@ -934,16 +954,16 @@ mod tests {
     #[test]
     fn test_zero_key_security_boundary() {
         // Test the security boundary: 0 invalid, 1 valid
-        
+
         // Zero (invalid)
         let zero = [0x00; 32];
         assert!(PrivateKey::from_bytes(&zero).is_err());
-        
+
         // One (minimum valid)
         let mut one = [0x00; 32];
         one[31] = 0x01;
         assert!(PrivateKey::from_bytes(&one).is_ok());
-        
+
         // Two (also valid)
         let mut two = [0x00; 32];
         two[31] = 0x02;
@@ -956,11 +976,11 @@ mod tests {
         // it should be handled properly
         let bytes = [0x05; 32];
         let private_key = PrivateKey::from_bytes(&bytes).unwrap();
-        
+
         // Adding a zero tweak should work (key + 0 = key)
         let zero_tweak = [0x00; 32];
         let result = private_key.tweak_add(&zero_tweak);
-        
+
         // This should succeed (adding zero doesn't make the key zero)
         assert!(result.is_ok());
     }
@@ -969,16 +989,16 @@ mod tests {
     fn test_zero_key_cannot_be_constructed() {
         // Comprehensive test: zero key cannot be constructed via any method
         let zero = [0x00; 32];
-        
+
         // Method 1: from_bytes
         assert!(PrivateKey::from_bytes(&zero).is_err());
-        
+
         // Method 2: from_array
         assert!(PrivateKey::from_array(zero).is_err());
-        
+
         // Method 3: TryFrom<&[u8]>
         assert!(PrivateKey::try_from(&zero[..]).is_err());
-        
+
         // Method 4: TryFrom<[u8; 32]>
         assert!(PrivateKey::try_from(zero).is_err());
     }
@@ -987,11 +1007,11 @@ mod tests {
     fn test_zero_key_explicit_validation() {
         // Explicitly test that zero is caught by secp256k1 validation
         let zero = [0x00; 32];
-        
+
         // This should fail at SecretKey::from_slice
         let result = PrivateKey::from_bytes(&zero);
         assert!(result.is_err());
-        
+
         // Verify it's an InvalidPrivateKey error
         match result {
             Err(Error::InvalidPrivateKey { reason }) => {
@@ -1011,10 +1031,10 @@ mod tests {
         // Zero key should never be allowed into the system
         // because it would break all cryptographic properties
         let zero = [0x00; 32];
-        
+
         // Key creation fails
         assert!(PrivateKey::from_bytes(&zero).is_err());
-        
+
         // This means we can't:
         // - Generate a public key (would be point at infinity)
         // - Sign messages (signature would be zero)
@@ -1026,14 +1046,21 @@ mod tests {
     fn test_zero_key_comparison_with_valid_keys() {
         // Test zero against various valid keys to ensure clear distinction
         let zero = [0x00; 32];
-        
+
         // Test against small valid keys
         for value in 1..=10u8 {
             let mut valid = [0x00; 32];
             valid[31] = value;
-            
-            assert!(PrivateKey::from_bytes(&zero).is_err(), "Zero should be invalid");
-            assert!(PrivateKey::from_bytes(&valid).is_ok(), "Value {} should be valid", value);
+
+            assert!(
+                PrivateKey::from_bytes(&zero).is_err(),
+                "Zero should be invalid"
+            );
+            assert!(
+                PrivateKey::from_bytes(&valid).is_ok(),
+                "Value {} should be valid",
+                value
+            );
         }
     }
 
@@ -1042,7 +1069,7 @@ mod tests {
         // This test verifies the example in the documentation
         let zero_key = [0u8; 32];
         assert!(PrivateKey::from_bytes(&zero_key).is_err());
-        
+
         // Compare with valid key from docs
         let valid_key = [1u8; 32];
         assert!(PrivateKey::from_bytes(&valid_key).is_ok());

@@ -127,16 +127,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("{}", "-".repeat(70));
 
     let custom_paths = vec![
-        "m/0",           // First normal child
-        "m/0'",          // First hardened child
-        "m/1/2/3/4/5",   // Deep normal path
-        "m/0'/1/2'/3",   // Mixed hardened and normal
+        "m/0",         // First normal child
+        "m/0'",        // First hardened child
+        "m/1/2/3/4/5", // Deep normal path
+        "m/0'/1/2'/3", // Mixed hardened and normal
     ];
 
     for path_str in custom_paths {
         let path = DerivationPath::from_str(path_str)?;
         let key = master.derive_path(&path)?;
-        println!("✅ Path: {:<20} | Depth: {} | Hardened: {}",
+        println!(
+            "✅ Path: {:<20} | Depth: {} | Hardened: {}",
             path_str,
             key.depth(),
             path.contains_hardened()
@@ -151,17 +152,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Creating separate accounts for different purposes");
     println!("{}", "-".repeat(70));
 
-    let accounts = vec![
-        ("Personal", 0),
-        ("Business", 1),
-        ("Savings", 2),
-    ];
+    let accounts = vec![("Personal", 0), ("Business", 1), ("Savings", 2)];
 
     for (name, account_idx) in accounts {
         let account_path = DerivationPath::from_str(&format!("m/44'/0'/{}'", account_idx))?;
         let account_key = master.derive_path(&account_path)?;
         println!("✅ {} Account (m/44'/0'/{}')", name, account_idx);
-        println!("   xpub: {}...", &account_key.to_extended_public_key().to_string()[..20]);
+        println!(
+            "   xpub: {}...",
+            &account_key.to_extended_public_key().to_string()[..20]
+        );
     }
 
     // ========================================================================
@@ -179,11 +179,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let normal_child_from_public = normal_parent_pub.derive_child(ChildNumber::Normal(0))?;
 
     println!("✅ Normal Derivation (m/0/0):");
-    println!("   Child from private: {}", normal_child_from_private.to_extended_public_key());
+    println!(
+        "   Child from private: {}",
+        normal_child_from_private.to_extended_public_key()
+    );
     println!("   Child from public:  {}", normal_child_from_public);
-    println!("   Match: {}", 
-        normal_child_from_private.to_extended_public_key().to_string() == 
-        normal_child_from_public.to_string()
+    println!(
+        "   Match: {}",
+        normal_child_from_private
+            .to_extended_public_key()
+            .to_string()
+            == normal_child_from_public.to_string()
     );
 
     // Hardened derivation - requires private key
