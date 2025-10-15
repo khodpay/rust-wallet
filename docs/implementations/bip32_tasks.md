@@ -103,10 +103,10 @@ Here's your comprehensive task list organized by phases and priority. Each task 
 - ✅ Task 79: Add usage examples in doc comments
 - ✅ Task 80: Create README.md with quick start guide
 - ✅ Task 81: Document security considerations and best practices
-- 🔲 Task 82: Add examples/ directory with common use cases
-- 🔲 Task 83: Create example: Generate master key from mnemonic
-- 🔲 Task 84: Create example: Derive keys using custom paths
-- 🔲 Task 85: Create example: Public key derivation (watch-only wallet)
+- ✅ Task 82: Add examples/ directory with common use cases
+- ✅ Task 83: Create example: Generate master key from mnemonic
+- ✅ Task 84: Create example: Derive keys using custom paths
+- ✅ Task 85: Create example: Public key derivation (watch-only wallet)
 - 🔲 Task 86: Add benchmarks for key derivation performance
 - 🔲 Task 87: Add benchmarks for serialization performance
 - 🔲 Task 88: Final code review and cleanup
