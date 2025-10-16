@@ -360,7 +360,7 @@ dependencies = [
 
 [[package]]
 name = "khodpay-bip32"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "bs58",
  "criterion",
@@ -376,7 +376,7 @@ dependencies = [
 
 [[package]]
 name = "khodpay-bip39"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "bip39",
  "criterion",

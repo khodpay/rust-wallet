@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2024-10-16
+
+### Changed
+- 🔄 Updated repository URL to `https://github.com/khodpay/rust-wallet`
+- 🔄 Updated MSRV to 1.81 (required by `half` crate dependency)
+- ✨ Fixed all 40+ clippy warnings across workspace
+- ✨ Fixed code formatting issues (trailing whitespace)
+- ✨ Fixed benchmark seed lengths to 64 bytes (BIP32 maximum)
+- 🎯 Improved CI/CD pipeline with better caching and workflow
+
+### Fixed
+- 🐛 Resolved CI failures on all platforms (Ubuntu, macOS, Windows)
+- 🐛 Fixed needless borrows in digest operations
+- 🐛 Fixed unnecessary clones on Copy types
+- 🐛 Fixed benchmark seed length errors
+
 ## [0.1.0] - 2024-10-16
 
 ### Added
@@ -63,5 +79,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ⚡ Minimal allocations
 - ⚡ Zero-copy operations where possible
 
-[Unreleased]: https://github.com/khodpay/khodpay-wallet/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/khodpay/khodpay-wallet/releases/tag/v0.1.0
+[Unreleased]: https://github.com/khodpay/rust-wallet/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/khodpay/rust-wallet/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/khodpay/rust-wallet/releases/tag/v0.1.0

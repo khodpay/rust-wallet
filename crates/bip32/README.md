@@ -23,8 +23,8 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-khodpay-bip32 = "0.1.0"
-khodpay-bip39 = "0.1.0"  # For mnemonic support
+khodpay-bip32 = "0.2.0"
+khodpay-bip39 = "0.2.0"  # For mnemonic support
 ```
 
 ## Quick Start

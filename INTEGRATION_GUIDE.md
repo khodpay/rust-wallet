@@ -35,8 +35,8 @@ khodpay-bip32 = { path = "../khodpay-wallet/crates/bip32" }
 
 ```toml
 [dependencies]
-khodpay-bip39 = { git = "https://github.com/khodpay/khodpay-wallet" }
-khodpay-bip32 = { git = "https://github.com/khodpay/khodpay-wallet" }
+khodpay-bip39 = { git = "https://github.com/khodpay/rust-wallet" }
+khodpay-bip32 = { git = "https://github.com/khodpay/rust-wallet" }
 ```
 
 ### Method 3: Workspace Dependency (Monorepo)

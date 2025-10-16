@@ -30,7 +30,7 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-khodpay-bip39 = "0.1.0"
+khodpay-bip39 = "0.2.0"
 ```
 
 Or via cargo:

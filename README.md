@@ -4,7 +4,7 @@
 [![Crates.io - bip32](https://img.shields.io/crates/v/khodpay-bip32)](https://crates.io/crates/khodpay-bip32)
 [![Documentation](https://docs.rs/khodpay-bip39/badge.svg)](https://docs.rs/khodpay-bip39)
 [![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](LICENSE-MIT)
-[![Build Status](https://img.shields.io/github/workflow/status/khodpay/khodpay-wallet/CI)](https://github.com/khodpay/khodpay-wallet/actions)
+[![Build Status](https://img.shields.io/github/workflow/status/khodpay/rust-wallet/CI)](https://github.com/khodpay/rust-wallet/actions)
 
 A production-ready, type-safe Rust implementation of BIP39 and BIP32 standards for cryptocurrency wallet development.
 
@@ -35,8 +35,8 @@ Add the following to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-khodpay-bip39 = "0.1.0"
-khodpay-bip32 = "0.1.0"
+khodpay-bip39 = "0.2.0"
+khodpay-bip32 = "0.2.0"
 ```
 
 Or install via cargo:
@@ -235,8 +235,8 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 
 ```bash
 # Clone the repository
-git clone https://github.com/khodpay/khodpay-wallet.git
-cd khodpay-wallet
+git clone https://github.com/khodpay/rust-wallet.git
+cd rust-wallet
 
 # Build the project
 cargo build
@@ -277,8 +277,8 @@ You may choose either license for your use.
 ## 📞 Support
 
 - 📧 Email: support@khodpay.com
-- 🐛 Issues: [GitHub Issues](https://github.com/khodpay/khodpay-wallet/issues)
-- 💬 Discussions: [GitHub Discussions](https://github.com/khodpay/khodpay-wallet/discussions)
+- 🐛 Issues: [GitHub Issues](https://github.com/khodpay/rust-wallet/issues)
+- 💬 Discussions: [GitHub Discussions](https://github.com/khodpay/rust-wallet/discussions)
 
 ## ⚠️ Disclaimer
 
