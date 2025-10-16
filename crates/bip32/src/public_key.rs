@@ -791,7 +791,7 @@ mod tests {
         if result.is_ok() {
             // If this pattern happens to be valid, that's fine - secp256k1 accepted it
             // The important thing is we don't crash or behave incorrectly
-            assert!(true);
+            // Test passes - no assertion needed
         } else {
             // If it's invalid, verify we get the right error
             assert!(matches!(

@@ -148,7 +148,7 @@ impl ExtendedPrivateKey {
     /// # Arguments
     ///
     /// * `seed` - A cryptographic seed, typically 128-512 bits (16-64 bytes).
-    ///            Usually derived from a BIP-39 mnemonic phrase.
+    ///   Usually derived from a BIP-39 mnemonic phrase.
     /// * `network` - The network for this key (Bitcoin mainnet, testnet, etc.)
     ///
     /// # Returns
@@ -447,10 +447,10 @@ impl ExtendedPrivateKey {
         let public_key_bytes = public_key.to_bytes();
 
         // Step 1: SHA256
-        let sha256_hash = Sha256::digest(&public_key_bytes);
+        let sha256_hash = Sha256::digest(public_key_bytes);
 
         // Step 2: RIPEMD160
-        let ripemd160_hash = Ripemd160::digest(&sha256_hash);
+        let ripemd160_hash = Ripemd160::digest(sha256_hash);
 
         // Step 3: Take first 4 bytes
         let mut fingerprint = [0u8; 4];
@@ -693,7 +693,7 @@ impl std::fmt::Display for ExtendedPrivateKey {
 
         // 7. Compute checksum: first 4 bytes of SHA256(SHA256(data))
         let hash1 = Sha256::digest(&data);
-        let hash2 = Sha256::digest(&hash1);
+        let hash2 = Sha256::digest(hash1);
         let checksum = &hash2[0..4];
 
         // 8. Append checksum to get 82 bytes total
@@ -758,7 +758,7 @@ impl std::str::FromStr for ExtendedPrivateKey {
         let checksum = &data[78..82];
 
         let hash1 = Sha256::digest(payload);
-        let hash2 = Sha256::digest(&hash1);
+        let hash2 = Sha256::digest(hash1);
         let expected_checksum = &hash2[0..4];
 
         if checksum != expected_checksum {

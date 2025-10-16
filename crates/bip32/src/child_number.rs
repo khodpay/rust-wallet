@@ -446,7 +446,7 @@ mod tests {
     #[test]
     fn test_clone_and_copy() {
         let original = ChildNumber::Normal(42);
-        let cloned = original.clone();
+        let cloned = original;
         let copied = original;
 
         assert_eq!(original, cloned);

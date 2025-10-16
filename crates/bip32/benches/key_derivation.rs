@@ -16,14 +16,15 @@ use std::str::FromStr;
 
 /// Setup function to create a master key for benchmarking
 fn setup_master_key() -> ExtendedPrivateKey {
-    let seed = b"benchmark-seed-for-performance-testing-only-not-for-production-use!!";
+    // Use a 64-byte seed (maximum valid length)
+    let seed = b"benchmark-seed-for-testing-only-not-for-production-use-64bytes!";
     ExtendedPrivateKey::from_seed(seed, Network::BitcoinMainnet)
         .expect("Failed to create master key")
 }
 
 /// Benchmark master key generation from seed
 fn bench_master_key_from_seed(c: &mut Criterion) {
-    let seed = b"benchmark-seed-for-performance-testing-only-not-for-production-use!!";
+    let seed = b"benchmark-seed-for-testing-only-not-for-production-use-64bytes!";
 
     c.bench_function("master_key_from_seed", |b| {
         b.iter(|| {

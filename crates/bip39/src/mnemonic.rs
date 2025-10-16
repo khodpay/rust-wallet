@@ -25,7 +25,6 @@
 //! ```
 
 use crate::{Language, WordCount};
-use bip39_upstream;
 
 /// A BIP39 mnemonic phrase with associated metadata.
 ///
@@ -790,7 +789,7 @@ mod tests {
     fn test_from_phrase_all_languages() {
         // Test that from_phrase works with different languages
         // Note: Some languages share words, so we test key languages only
-        let test_languages = vec![
+        let test_languages = [
             Language::English,
             Language::Japanese,
             Language::Korean,
