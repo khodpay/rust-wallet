@@ -853,7 +853,7 @@ mod tests {
     #[test]
     fn test_phrase_to_seed_all_word_counts() {
         // Test that all valid word counts produce 64-byte seeds
-        let test_cases = vec![
+        let test_cases = [
             (12, vec![0u8; 16]),  // 12 words = 128 bits entropy
             (15, vec![0u8; 20]),  // 15 words = 160 bits entropy
             (18, vec![0u8; 24]),  // 18 words = 192 bits entropy

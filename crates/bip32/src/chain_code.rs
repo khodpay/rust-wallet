@@ -415,7 +415,7 @@ mod tests {
 
         // This test mainly serves as documentation that ChainCode
         // implements ZeroizeOnDrop and will be zeroized on drop.
-        assert_eq!(ptr as usize > 0, true); // Pointer was valid
+        assert!(ptr as usize > 0); // Pointer was valid
     }
 
     #[test]

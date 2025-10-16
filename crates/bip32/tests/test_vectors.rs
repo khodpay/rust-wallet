@@ -930,12 +930,12 @@ mod tests {
         let mut successful_derivations = 0;
 
         for test_vector in all_test_vectors() {
-            let seed = hex_to_bytes(test_vector.seed_hex).expect(&format!(
+            let seed = hex_to_bytes(test_vector.seed_hex).unwrap_or_else(|_| panic!(
                 "Failed to decode seed for {}",
                 test_vector.description
             ));
             let master =
-                ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).expect(&format!(
+                ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap_or_else(|_| panic!(
                     "Failed to create master key for {}",
                     test_vector.description
                 ));
@@ -945,12 +945,12 @@ mod tests {
 
                 // Parse path
                 let path = DerivationPath::from_str(step.path)
-                    .expect(&format!("Failed to parse path {}", step.path));
+                    .unwrap_or_else(|_| panic!("Failed to parse path {}", step.path));
 
                 // Derive key
                 let derived = master
                     .derive_path(&path)
-                    .expect(&format!("Failed to derive path {}", step.path));
+                    .unwrap_or_else(|_| panic!("Failed to derive path {}", step.path));
 
                 // Verify serialization matches
                 assert_eq!(
@@ -1042,7 +1042,7 @@ mod tests {
         for test_vector in all_test_vectors() {
             for step in test_vector.derivations {
                 // Deserialize from string
-                let deserialized = ExtendedPrivateKey::from_str(step.ext_prv).expect(&format!(
+                let deserialized = ExtendedPrivateKey::from_str(step.ext_prv).unwrap_or_else(|_| panic!(
                     "Failed to deserialize xprv for path {}",
                     step.path
                 ));
@@ -1065,7 +1065,7 @@ mod tests {
         for test_vector in all_test_vectors() {
             for step in test_vector.derivations {
                 // Deserialize from string
-                let deserialized = ExtendedPublicKey::from_str(step.ext_pub).expect(&format!(
+                let deserialized = ExtendedPublicKey::from_str(step.ext_pub).unwrap_or_else(|_| panic!(
                     "Failed to deserialize xpub for path {}",
                     step.path
                 ));
@@ -1349,13 +1349,13 @@ mod tests {
                 }
 
                 // Test xprv deserialization
-                let _ = ExtendedPrivateKey::from_str(step.ext_prv).expect(&format!(
+                let _ = ExtendedPrivateKey::from_str(step.ext_prv).unwrap_or_else(|_| panic!(
                     "Failed to deserialize xprv for path {}",
                     step.path
                 ));
 
                 // Test xpub deserialization
-                let _ = ExtendedPublicKey::from_str(step.ext_pub).expect(&format!(
+                let _ = ExtendedPublicKey::from_str(step.ext_pub).unwrap_or_else(|_| panic!(
                     "Failed to deserialize xpub for path {}",
                     step.path
                 ));
@@ -1427,10 +1427,10 @@ mod tests {
 
         for (xprv_str, xpub_str) in test_cases {
             let prv = ExtendedPrivateKey::from_str(xprv_str)
-                .expect(&format!("Failed to deserialize xprv: {}", xprv_str));
+                .unwrap_or_else(|_| panic!("Failed to deserialize xprv: {}", xprv_str));
             let pub_from_prv = prv.to_extended_public_key();
             let pub_direct = ExtendedPublicKey::from_str(xpub_str)
-                .expect(&format!("Failed to deserialize xpub: {}", xpub_str));
+                .unwrap_or_else(|_| panic!("Failed to deserialize xpub: {}", xpub_str));
 
             // Verify public key derived from private matches
             assert_eq!(
@@ -1677,11 +1677,11 @@ mod tests {
 
         for path_str in test_paths {
             let path = DerivationPath::from_str(path_str)
-                .expect(&format!("Failed to parse BIP44 path: {}", path_str));
+                .unwrap_or_else(|_| panic!("Failed to parse BIP44 path: {}", path_str));
 
             let derived = master
                 .derive_path(&path)
-                .expect(&format!("Failed to derive BIP44 path: {}", path_str));
+                .unwrap_or_else(|_| panic!("Failed to derive BIP44 path: {}", path_str));
 
             // Verify key is valid
             assert!(derived.to_string().starts_with("xprv"));

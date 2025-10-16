@@ -353,7 +353,7 @@ impl DerivationPath {
     pub fn is_hardened_at(&self, index: usize) -> bool {
         self.path
             .get(index)
-            .map_or(false, |child| child.is_hardened())
+            .is_some_and(|child| child.is_hardened())
     }
 
     /// Returns a reference to the child number at the given index.
@@ -614,10 +614,10 @@ fn parse_child_number(component: &str, full_path: &str) -> Result<ChildNumber> {
     }
 
     // Check for hardened suffix (supports ', h, or H)
-    let (is_hardened, number_str) = if component.ends_with('\'') {
-        (true, &component[..component.len() - 1])
-    } else if component.ends_with('h') || component.ends_with('H') {
-        (true, &component[..component.len() - 1])
+    let (is_hardened, number_str) = if let Some(stripped) = component.strip_suffix('\'') {
+        (true, stripped)
+    } else if let Some(stripped) = component.strip_suffix(['h', 'H']) {
+        (true, stripped)
     } else {
         (false, component)
     };

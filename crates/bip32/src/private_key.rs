@@ -855,7 +855,7 @@ mod tests {
 
         // Should be able to get public key
         let public_key = private_key.public_key();
-        assert!(public_key.serialize().len() > 0);
+        assert!(!public_key.serialize().is_empty());
 
         // Should be able to get secret key reference
         let secret_key = private_key.secret_key();

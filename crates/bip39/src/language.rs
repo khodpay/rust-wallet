@@ -164,7 +164,7 @@ impl Language {
     /// 
     /// With the `all-languages` feature enabled, all BIP39 standard languages
     /// are now properly supported and mapped to their upstream variants.
-    pub(crate) const fn to_upstream(&self) -> bip39_upstream::Language {
+    pub(crate) const fn to_upstream(self) -> bip39_upstream::Language {
         match self {
             Language::English => bip39_upstream::Language::English,
             Language::Japanese => bip39_upstream::Language::Japanese,

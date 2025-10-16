@@ -16,7 +16,7 @@ use std::str::FromStr;
 
 /// Setup function to create keys at various depths for benchmarking
 fn setup_keys_at_depths() -> Vec<(String, ExtendedPrivateKey)> {
-    let seed = b"benchmark-seed-for-serialization-testing-only-not-for-production!!";
+    let seed = b"benchmark-seed-for-serialization-testing-64bytes-max!!!!!!!";
     let master = ExtendedPrivateKey::from_seed(seed, Network::BitcoinMainnet)
         .expect("Failed to create master key");
 
@@ -126,7 +126,7 @@ fn bench_xpub_deserialization(c: &mut Criterion) {
 
 /// Benchmark serialization roundtrip (serialize + deserialize)
 fn bench_xprv_roundtrip(c: &mut Criterion) {
-    let seed = b"benchmark-seed-for-serialization-testing-only-not-for-production!!";
+    let seed = b"benchmark-seed-for-serialization-testing-64bytes-max!!!!!!!";
     let master = ExtendedPrivateKey::from_seed(seed, Network::BitcoinMainnet).unwrap();
 
     c.bench_function("xprv_roundtrip_master", |b| {
@@ -150,7 +150,7 @@ fn bench_xprv_roundtrip(c: &mut Criterion) {
 
 /// Benchmark xpub roundtrip
 fn bench_xpub_roundtrip(c: &mut Criterion) {
-    let seed = b"benchmark-seed-for-serialization-testing-only-not-for-production!!";
+    let seed = b"benchmark-seed-for-serialization-testing-64bytes-max!!!!!!!";
     let master = ExtendedPrivateKey::from_seed(seed, Network::BitcoinMainnet).unwrap();
     let master_pub = master.to_extended_public_key();
 
@@ -176,7 +176,7 @@ fn bench_xpub_roundtrip(c: &mut Criterion) {
 
 /// Benchmark Base58Check encoding/decoding performance
 fn bench_base58_operations(c: &mut Criterion) {
-    let seed = b"benchmark-seed-for-serialization-testing-only-not-for-production!!";
+    let seed = b"benchmark-seed-for-serialization-testing-64bytes-max!!!!!!!";
     let master = ExtendedPrivateKey::from_seed(seed, Network::BitcoinMainnet).unwrap();
     let xprv_string = master.to_string();
 
@@ -199,7 +199,7 @@ fn bench_base58_operations(c: &mut Criterion) {
 
 /// Benchmark network-specific serialization
 fn bench_network_serialization(c: &mut Criterion) {
-    let seed = b"benchmark-seed-for-serialization-testing-only-not-for-production!!";
+    let seed = b"benchmark-seed-for-serialization-testing-64bytes-max!!!!!!!";
 
     let mut group = c.benchmark_group("network_serialization");
 
@@ -224,7 +224,7 @@ fn bench_network_serialization(c: &mut Criterion) {
 
 /// Benchmark bulk serialization (e.g., for batch operations)
 fn bench_bulk_serialization(c: &mut Criterion) {
-    let seed = b"benchmark-seed-for-serialization-testing-only-not-for-production!!";
+    let seed = b"benchmark-seed-for-serialization-testing-64bytes-max!!!!!!!";
     let master = ExtendedPrivateKey::from_seed(seed, Network::BitcoinMainnet).unwrap();
     let account_path = DerivationPath::from_str("m/44'/0'/0'/0").unwrap();
     let account = master.derive_path(&account_path).unwrap();
@@ -245,7 +245,7 @@ fn bench_bulk_serialization(c: &mut Criterion) {
 
 /// Benchmark bulk deserialization
 fn bench_bulk_deserialization(c: &mut Criterion) {
-    let seed = b"benchmark-seed-for-serialization-testing-only-not-for-production!!";
+    let seed = b"benchmark-seed-for-serialization-testing-64bytes-max!!!!!!!";
     let master = ExtendedPrivateKey::from_seed(seed, Network::BitcoinMainnet).unwrap();
     let account_path = DerivationPath::from_str("m/44'/0'/0'/0").unwrap();
     let account = master.derive_path(&account_path).unwrap();
@@ -271,7 +271,7 @@ fn bench_bulk_deserialization(c: &mut Criterion) {
 
 /// Benchmark Display trait implementation
 fn bench_display_trait(c: &mut Criterion) {
-    let seed = b"benchmark-seed-for-serialization-testing-only-not-for-production!!";
+    let seed = b"benchmark-seed-for-serialization-testing-64bytes-max!!!!!!!";
     let master = ExtendedPrivateKey::from_seed(seed, Network::BitcoinMainnet).unwrap();
 
     c.bench_function("display_trait_xprv", |b| {
@@ -290,7 +290,7 @@ fn bench_display_trait(c: &mut Criterion) {
 
 /// Benchmark FromStr trait implementation
 fn bench_fromstr_trait(c: &mut Criterion) {
-    let seed = b"benchmark-seed-for-serialization-testing-only-not-for-production!!";
+    let seed = b"benchmark-seed-for-serialization-testing-64bytes-max!!!!!!!";
     let master = ExtendedPrivateKey::from_seed(seed, Network::BitcoinMainnet).unwrap();
     let xprv_string = master.to_string();
     let xpub_string = master.to_extended_public_key().to_string();

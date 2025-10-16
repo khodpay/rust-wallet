@@ -268,13 +268,7 @@ impl Network {
         // Iterate through all network variants
         const NETWORKS: [Network; 2] = [Network::BitcoinMainnet, Network::BitcoinTestnet];
 
-        for network in NETWORKS {
-            if network.xprv_version() == version {
-                return Some(network);
-            }
-        }
-
-        None
+        NETWORKS.into_iter().find(|&network| network.xprv_version() == version)
     }
 
     /// Attempts to identify the network from extended public key version bytes.
@@ -305,13 +299,7 @@ impl Network {
         // Iterate through all network variants
         const NETWORKS: [Network; 2] = [Network::BitcoinMainnet, Network::BitcoinTestnet];
 
-        for network in NETWORKS {
-            if network.xpub_version() == version {
-                return Some(network);
-            }
-        }
-
-        None
+        NETWORKS.into_iter().find(|&network| network.xpub_version() == version)
     }
 }
 
@@ -377,7 +365,7 @@ mod tests {
     fn test_key_type_clone_and_copy() {
         let key_type1 = KeyType::Private;
         let key_type2 = key_type1; // Copy
-        let key_type3 = key_type1.clone(); // Clone
+        let key_type3 = key_type1; // Clone
 
         assert_eq!(key_type1, key_type2);
         assert_eq!(key_type1, key_type3);
@@ -472,7 +460,7 @@ mod tests {
     fn test_clone_and_copy() {
         let network1 = Network::BitcoinMainnet;
         let network2 = network1; // Copy
-        let network3 = network1.clone(); // Clone
+        let network3 = network1; // Clone
 
         assert_eq!(network1, network2);
         assert_eq!(network1, network3);
