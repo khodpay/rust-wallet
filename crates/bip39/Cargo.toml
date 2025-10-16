@@ -1,14 +1,14 @@
 [package]
 name = "khodpay-bip39"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 rust-version = "1.81"
 authors = ["KhodPay Team"]
 license = "MIT OR Apache-2.0"
 description = "Production-ready Rust implementation of BIP39 mnemonic code for cryptocurrency wallets"
-repository = "https://github.com/khodpay/khodpay-wallet"
+repository = "https://github.com/khodpay/rust-wallet"
 documentation = "https://docs.rs/khodpay-bip39"
-homepage = "https://github.com/khodpay/khodpay-wallet"
+homepage = "https://github.com/khodpay/rust-wallet"
 readme = "README.md"
 keywords = ["bitcoin", "cryptocurrency", "bip39", "mnemonic", "wallet"]
 categories = ["cryptography", "no-std"]
