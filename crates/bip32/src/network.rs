@@ -268,7 +268,9 @@ impl Network {
         // Iterate through all network variants
         const NETWORKS: [Network; 2] = [Network::BitcoinMainnet, Network::BitcoinTestnet];
 
-        NETWORKS.into_iter().find(|&network| network.xprv_version() == version)
+        NETWORKS
+            .into_iter()
+            .find(|&network| network.xprv_version() == version)
     }
 
     /// Attempts to identify the network from extended public key version bytes.
@@ -299,7 +301,9 @@ impl Network {
         // Iterate through all network variants
         const NETWORKS: [Network; 2] = [Network::BitcoinMainnet, Network::BitcoinTestnet];
 
-        NETWORKS.into_iter().find(|&network| network.xpub_version() == version)
+        NETWORKS
+            .into_iter()
+            .find(|&network| network.xpub_version() == version)
     }
 }
 

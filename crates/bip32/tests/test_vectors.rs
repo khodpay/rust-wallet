@@ -930,15 +930,16 @@ mod tests {
         let mut successful_derivations = 0;
 
         for test_vector in all_test_vectors() {
-            let seed = hex_to_bytes(test_vector.seed_hex).unwrap_or_else(|_| panic!(
-                "Failed to decode seed for {}",
-                test_vector.description
-            ));
-            let master =
-                ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap_or_else(|_| panic!(
-                    "Failed to create master key for {}",
-                    test_vector.description
-                ));
+            let seed = hex_to_bytes(test_vector.seed_hex).unwrap_or_else(|_| {
+                panic!("Failed to decode seed for {}", test_vector.description)
+            });
+            let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet)
+                .unwrap_or_else(|_| {
+                    panic!(
+                        "Failed to create master key for {}",
+                        test_vector.description
+                    )
+                });
 
             for step in test_vector.derivations {
                 total_paths += 1;
@@ -1042,10 +1043,10 @@ mod tests {
         for test_vector in all_test_vectors() {
             for step in test_vector.derivations {
                 // Deserialize from string
-                let deserialized = ExtendedPrivateKey::from_str(step.ext_prv).unwrap_or_else(|_| panic!(
-                    "Failed to deserialize xprv for path {}",
-                    step.path
-                ));
+                let deserialized =
+                    ExtendedPrivateKey::from_str(step.ext_prv).unwrap_or_else(|_| {
+                        panic!("Failed to deserialize xprv for path {}", step.path)
+                    });
 
                 // Re-serialize
                 let reserialized = deserialized.to_string();
@@ -1065,10 +1066,9 @@ mod tests {
         for test_vector in all_test_vectors() {
             for step in test_vector.derivations {
                 // Deserialize from string
-                let deserialized = ExtendedPublicKey::from_str(step.ext_pub).unwrap_or_else(|_| panic!(
-                    "Failed to deserialize xpub for path {}",
-                    step.path
-                ));
+                let deserialized = ExtendedPublicKey::from_str(step.ext_pub).unwrap_or_else(|_| {
+                    panic!("Failed to deserialize xpub for path {}", step.path)
+                });
 
                 // Re-serialize
                 let reserialized = deserialized.to_string();
@@ -1349,16 +1349,14 @@ mod tests {
                 }
 
                 // Test xprv deserialization
-                let _ = ExtendedPrivateKey::from_str(step.ext_prv).unwrap_or_else(|_| panic!(
-                    "Failed to deserialize xprv for path {}",
-                    step.path
-                ));
+                let _ = ExtendedPrivateKey::from_str(step.ext_prv).unwrap_or_else(|_| {
+                    panic!("Failed to deserialize xprv for path {}", step.path)
+                });
 
                 // Test xpub deserialization
-                let _ = ExtendedPublicKey::from_str(step.ext_pub).unwrap_or_else(|_| panic!(
-                    "Failed to deserialize xpub for path {}",
-                    step.path
-                ));
+                let _ = ExtendedPublicKey::from_str(step.ext_pub).unwrap_or_else(|_| {
+                    panic!("Failed to deserialize xpub for path {}", step.path)
+                });
             }
         }
 
