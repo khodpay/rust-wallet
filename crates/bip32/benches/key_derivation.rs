@@ -10,8 +10,8 @@
 //! target/criterion/report/index.html
 //! ```
 
-use khodpay_bip32::{ChildNumber, DerivationPath, ExtendedPrivateKey, Network};
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
+use khodpay_bip32::{ChildNumber, DerivationPath, ExtendedPrivateKey, Network};
 use std::str::FromStr;
 
 /// Setup function to create a master key for benchmarking

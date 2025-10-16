@@ -127,9 +127,9 @@ impl WordCount {
     /// ```
     pub const fn entropy_length(&self) -> usize {
         match self {
-            WordCount::Twelve => 16,    // 128 bits
-            WordCount::Fifteen => 20,   // 160 bits
-            WordCount::Eighteen => 24,  // 192 bits
+            WordCount::Twelve => 16,     // 128 bits
+            WordCount::Fifteen => 20,    // 160 bits
+            WordCount::Eighteen => 24,   // 192 bits
             WordCount::TwentyOne => 28,  // 224 bits
             WordCount::TwentyFour => 32, // 256 bits
         }
@@ -264,8 +264,14 @@ mod tests {
         assert_eq!(WordCount::from_word_count(12).unwrap(), WordCount::Twelve);
         assert_eq!(WordCount::from_word_count(15).unwrap(), WordCount::Fifteen);
         assert_eq!(WordCount::from_word_count(18).unwrap(), WordCount::Eighteen);
-        assert_eq!(WordCount::from_word_count(21).unwrap(), WordCount::TwentyOne);
-        assert_eq!(WordCount::from_word_count(24).unwrap(), WordCount::TwentyFour);
+        assert_eq!(
+            WordCount::from_word_count(21).unwrap(),
+            WordCount::TwentyOne
+        );
+        assert_eq!(
+            WordCount::from_word_count(24).unwrap(),
+            WordCount::TwentyFour
+        );
     }
 
     #[test]
@@ -279,11 +285,26 @@ mod tests {
 
     #[test]
     fn test_from_entropy_length_valid() {
-        assert_eq!(WordCount::from_entropy_length(16).unwrap(), WordCount::Twelve);
-        assert_eq!(WordCount::from_entropy_length(20).unwrap(), WordCount::Fifteen);
-        assert_eq!(WordCount::from_entropy_length(24).unwrap(), WordCount::Eighteen);
-        assert_eq!(WordCount::from_entropy_length(28).unwrap(), WordCount::TwentyOne);
-        assert_eq!(WordCount::from_entropy_length(32).unwrap(), WordCount::TwentyFour);
+        assert_eq!(
+            WordCount::from_entropy_length(16).unwrap(),
+            WordCount::Twelve
+        );
+        assert_eq!(
+            WordCount::from_entropy_length(20).unwrap(),
+            WordCount::Fifteen
+        );
+        assert_eq!(
+            WordCount::from_entropy_length(24).unwrap(),
+            WordCount::Eighteen
+        );
+        assert_eq!(
+            WordCount::from_entropy_length(28).unwrap(),
+            WordCount::TwentyOne
+        );
+        assert_eq!(
+            WordCount::from_entropy_length(32).unwrap(),
+            WordCount::TwentyFour
+        );
     }
 
     #[test]
@@ -315,7 +336,10 @@ mod tests {
 
             // Test entropy length conversion
             let entropy_length = variant.entropy_length();
-            assert_eq!(WordCount::from_entropy_length(entropy_length).unwrap(), variant);
+            assert_eq!(
+                WordCount::from_entropy_length(entropy_length).unwrap(),
+                variant
+            );
         }
     }
 

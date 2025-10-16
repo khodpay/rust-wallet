@@ -40,7 +40,7 @@ pub enum Language {
     ///
     /// This is the default and most commonly used language for BIP39 mnemonics.
     /// Supported by virtually all cryptocurrency wallets and applications.
-    /// 
+    ///
     /// The English word list contains 2048 words, each 3-8 characters long,
     /// chosen to be unambiguous and easy to distinguish.
     English,
@@ -161,7 +161,7 @@ impl Language {
     ///
     /// This is an internal conversion method used to interface with the
     /// upstream BIP39 crate while maintaining our own API.
-    /// 
+    ///
     /// With the `all-languages` feature enabled, all BIP39 standard languages
     /// are now properly supported and mapped to their upstream variants.
     pub(crate) const fn to_upstream(self) -> bip39_upstream::Language {
@@ -227,21 +227,48 @@ mod tests {
     #[test]
     fn test_to_upstream_conversion() {
         // Test that our enum values convert correctly to upstream types
-        assert_eq!(Language::English.to_upstream(), bip39_upstream::Language::English);
-        assert_eq!(Language::Japanese.to_upstream(), bip39_upstream::Language::Japanese);
-        assert_eq!(Language::Korean.to_upstream(), bip39_upstream::Language::Korean);
-        assert_eq!(Language::French.to_upstream(), bip39_upstream::Language::French);
-        assert_eq!(Language::Italian.to_upstream(), bip39_upstream::Language::Italian);
-        assert_eq!(Language::Spanish.to_upstream(), bip39_upstream::Language::Spanish);
-        assert_eq!(Language::SimplifiedChinese.to_upstream(), bip39_upstream::Language::SimplifiedChinese);
-        assert_eq!(Language::TraditionalChinese.to_upstream(), bip39_upstream::Language::TraditionalChinese);
-        assert_eq!(Language::Czech.to_upstream(), bip39_upstream::Language::Czech);
+        assert_eq!(
+            Language::English.to_upstream(),
+            bip39_upstream::Language::English
+        );
+        assert_eq!(
+            Language::Japanese.to_upstream(),
+            bip39_upstream::Language::Japanese
+        );
+        assert_eq!(
+            Language::Korean.to_upstream(),
+            bip39_upstream::Language::Korean
+        );
+        assert_eq!(
+            Language::French.to_upstream(),
+            bip39_upstream::Language::French
+        );
+        assert_eq!(
+            Language::Italian.to_upstream(),
+            bip39_upstream::Language::Italian
+        );
+        assert_eq!(
+            Language::Spanish.to_upstream(),
+            bip39_upstream::Language::Spanish
+        );
+        assert_eq!(
+            Language::SimplifiedChinese.to_upstream(),
+            bip39_upstream::Language::SimplifiedChinese
+        );
+        assert_eq!(
+            Language::TraditionalChinese.to_upstream(),
+            bip39_upstream::Language::TraditionalChinese
+        );
+        assert_eq!(
+            Language::Czech.to_upstream(),
+            bip39_upstream::Language::Czech
+        );
     }
 
     #[test]
     fn test_language_equality() {
         assert_eq!(Language::English, Language::English);
-        
+
         // Test that copies are equal
         let lang1 = Language::English;
         let lang2 = lang1;

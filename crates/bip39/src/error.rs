@@ -67,10 +67,12 @@ pub enum Error {
     /// let error = Error::InvalidEntropyLength { length: 10 };
     /// println!("{}", error); // "Invalid entropy length: 10 bytes. Valid lengths are..."
     /// ```
-    #[error("Invalid entropy length: {length} bytes. Valid lengths are 16, 20, 24, 28, or 32 bytes")]
-    InvalidEntropyLength { 
+    #[error(
+        "Invalid entropy length: {length} bytes. Valid lengths are 16, 20, 24, 28, or 32 bytes"
+    )]
+    InvalidEntropyLength {
         /// The actual length of the invalid entropy in bytes
-        length: usize 
+        length: usize,
     },
 
     /// The provided mnemonic phrase is invalid.
@@ -81,14 +83,14 @@ pub enum Error {
     /// # Example
     /// ```rust
     /// # use khodpay_bip39::Error;
-    /// let error = Error::InvalidMnemonic { 
-    ///     reason: "Too few words".to_string() 
+    /// let error = Error::InvalidMnemonic {
+    ///     reason: "Too few words".to_string()
     /// };
     /// ```
     #[error("Invalid mnemonic phrase: {reason}")]
-    InvalidMnemonic { 
+    InvalidMnemonic {
         /// Detailed reason why the mnemonic is invalid
-        reason: String 
+        reason: String,
     },
 
     /// The provided word count is not supported.
@@ -98,9 +100,9 @@ pub enum Error {
     ///
     /// [`InvalidEntropyLength`]: Error::InvalidEntropyLength
     #[error("Invalid word count: {count}. Valid counts are 12, 15, 18, 21, or 24 words")]
-    InvalidWordCount { 
+    InvalidWordCount {
         /// The invalid word count provided
-        count: usize 
+        count: usize,
     },
 
     /// A word in the mnemonic phrase is not in the BIP39 word list.
@@ -118,11 +120,11 @@ pub enum Error {
     /// println!("{}", error); // "Invalid word 'invalidword' at position 5"
     /// ```
     #[error("Invalid word '{word}' at position {position}")]
-    InvalidWord { 
+    InvalidWord {
         /// The invalid word that was found
-        word: String, 
+        word: String,
         /// Zero-based position of the invalid word in the phrase
-        position: usize 
+        position: usize,
     },
 
     /// The mnemonic phrase has an invalid checksum.
@@ -146,16 +148,16 @@ pub enum Error {
     /// This error wraps errors from the external `bip39` crate that
     /// we use for some low-level operations.
     #[error("BIP39 error: {message}")]
-    Bip39Error { 
+    Bip39Error {
         /// Error message from the underlying BIP39 crate
-        message: String 
+        message: String,
     },
 }
 
 /// Custom equality implementation for [`enum@Error`].
 ///
 /// This implementation allows comparing errors for equality, which is useful
-/// in tests and error matching. For errors containing external types 
+/// in tests and error matching. For errors containing external types
 /// (like [`rand::Error`] or [`bip39_upstream::Error`]), we compare only
 /// by error type since the wrapped errors may not implement [`PartialEq`].
 ///
@@ -173,10 +175,26 @@ pub enum Error {
 impl PartialEq for Error {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
-            (Error::InvalidEntropyLength { length: l1 }, Error::InvalidEntropyLength { length: l2 }) => l1 == l2,
-            (Error::InvalidMnemonic { reason: r1 }, Error::InvalidMnemonic { reason: r2 }) => r1 == r2,
-            (Error::InvalidWordCount { count: c1 }, Error::InvalidWordCount { count: c2 }) => c1 == c2,
-            (Error::InvalidWord { word: w1, position: p1 }, Error::InvalidWord { word: w2, position: p2 }) => w1 == w2 && p1 == p2,
+            (
+                Error::InvalidEntropyLength { length: l1 },
+                Error::InvalidEntropyLength { length: l2 },
+            ) => l1 == l2,
+            (Error::InvalidMnemonic { reason: r1 }, Error::InvalidMnemonic { reason: r2 }) => {
+                r1 == r2
+            }
+            (Error::InvalidWordCount { count: c1 }, Error::InvalidWordCount { count: c2 }) => {
+                c1 == c2
+            }
+            (
+                Error::InvalidWord {
+                    word: w1,
+                    position: p1,
+                },
+                Error::InvalidWord {
+                    word: w2,
+                    position: p2,
+                },
+            ) => w1 == w2 && p1 == p2,
             (Error::InvalidChecksum, Error::InvalidChecksum) => true,
             (Error::RandomGeneration, Error::RandomGeneration) => true,
             (Error::Bip39Error { message: m1 }, Error::Bip39Error { message: m2 }) => m1 == m2,
@@ -218,8 +236,8 @@ impl From<bip39_upstream::Error> for Error {
 ///
 /// fn validate_entropy(entropy: &[u8]) -> Result<()> {
 ///     if entropy.len() != 32 {
-///         return Err(Error::InvalidEntropyLength { 
-///             length: entropy.len() 
+///         return Err(Error::InvalidEntropyLength {
+///             length: entropy.len()
 ///         });
 ///     }
 ///     Ok(())
