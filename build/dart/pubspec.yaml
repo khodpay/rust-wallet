@@ -1,0 +1,12 @@
+name: khodpay_bridge
+description: Generated Dart bindings for KhodPay Wallet
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter_rust_bridge: ^2.0.0
+  ffi: ^2.0.0
+  meta: ^1.8.0
