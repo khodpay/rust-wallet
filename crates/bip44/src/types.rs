@@ -857,6 +857,129 @@ impl CoinType {
             CoinType::Custom(_) => "Custom",
         }
     }
+
+    /// Returns `true` if this is a testnet coin type.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::CoinType;
+    ///
+    /// assert!(CoinType::BitcoinTestnet.is_testnet());
+    /// assert!(!CoinType::Bitcoin.is_testnet());
+    /// assert!(!CoinType::Ethereum.is_testnet());
+    /// ```
+    pub const fn is_testnet(&self) -> bool {
+        matches!(self, CoinType::BitcoinTestnet)
+    }
+
+    /// Returns the default purpose for this coin type.
+    ///
+    /// Different cryptocurrencies may have different default address formats:
+    /// - Bitcoin: Defaults to BIP-84 (Native SegWit)
+    /// - Ethereum: Only uses BIP-44 (no SegWit variants)
+    /// - Others: Default to BIP-44
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{CoinType, Purpose};
+    ///
+    /// assert_eq!(CoinType::Bitcoin.default_purpose(), Purpose::BIP84);
+    /// assert_eq!(CoinType::Ethereum.default_purpose(), Purpose::BIP44);
+    /// assert_eq!(CoinType::Litecoin.default_purpose(), Purpose::BIP84);
+    /// ```
+    pub const fn default_purpose(&self) -> Purpose {
+        match self {
+            // Bitcoin and Bitcoin-like coins default to native SegWit (BIP-84)
+            CoinType::Bitcoin | CoinType::BitcoinTestnet | CoinType::Litecoin => Purpose::BIP84,
+            // All other coins use standard BIP-44
+            _ => Purpose::BIP44,
+        }
+    }
+}
+
+impl TryFrom<u32> for CoinType {
+    type Error = Error;
+
+    /// Attempts to convert a u32 SLIP-44 index to a CoinType.
+    ///
+    /// If the index matches a known coin, returns the specific variant.
+    /// Otherwise, returns `Custom(index)` for any valid u32.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::CoinType;
+    ///
+    /// // Known coins
+    /// assert_eq!(CoinType::try_from(0).unwrap(), CoinType::Bitcoin);
+    /// assert_eq!(CoinType::try_from(60).unwrap(), CoinType::Ethereum);
+    ///
+    /// // Unknown coins become Custom
+    /// assert_eq!(CoinType::try_from(999).unwrap(), CoinType::Custom(999));
+    /// ```
+    fn try_from(index: u32) -> Result<Self> {
+        Ok(match index {
+            0 => CoinType::Bitcoin,
+            1 => CoinType::BitcoinTestnet,
+            2 => CoinType::Litecoin,
+            3 => CoinType::Dogecoin,
+            5 => CoinType::Dash,
+            60 => CoinType::Ethereum,
+            61 => CoinType::EthereumClassic,
+            118 => CoinType::Cosmos,
+            145 => CoinType::BitcoinCash,
+            195 => CoinType::Tron,
+            354 => CoinType::Polkadot,
+            501 => CoinType::Solana,
+            714 => CoinType::BinanceCoin,
+            1815 => CoinType::Cardano,
+            _ => CoinType::Custom(index),
+        })
+    }
+}
+
+impl From<CoinType> for u32 {
+    /// Converts a CoinType to its SLIP-44 index.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::CoinType;
+    ///
+    /// let index: u32 = CoinType::Bitcoin.into();
+    /// assert_eq!(index, 0);
+    ///
+    /// let index: u32 = CoinType::Ethereum.into();
+    /// assert_eq!(index, 60);
+    ///
+    /// let index: u32 = CoinType::Custom(999).into();
+    /// assert_eq!(index, 999);
+    /// ```
+    fn from(coin: CoinType) -> Self {
+        coin.index()
+    }
+}
+
+impl fmt::Display for CoinType {
+    /// Formats the coin type for display using its symbol.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::CoinType;
+    ///
+    /// assert_eq!(CoinType::Bitcoin.to_string(), "BTC");
+    /// assert_eq!(CoinType::Ethereum.to_string(), "ETH");
+    /// assert_eq!(CoinType::Custom(999).to_string(), "CUSTOM(999)");
+    /// ```
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            CoinType::Custom(index) => write!(f, "CUSTOM({})", index),
+            _ => write!(f, "{}", self.symbol()),
+        }
+    }
 }
 
 #[cfg(test)]
@@ -980,5 +1103,106 @@ mod cointype_tests {
         assert_eq!(CoinType::Litecoin.index(), 2);
         assert_eq!(CoinType::Dogecoin.index(), 3);
         assert_eq!(CoinType::Ethereum.index(), 60);
+    }
+
+    #[test]
+    fn test_cointype_try_from_known() {
+        // Test known coins
+        assert_eq!(CoinType::try_from(0).unwrap(), CoinType::Bitcoin);
+        assert_eq!(CoinType::try_from(1).unwrap(), CoinType::BitcoinTestnet);
+        assert_eq!(CoinType::try_from(2).unwrap(), CoinType::Litecoin);
+        assert_eq!(CoinType::try_from(3).unwrap(), CoinType::Dogecoin);
+        assert_eq!(CoinType::try_from(5).unwrap(), CoinType::Dash);
+        assert_eq!(CoinType::try_from(60).unwrap(), CoinType::Ethereum);
+        assert_eq!(CoinType::try_from(61).unwrap(), CoinType::EthereumClassic);
+        assert_eq!(CoinType::try_from(118).unwrap(), CoinType::Cosmos);
+        assert_eq!(CoinType::try_from(145).unwrap(), CoinType::BitcoinCash);
+        assert_eq!(CoinType::try_from(195).unwrap(), CoinType::Tron);
+        assert_eq!(CoinType::try_from(354).unwrap(), CoinType::Polkadot);
+        assert_eq!(CoinType::try_from(501).unwrap(), CoinType::Solana);
+        assert_eq!(CoinType::try_from(714).unwrap(), CoinType::BinanceCoin);
+        assert_eq!(CoinType::try_from(1815).unwrap(), CoinType::Cardano);
+    }
+
+    #[test]
+    fn test_cointype_try_from_unknown() {
+        // Unknown coins should become Custom
+        assert_eq!(CoinType::try_from(999).unwrap(), CoinType::Custom(999));
+        assert_eq!(CoinType::try_from(128).unwrap(), CoinType::Custom(128)); // Monero
+        assert_eq!(CoinType::try_from(133).unwrap(), CoinType::Custom(133)); // Zcash
+        assert_eq!(CoinType::try_from(9999).unwrap(), CoinType::Custom(9999));
+    }
+
+    #[test]
+    fn test_cointype_into_u32() {
+        let index: u32 = CoinType::Bitcoin.into();
+        assert_eq!(index, 0);
+
+        let index: u32 = CoinType::Ethereum.into();
+        assert_eq!(index, 60);
+
+        let index: u32 = CoinType::Custom(999).into();
+        assert_eq!(index, 999);
+    }
+
+    #[test]
+    fn test_cointype_round_trip() {
+        // Test round-trip conversion for known coins
+        for index in [0, 1, 2, 3, 5, 60, 61, 118, 145, 195, 354, 501, 714, 1815] {
+            let coin = CoinType::try_from(index).unwrap();
+            let back: u32 = coin.into();
+            assert_eq!(back, index);
+        }
+
+        // Test round-trip for custom coins
+        for index in [999, 128, 133, 5000] {
+            let coin = CoinType::try_from(index).unwrap();
+            let back: u32 = coin.into();
+            assert_eq!(back, index);
+        }
+    }
+
+    #[test]
+    fn test_cointype_display() {
+        assert_eq!(CoinType::Bitcoin.to_string(), "BTC");
+        assert_eq!(CoinType::Ethereum.to_string(), "ETH");
+        assert_eq!(CoinType::Litecoin.to_string(), "LTC");
+        assert_eq!(CoinType::BinanceCoin.to_string(), "BNB");
+        assert_eq!(CoinType::Custom(999).to_string(), "CUSTOM(999)");
+        assert_eq!(CoinType::Custom(128).to_string(), "CUSTOM(128)");
+    }
+
+    #[test]
+    fn test_cointype_is_testnet() {
+        assert!(CoinType::BitcoinTestnet.is_testnet());
+        
+        assert!(!CoinType::Bitcoin.is_testnet());
+        assert!(!CoinType::Ethereum.is_testnet());
+        assert!(!CoinType::Litecoin.is_testnet());
+        assert!(!CoinType::Custom(1).is_testnet());
+    }
+
+    #[test]
+    fn test_cointype_default_purpose() {
+        // Bitcoin-like coins default to BIP-84 (native SegWit)
+        assert_eq!(CoinType::Bitcoin.default_purpose(), Purpose::BIP84);
+        assert_eq!(CoinType::BitcoinTestnet.default_purpose(), Purpose::BIP84);
+        assert_eq!(CoinType::Litecoin.default_purpose(), Purpose::BIP84);
+
+        // All other coins default to BIP-44
+        assert_eq!(CoinType::Ethereum.default_purpose(), Purpose::BIP44);
+        assert_eq!(CoinType::Dogecoin.default_purpose(), Purpose::BIP44);
+        assert_eq!(CoinType::BitcoinCash.default_purpose(), Purpose::BIP44);
+        assert_eq!(CoinType::Solana.default_purpose(), Purpose::BIP44);
+        assert_eq!(CoinType::Cardano.default_purpose(), Purpose::BIP44);
+        assert_eq!(CoinType::Custom(999).default_purpose(), Purpose::BIP44);
+    }
+
+    #[test]
+    fn test_cointype_conversions_are_infallible() {
+        // TryFrom should never fail for any u32 value
+        assert!(CoinType::try_from(0).is_ok());
+        assert!(CoinType::try_from(u32::MAX).is_ok());
+        assert!(CoinType::try_from(999999).is_ok());
     }
 }

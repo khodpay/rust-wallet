@@ -20,7 +20,7 @@ Implement `Chain` enum for receive (0) and change (1) addresses with conversions
 ### ✅ Task 05: Define CoinType enum with SLIP-44 coin types and Custom(u32) variant
 Define `CoinType` enum with Bitcoin, Ethereum, Litecoin, etc., plus `Custom(u32)` for unlisted coins. Map to SLIP-44 indices.
 
-### 🔲 Task 06: Write tests and implement CoinType conversions and validation (TDD)
+### ✅ Task 06: Write tests and implement CoinType conversions and validation (TDD)
 Implement conversions (TryFrom<u32>, From for u32) and helpers (`is_testnet()`, `default_purpose()`). Test known/unknown coin types.
 
 ## 🛤️ PHASE 3: Path Construction (HIGH → MEDIUM Priority)
