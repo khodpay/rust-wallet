@@ -1,0 +1,30 @@
+[package]
+name = "khodpay-bip44"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.81"
+authors = ["KhodPay Team"]
+license = "MIT OR Apache-2.0"
+description = "Production-ready Rust implementation of BIP44 multi-account hierarchy for deterministic wallets"
+repository = "https://github.com/khodpay/rust-wallet"
+documentation = "https://docs.rs/khodpay-bip44"
+homepage = "https://github.com/khodpay/rust-wallet"
+readme = "README.md"
+keywords = ["bitcoin", "cryptocurrency", "bip44", "wallet", "hierarchical"]
+categories = ["cryptography", "no-std"]
+
+[dependencies]
+khodpay-bip32 = { version = "0.2.0", path = "../bip32" }
+thiserror = "1.0"
+
+[dependencies.serde]
+version = "1.0"
+features = ["derive"]
+optional = true
+
+[dev-dependencies]
+hex = "0.4"
+
+[features]
+default = []
+serde = ["dep:serde"]
