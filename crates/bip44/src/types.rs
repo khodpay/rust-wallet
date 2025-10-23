@@ -4,6 +4,20 @@
 //! - [`Purpose`]: Derivation standard (BIP-44, BIP-49, BIP-84, BIP-86)
 //! - [`Chain`]: Address chain type (External/Internal)
 //! - [`CoinType`]: Cryptocurrency type (Bitcoin, Ethereum, etc.)
+//!
+//! # Examples
+//!
+//! ```rust
+//! use khodpay_bip44::{Purpose, Chain};
+//!
+//! // Create a purpose and chain
+//! let purpose = Purpose::BIP44;
+//! let chain = Chain::External;
+//!
+//! // Convert to u32 for derivation
+//! let chain_value: u32 = chain.into();
+//! assert_eq!(chain_value, 0);
+//! ```
 
 use crate::{Error, Result};
 use std::fmt;
@@ -292,5 +306,282 @@ mod tests {
     fn test_purpose_debug() {
         let purpose = Purpose::BIP44;
         assert_eq!(format!("{:?}", purpose), "BIP44");
+    }
+}
+
+/// Address chain type for BIP-44 derivation.
+///
+/// BIP-44 defines two distinct chains for address management:
+/// - **External (0)**: Receiving addresses visible to others
+/// - **Internal (1)**: Change addresses for internal wallet use
+///
+/// This separation allows wallets to maintain privacy by using different
+/// addresses for receiving payments and returning change.
+///
+/// # Examples
+///
+/// ```rust
+/// use khodpay_bip44::Chain;
+///
+/// // Create chain types
+/// let receive = Chain::External;
+/// let change = Chain::Internal;
+///
+/// // Convert to u32 for derivation
+/// let value: u32 = receive.into();
+/// assert_eq!(value, 0);
+///
+/// // Parse from u32
+/// let parsed = Chain::try_from(1).unwrap();
+/// assert_eq!(parsed, Chain::Internal);
+///
+/// // Use helper methods
+/// assert!(receive.is_external());
+/// assert!(!change.is_external());
+/// ```
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum Chain {
+    /// External chain (0) for receiving addresses.
+    ///
+    /// These addresses are meant to be shared with others for receiving payments.
+    /// In BIP-44 terminology, this is the "receiving" chain.
+    ///
+    /// Path example: `m/44'/0'/0'/0/n` where n is the address index
+    External,
+
+    /// Internal chain (1) for change addresses.
+    ///
+    /// These addresses are used internally by the wallet for receiving change
+    /// from transactions. They should not be shared externally.
+    ///
+    /// Path example: `m/44'/0'/0'/1/n` where n is the address index
+    Internal,
+}
+
+impl Chain {
+    /// Returns the u32 value for this chain (0 or 1).
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::Chain;
+    ///
+    /// assert_eq!(Chain::External.value(), 0);
+    /// assert_eq!(Chain::Internal.value(), 1);
+    /// ```
+    pub const fn value(&self) -> u32 {
+        match self {
+            Chain::External => 0,
+            Chain::Internal => 1,
+        }
+    }
+
+    /// Returns `true` if this is the external (receiving) chain.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::Chain;
+    ///
+    /// assert!(Chain::External.is_external());
+    /// assert!(!Chain::Internal.is_external());
+    /// ```
+    pub const fn is_external(&self) -> bool {
+        matches!(self, Chain::External)
+    }
+
+    /// Returns `true` if this is the internal (change) chain.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::Chain;
+    ///
+    /// assert!(Chain::Internal.is_internal());
+    /// assert!(!Chain::External.is_internal());
+    /// ```
+    pub const fn is_internal(&self) -> bool {
+        matches!(self, Chain::Internal)
+    }
+
+    /// Returns the name of this chain type.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::Chain;
+    ///
+    /// assert_eq!(Chain::External.name(), "external");
+    /// assert_eq!(Chain::Internal.name(), "internal");
+    /// ```
+    pub const fn name(&self) -> &'static str {
+        match self {
+            Chain::External => "external",
+            Chain::Internal => "internal",
+        }
+    }
+}
+
+impl TryFrom<u32> for Chain {
+    type Error = Error;
+
+    /// Attempts to convert a u32 value to a Chain.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`Error::InvalidChain`] if the value is not 0 or 1.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::Chain;
+    ///
+    /// // Valid conversions
+    /// assert_eq!(Chain::try_from(0).unwrap(), Chain::External);
+    /// assert_eq!(Chain::try_from(1).unwrap(), Chain::Internal);
+    ///
+    /// // Invalid value
+    /// assert!(Chain::try_from(2).is_err());
+    /// ```
+    fn try_from(value: u32) -> Result<Self> {
+        match value {
+            0 => Ok(Chain::External),
+            1 => Ok(Chain::Internal),
+            _ => Err(Error::InvalidChain { value }),
+        }
+    }
+}
+
+impl From<Chain> for u32 {
+    /// Converts a Chain to its u32 value.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::Chain;
+    ///
+    /// let value: u32 = Chain::External.into();
+    /// assert_eq!(value, 0);
+    ///
+    /// let value: u32 = Chain::Internal.into();
+    /// assert_eq!(value, 1);
+    /// ```
+    fn from(chain: Chain) -> Self {
+        chain.value()
+    }
+}
+
+impl fmt::Display for Chain {
+    /// Formats the chain for display.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::Chain;
+    ///
+    /// assert_eq!(Chain::External.to_string(), "external");
+    /// assert_eq!(Chain::Internal.to_string(), "internal");
+    /// ```
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.name())
+    }
+}
+
+#[cfg(test)]
+mod chain_tests {
+    use super::*;
+
+    #[test]
+    fn test_chain_values() {
+        assert_eq!(Chain::External.value(), 0);
+        assert_eq!(Chain::Internal.value(), 1);
+    }
+
+    #[test]
+    fn test_chain_is_external() {
+        assert!(Chain::External.is_external());
+        assert!(!Chain::Internal.is_external());
+    }
+
+    #[test]
+    fn test_chain_is_internal() {
+        assert!(Chain::Internal.is_internal());
+        assert!(!Chain::External.is_internal());
+    }
+
+    #[test]
+    fn test_chain_names() {
+        assert_eq!(Chain::External.name(), "external");
+        assert_eq!(Chain::Internal.name(), "internal");
+    }
+
+    #[test]
+    fn test_chain_try_from_valid() {
+        assert_eq!(Chain::try_from(0).unwrap(), Chain::External);
+        assert_eq!(Chain::try_from(1).unwrap(), Chain::Internal);
+    }
+
+    #[test]
+    fn test_chain_try_from_invalid() {
+        assert!(Chain::try_from(2).is_err());
+        assert!(Chain::try_from(3).is_err());
+        assert!(Chain::try_from(99).is_err());
+        assert!(Chain::try_from(u32::MAX).is_err());
+    }
+
+    #[test]
+    fn test_chain_try_from_error_message() {
+        let error = Chain::try_from(2).unwrap_err();
+        assert_eq!(
+            error.to_string(),
+            "Invalid chain value: 2 (must be 0 for external or 1 for internal)"
+        );
+    }
+
+    #[test]
+    fn test_chain_into_u32() {
+        let value: u32 = Chain::External.into();
+        assert_eq!(value, 0);
+
+        let value: u32 = Chain::Internal.into();
+        assert_eq!(value, 1);
+    }
+
+    #[test]
+    fn test_chain_round_trip() {
+        for chain in [Chain::External, Chain::Internal] {
+            let value: u32 = chain.into();
+            let parsed = Chain::try_from(value).unwrap();
+            assert_eq!(parsed, chain);
+        }
+    }
+
+    #[test]
+    fn test_chain_display() {
+        assert_eq!(Chain::External.to_string(), "external");
+        assert_eq!(Chain::Internal.to_string(), "internal");
+    }
+
+    #[test]
+    fn test_chain_equality() {
+        assert_eq!(Chain::External, Chain::External);
+        assert_eq!(Chain::Internal, Chain::Internal);
+        assert_ne!(Chain::External, Chain::Internal);
+    }
+
+    #[test]
+    fn test_chain_clone() {
+        let chain = Chain::External;
+        let cloned = chain;
+        assert_eq!(chain, cloned);
+    }
+
+    #[test]
+    fn test_chain_debug() {
+        let chain = Chain::External;
+        assert_eq!(format!("{:?}", chain), "External");
+
+        let chain = Chain::Internal;
+        assert_eq!(format!("{:?}", chain), "Internal");
     }
 }
