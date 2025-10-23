@@ -9,7 +9,7 @@ Create crate structure with `khodpay-bip32`, `thiserror` dependencies, and optio
 ### ✅ Task 02: Define Error enum with proper error types using thiserror
 Create error types: `InvalidPurpose`, `InvalidCoinType`, `InvalidChain`, `InvalidPath`, `InvalidDepth`, `InvalidHardenedLevel`, `Bip32Error`, `ParseError`.
 
-### 🔲 Task 03: Define and test Purpose enum (BIP44, BIP49, BIP84, BIP86) with conversions (TDD)
+### ✅ Task 03: Define and test Purpose enum (BIP44, BIP49, BIP84, BIP86) with conversions (TDD)
 Implement `Purpose` enum with BIP44/49/84/86 variants, conversion traits (TryFrom<u32>, From for u32), and Display. Test valid/invalid conversions.
 
 ### 🔲 Task 04: Define and test Chain enum (External=0, Internal=1) with conversions (TDD)
