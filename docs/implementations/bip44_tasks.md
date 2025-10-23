@@ -28,7 +28,7 @@ Implement conversions (TryFrom<u32>, From for u32) and helpers (`is_testnet()`, 
 ### ✅ Task 07: Define Bip44Path struct with all fields and write tests for constructor (TDD)
 Create `Bip44Path` struct with purpose, coin_type, account, chain, and address_index fields. Test constructor validation.
 
-### 🔲 Task 08: Implement Bip44PathBuilder pattern with fluent API (TDD)
+### ✅ Task 08: Implement Bip44PathBuilder pattern with fluent API (TDD)
 Create builder for fluent path construction: `Bip44Path::builder().purpose(BIP44).coin_type(Bitcoin).account(0)...`. Test builder pattern.
 
 ### 🔲 Task 09: Implement and test conversion to BIP32 DerivationPath (TDD)

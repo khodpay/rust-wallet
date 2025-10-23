@@ -24,7 +24,7 @@ mod path;
 mod types;
 
 pub use error::Error;
-pub use path::Bip44Path;
+pub use path::{Bip44Path, Bip44PathBuilder};
 pub use types::{Chain, CoinType, Purpose};
 
 /// Result type alias for BIP-44 operations.
