@@ -40,6 +40,7 @@
 //! ```
 
 use crate::{Chain, CoinType, Error, Purpose, Result};
+use khodpay_bip32::{ChildNumber, DerivationPath};
 
 /// Maximum value for hardened derivation indices (2^31 - 1).
 ///
@@ -244,6 +245,95 @@ impl Bip44Path {
     /// ```
     pub fn builder() -> Bip44PathBuilder {
         Bip44PathBuilder::default()
+    }
+
+    /// Converts this BIP-44 path to a BIP-32 derivation path.
+    ///
+    /// The conversion follows BIP-44 rules:
+    /// - First 3 levels (purpose, coin_type, account) use hardened derivation
+    /// - Last 2 levels (chain, address_index) use normal derivation
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{Bip44Path, Purpose, CoinType, Chain};
+    /// use khodpay_bip32::DerivationPath;
+    /// use std::str::FromStr;
+    ///
+    /// let bip44_path = Bip44Path::new(
+    ///     Purpose::BIP44,
+    ///     CoinType::Bitcoin,
+    ///     0,
+    ///     Chain::External,
+    ///     0,
+    /// ).unwrap();
+    ///
+    /// let derivation_path: DerivationPath = bip44_path.into();
+    ///
+    /// // This should equal "m/44'/0'/0'/0/0"
+    /// let expected = DerivationPath::from_str("m/44'/0'/0'/0/0").unwrap();
+    /// assert_eq!(derivation_path, expected);
+    /// ```
+    pub fn to_derivation_path(&self) -> DerivationPath {
+        let child_numbers = vec![
+            ChildNumber::Hardened(self.purpose.value()),
+            ChildNumber::Hardened(self.coin_type.index()),
+            ChildNumber::Hardened(self.account),
+            ChildNumber::Normal(self.chain.value()),
+            ChildNumber::Normal(self.address_index),
+        ];
+
+        DerivationPath::new(child_numbers)
+    }
+}
+
+impl From<Bip44Path> for DerivationPath {
+    /// Converts a BIP-44 path to a BIP-32 derivation path.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{Bip44Path, Purpose, CoinType, Chain};
+    /// use khodpay_bip32::DerivationPath;
+    ///
+    /// let bip44_path = Bip44Path::new(
+    ///     Purpose::BIP84,
+    ///     CoinType::Ethereum,
+    ///     5,
+    ///     Chain::Internal,
+    ///     100,
+    /// ).unwrap();
+    ///
+    /// let derivation_path: DerivationPath = bip44_path.into();
+    /// assert_eq!(derivation_path.depth(), 5);
+    /// ```
+    fn from(path: Bip44Path) -> Self {
+        path.to_derivation_path()
+    }
+}
+
+impl From<&Bip44Path> for DerivationPath {
+    /// Converts a reference to a BIP-44 path to a BIP-32 derivation path.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{Bip44Path, Purpose, CoinType, Chain};
+    /// use khodpay_bip32::DerivationPath;
+    ///
+    /// let bip44_path = Bip44Path::new(
+    ///     Purpose::BIP44,
+    ///     CoinType::Bitcoin,
+    ///     0,
+    ///     Chain::External,
+    ///     0,
+    /// ).unwrap();
+    ///
+    /// let derivation_path: DerivationPath = (&bip44_path).into();
+    /// assert_eq!(derivation_path.depth(), 5);
+    /// ```
+    fn from(path: &Bip44Path) -> Self {
+        path.to_derivation_path()
     }
 }
 
@@ -785,5 +875,175 @@ mod tests {
             .build()
             .unwrap();
         assert_eq!(eth.chain(), Chain::Internal);
+    }
+
+    // Conversion tests
+    #[test]
+    fn test_to_derivation_path_bitcoin() {
+        use khodpay_bip32::DerivationPath;
+        use std::str::FromStr;
+
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let derivation = path.to_derivation_path();
+
+        // Should equal m/44'/0'/0'/0/0
+        let expected = DerivationPath::from_str("m/44'/0'/0'/0/0").unwrap();
+        assert_eq!(derivation, expected);
+        assert_eq!(derivation.depth(), 5);
+    }
+
+    #[test]
+    fn test_to_derivation_path_ethereum() {
+        use khodpay_bip32::DerivationPath;
+        use std::str::FromStr;
+
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Ethereum, 0, Chain::External, 0).unwrap();
+        let derivation = path.to_derivation_path();
+
+        // Should equal m/44'/60'/0'/0/0
+        let expected = DerivationPath::from_str("m/44'/60'/0'/0/0").unwrap();
+        assert_eq!(derivation, expected);
+    }
+
+    #[test]
+    fn test_to_derivation_path_with_different_account() {
+        use khodpay_bip32::DerivationPath;
+        use std::str::FromStr;
+
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 5, Chain::External, 0).unwrap();
+        let derivation = path.to_derivation_path();
+
+        let expected = DerivationPath::from_str("m/44'/0'/5'/0/0").unwrap();
+        assert_eq!(derivation, expected);
+    }
+
+    #[test]
+    fn test_to_derivation_path_with_internal_chain() {
+        use khodpay_bip32::DerivationPath;
+        use std::str::FromStr;
+
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::Internal, 0).unwrap();
+        let derivation = path.to_derivation_path();
+
+        let expected = DerivationPath::from_str("m/44'/0'/0'/1/0").unwrap();
+        assert_eq!(derivation, expected);
+    }
+
+    #[test]
+    fn test_to_derivation_path_with_address_index() {
+        use khodpay_bip32::DerivationPath;
+        use std::str::FromStr;
+
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 42).unwrap();
+        let derivation = path.to_derivation_path();
+
+        let expected = DerivationPath::from_str("m/44'/0'/0'/0/42").unwrap();
+        assert_eq!(derivation, expected);
+    }
+
+    #[test]
+    fn test_to_derivation_path_bip84() {
+        use khodpay_bip32::DerivationPath;
+        use std::str::FromStr;
+
+        let path = Bip44Path::new(Purpose::BIP84, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let derivation = path.to_derivation_path();
+
+        // Should equal m/84'/0'/0'/0/0
+        let expected = DerivationPath::from_str("m/84'/0'/0'/0/0").unwrap();
+        assert_eq!(derivation, expected);
+    }
+
+    #[test]
+    fn test_to_derivation_path_custom_coin() {
+        use khodpay_bip32::DerivationPath;
+        use std::str::FromStr;
+
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Custom(999), 0, Chain::External, 0).unwrap();
+        let derivation = path.to_derivation_path();
+
+        let expected = DerivationPath::from_str("m/44'/999'/0'/0/0").unwrap();
+        assert_eq!(derivation, expected);
+    }
+
+    #[test]
+    fn test_from_trait_conversion() {
+        use khodpay_bip32::DerivationPath;
+
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        
+        // Test From<Bip44Path>
+        let derivation: DerivationPath = path.into();
+        assert_eq!(derivation.depth(), 5);
+    }
+
+    #[test]
+    fn test_from_ref_trait_conversion() {
+        use khodpay_bip32::DerivationPath;
+
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        
+        // Test From<&Bip44Path>
+        let derivation: DerivationPath = (&path).into();
+        assert_eq!(derivation.depth(), 5);
+
+        // Original path should still be usable
+        assert_eq!(path.purpose(), Purpose::BIP44);
+    }
+
+    #[test]
+    fn test_conversion_complex_path() {
+        use khodpay_bip32::DerivationPath;
+        use std::str::FromStr;
+
+        // Complex path: m/84'/60'/5'/1/100
+        let path = Bip44Path::new(
+            Purpose::BIP84,
+            CoinType::Ethereum,
+            5,
+            Chain::Internal,
+            100,
+        ).unwrap();
+
+        let derivation = path.to_derivation_path();
+        let expected = DerivationPath::from_str("m/84'/60'/5'/1/100").unwrap();
+        assert_eq!(derivation, expected);
+    }
+
+    #[test]
+    fn test_conversion_preserves_hardening() {
+        use khodpay_bip32::ChildNumber;
+
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let derivation = path.to_derivation_path();
+
+        let children = derivation.as_slice();
+        
+        // First 3 levels should be hardened
+        assert!(matches!(children[0], ChildNumber::Hardened(44)));
+        assert!(matches!(children[1], ChildNumber::Hardened(0)));
+        assert!(matches!(children[2], ChildNumber::Hardened(0)));
+        
+        // Last 2 levels should be normal
+        assert!(matches!(children[3], ChildNumber::Normal(0)));
+        assert!(matches!(children[4], ChildNumber::Normal(0)));
+    }
+
+    #[test]
+    fn test_conversion_all_purposes() {
+        for purpose in [Purpose::BIP44, Purpose::BIP49, Purpose::BIP84, Purpose::BIP86] {
+            let path = Bip44Path::new(purpose, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+            let derivation = path.to_derivation_path();
+            assert_eq!(derivation.depth(), 5);
+        }
+    }
+
+    #[test]
+    fn test_conversion_display_format() {
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 5).unwrap();
+        let derivation = path.to_derivation_path();
+        
+        // Check string representation
+        assert_eq!(derivation.to_string(), "m/44'/0'/0'/0/5");
     }
 }

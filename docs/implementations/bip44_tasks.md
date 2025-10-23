@@ -31,7 +31,7 @@ Create `Bip44Path` struct with purpose, coin_type, account, chain, and address_i
 ### ✅ Task 08: Implement Bip44PathBuilder pattern with fluent API (TDD)
 Create builder for fluent path construction: `Bip44Path::builder().purpose(BIP44).coin_type(Bitcoin).account(0)...`. Test builder pattern.
 
-### 🔲 Task 09: Implement and test conversion to BIP32 DerivationPath (TDD)
+### ✅ Task 09: Implement and test conversion to BIP32 DerivationPath (TDD)
 Convert `Bip44Path` to BIP32 `DerivationPath` with proper hardened levels (m/purpose'/coin'/account'/chain/index). Test conversion.
 
 ### 🔲 Task 10: Implement and test FromStr and Display traits for path parsing/formatting (TDD)
