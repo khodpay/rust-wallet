@@ -585,3 +585,400 @@ mod chain_tests {
         assert_eq!(format!("{:?}", chain), "Internal");
     }
 }
+
+/// Cryptocurrency coin types according to SLIP-44 registry.
+///
+/// SLIP-44 defines a standard registry of coin type constants for use in
+/// BIP-44 derivation paths. Each cryptocurrency has a unique index.
+///
+/// This enum provides variants for commonly used cryptocurrencies, plus a
+/// `Custom` variant for coins not explicitly listed or future additions.
+///
+/// # SLIP-44 Standard
+///
+/// The coin type is the second level in BIP-44 paths and must use hardened
+/// derivation. For example, Bitcoin uses coin type 0', represented as `2^31 + 0`.
+///
+/// Full registry: <https://github.com/satoshilabs/slips/blob/master/slip-0044.md>
+///
+/// # Examples
+///
+/// ```rust
+/// use khodpay_bip44::CoinType;
+///
+/// // Use predefined coin types
+/// let btc = CoinType::Bitcoin;
+/// let eth = CoinType::Ethereum;
+///
+/// // Use custom coin type for unlisted coins
+/// let custom = CoinType::Custom(501); // Solana
+///
+/// // Get SLIP-44 index
+/// assert_eq!(btc.index(), 0);
+/// assert_eq!(eth.index(), 60);
+/// ```
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum CoinType {
+    /// Bitcoin (BTC) - Coin type 0.
+    ///
+    /// The original cryptocurrency and most widely used coin type.
+    ///
+    /// Network: Mainnet  
+    /// Symbol: BTC  
+    /// Path example: `m/44'/0'/0'/0/0`
+    Bitcoin,
+
+    /// Bitcoin Testnet - Coin type 1.
+    ///
+    /// Test network for Bitcoin, used for development and testing.
+    ///
+    /// Network: Testnet  
+    /// Symbol: tBTC  
+    /// Path example: `m/44'/1'/0'/0/0`
+    BitcoinTestnet,
+
+    /// Litecoin (LTC) - Coin type 2.
+    ///
+    /// One of the earliest Bitcoin forks, designed for faster transactions.
+    ///
+    /// Network: Mainnet  
+    /// Symbol: LTC  
+    /// Path example: `m/44'/2'/0'/0/0`
+    Litecoin,
+
+    /// Dogecoin (DOGE) - Coin type 3.
+    ///
+    /// Originally created as a joke, now a popular cryptocurrency.
+    ///
+    /// Network: Mainnet  
+    /// Symbol: DOGE  
+    /// Path example: `m/44'/3'/0'/0/0`
+    Dogecoin,
+
+    /// Dash (DASH) - Coin type 5.
+    ///
+    /// Privacy-focused cryptocurrency with instant transactions.
+    ///
+    /// Network: Mainnet  
+    /// Symbol: DASH  
+    /// Path example: `m/44'/5'/0'/0/0`
+    Dash,
+
+    /// Ethereum (ETH) - Coin type 60.
+    ///
+    /// Smart contract platform and second-largest cryptocurrency by market cap.
+    ///
+    /// Network: Mainnet  
+    /// Symbol: ETH  
+    /// Path example: `m/44'/60'/0'/0/0`
+    Ethereum,
+
+    /// Ethereum Classic (ETC) - Coin type 61.
+    ///
+    /// Original Ethereum chain after the DAO hard fork.
+    ///
+    /// Network: Mainnet  
+    /// Symbol: ETC  
+    /// Path example: `m/44'/61'/0'/0/0`
+    EthereumClassic,
+
+    /// Bitcoin Cash (BCH) - Coin type 145.
+    ///
+    /// Bitcoin fork with larger block sizes.
+    ///
+    /// Network: Mainnet  
+    /// Symbol: BCH  
+    /// Path example: `m/44'/145'/0'/0/0`
+    BitcoinCash,
+
+    /// Binance Coin (BNB) - Coin type 714.
+    ///
+    /// Native token of Binance Chain and Binance Smart Chain.
+    ///
+    /// Network: Mainnet  
+    /// Symbol: BNB  
+    /// Path example: `m/44'/714'/0'/0/0`
+    BinanceCoin,
+
+    /// Solana (SOL) - Coin type 501.
+    ///
+    /// High-performance blockchain with fast transactions.
+    ///
+    /// Network: Mainnet  
+    /// Symbol: SOL  
+    /// Path example: `m/44'/501'/0'/0/0`
+    Solana,
+
+    /// Cardano (ADA) - Coin type 1815.
+    ///
+    /// Proof-of-stake blockchain with academic research foundation.
+    ///
+    /// Network: Mainnet  
+    /// Symbol: ADA  
+    /// Path example: `m/44'/1815'/0'/0/0`
+    Cardano,
+
+    /// Polkadot (DOT) - Coin type 354.
+    ///
+    /// Multi-chain protocol for connecting different blockchains.
+    ///
+    /// Network: Mainnet  
+    /// Symbol: DOT  
+    /// Path example: `m/44'/354'/0'/0/0`
+    Polkadot,
+
+    /// Cosmos (ATOM) - Coin type 118.
+    ///
+    /// Internet of blockchains for interoperability.
+    ///
+    /// Network: Mainnet  
+    /// Symbol: ATOM  
+    /// Path example: `m/44'/118'/0'/0/0`
+    Cosmos,
+
+    /// Tron (TRX) - Coin type 195.
+    ///
+    /// Blockchain focused on content sharing and entertainment.
+    ///
+    /// Network: Mainnet  
+    /// Symbol: TRX  
+    /// Path example: `m/44'/195'/0'/0/0`
+    Tron,
+
+    /// Custom coin type for unlisted or future cryptocurrencies.
+    ///
+    /// Use this variant for coins not explicitly defined in this enum.
+    /// The inner value is the SLIP-44 registered coin type index.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::CoinType;
+    ///
+    /// // Use custom coin type for Monero (128)
+    /// let monero = CoinType::Custom(128);
+    /// assert_eq!(monero.index(), 128);
+    ///
+    /// // Use custom for any registered SLIP-44 coin
+    /// let zcash = CoinType::Custom(133);
+    /// ```
+    Custom(u32),
+}
+
+impl CoinType {
+    /// Returns the SLIP-44 coin type index.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::CoinType;
+    ///
+    /// assert_eq!(CoinType::Bitcoin.index(), 0);
+    /// assert_eq!(CoinType::Ethereum.index(), 60);
+    /// assert_eq!(CoinType::Custom(999).index(), 999);
+    /// ```
+    pub const fn index(&self) -> u32 {
+        match self {
+            CoinType::Bitcoin => 0,
+            CoinType::BitcoinTestnet => 1,
+            CoinType::Litecoin => 2,
+            CoinType::Dogecoin => 3,
+            CoinType::Dash => 5,
+            CoinType::Ethereum => 60,
+            CoinType::EthereumClassic => 61,
+            CoinType::BitcoinCash => 145,
+            CoinType::BinanceCoin => 714,
+            CoinType::Solana => 501,
+            CoinType::Cardano => 1815,
+            CoinType::Polkadot => 354,
+            CoinType::Cosmos => 118,
+            CoinType::Tron => 195,
+            CoinType::Custom(index) => *index,
+        }
+    }
+
+    /// Returns the symbol for this coin type.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::CoinType;
+    ///
+    /// assert_eq!(CoinType::Bitcoin.symbol(), "BTC");
+    /// assert_eq!(CoinType::Ethereum.symbol(), "ETH");
+    /// assert_eq!(CoinType::Custom(999).symbol(), "CUSTOM");
+    /// ```
+    pub const fn symbol(&self) -> &'static str {
+        match self {
+            CoinType::Bitcoin => "BTC",
+            CoinType::BitcoinTestnet => "tBTC",
+            CoinType::Litecoin => "LTC",
+            CoinType::Dogecoin => "DOGE",
+            CoinType::Dash => "DASH",
+            CoinType::Ethereum => "ETH",
+            CoinType::EthereumClassic => "ETC",
+            CoinType::BitcoinCash => "BCH",
+            CoinType::BinanceCoin => "BNB",
+            CoinType::Solana => "SOL",
+            CoinType::Cardano => "ADA",
+            CoinType::Polkadot => "DOT",
+            CoinType::Cosmos => "ATOM",
+            CoinType::Tron => "TRX",
+            CoinType::Custom(_) => "CUSTOM",
+        }
+    }
+
+    /// Returns the full name of this coin type.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::CoinType;
+    ///
+    /// assert_eq!(CoinType::Bitcoin.name(), "Bitcoin");
+    /// assert_eq!(CoinType::Ethereum.name(), "Ethereum");
+    /// ```
+    pub const fn name(&self) -> &'static str {
+        match self {
+            CoinType::Bitcoin => "Bitcoin",
+            CoinType::BitcoinTestnet => "Bitcoin Testnet",
+            CoinType::Litecoin => "Litecoin",
+            CoinType::Dogecoin => "Dogecoin",
+            CoinType::Dash => "Dash",
+            CoinType::Ethereum => "Ethereum",
+            CoinType::EthereumClassic => "Ethereum Classic",
+            CoinType::BitcoinCash => "Bitcoin Cash",
+            CoinType::BinanceCoin => "Binance Coin",
+            CoinType::Solana => "Solana",
+            CoinType::Cardano => "Cardano",
+            CoinType::Polkadot => "Polkadot",
+            CoinType::Cosmos => "Cosmos",
+            CoinType::Tron => "Tron",
+            CoinType::Custom(_) => "Custom",
+        }
+    }
+}
+
+#[cfg(test)]
+mod cointype_tests {
+    use super::*;
+
+    #[test]
+    fn test_cointype_indices() {
+        assert_eq!(CoinType::Bitcoin.index(), 0);
+        assert_eq!(CoinType::BitcoinTestnet.index(), 1);
+        assert_eq!(CoinType::Litecoin.index(), 2);
+        assert_eq!(CoinType::Dogecoin.index(), 3);
+        assert_eq!(CoinType::Dash.index(), 5);
+        assert_eq!(CoinType::Ethereum.index(), 60);
+        assert_eq!(CoinType::EthereumClassic.index(), 61);
+        assert_eq!(CoinType::BitcoinCash.index(), 145);
+        assert_eq!(CoinType::Cosmos.index(), 118);
+        assert_eq!(CoinType::Tron.index(), 195);
+        assert_eq!(CoinType::Polkadot.index(), 354);
+        assert_eq!(CoinType::Solana.index(), 501);
+        assert_eq!(CoinType::BinanceCoin.index(), 714);
+        assert_eq!(CoinType::Cardano.index(), 1815);
+        assert_eq!(CoinType::Custom(999).index(), 999);
+    }
+
+    #[test]
+    fn test_cointype_symbols() {
+        assert_eq!(CoinType::Bitcoin.symbol(), "BTC");
+        assert_eq!(CoinType::BitcoinTestnet.symbol(), "tBTC");
+        assert_eq!(CoinType::Litecoin.symbol(), "LTC");
+        assert_eq!(CoinType::Dogecoin.symbol(), "DOGE");
+        assert_eq!(CoinType::Dash.symbol(), "DASH");
+        assert_eq!(CoinType::Ethereum.symbol(), "ETH");
+        assert_eq!(CoinType::EthereumClassic.symbol(), "ETC");
+        assert_eq!(CoinType::BitcoinCash.symbol(), "BCH");
+        assert_eq!(CoinType::BinanceCoin.symbol(), "BNB");
+        assert_eq!(CoinType::Solana.symbol(), "SOL");
+        assert_eq!(CoinType::Cardano.symbol(), "ADA");
+        assert_eq!(CoinType::Polkadot.symbol(), "DOT");
+        assert_eq!(CoinType::Cosmos.symbol(), "ATOM");
+        assert_eq!(CoinType::Tron.symbol(), "TRX");
+        assert_eq!(CoinType::Custom(123).symbol(), "CUSTOM");
+    }
+
+    #[test]
+    fn test_cointype_names() {
+        assert_eq!(CoinType::Bitcoin.name(), "Bitcoin");
+        assert_eq!(CoinType::BitcoinTestnet.name(), "Bitcoin Testnet");
+        assert_eq!(CoinType::Litecoin.name(), "Litecoin");
+        assert_eq!(CoinType::Dogecoin.name(), "Dogecoin");
+        assert_eq!(CoinType::Dash.name(), "Dash");
+        assert_eq!(CoinType::Ethereum.name(), "Ethereum");
+        assert_eq!(CoinType::EthereumClassic.name(), "Ethereum Classic");
+        assert_eq!(CoinType::BitcoinCash.name(), "Bitcoin Cash");
+        assert_eq!(CoinType::BinanceCoin.name(), "Binance Coin");
+        assert_eq!(CoinType::Solana.name(), "Solana");
+        assert_eq!(CoinType::Cardano.name(), "Cardano");
+        assert_eq!(CoinType::Polkadot.name(), "Polkadot");
+        assert_eq!(CoinType::Cosmos.name(), "Cosmos");
+        assert_eq!(CoinType::Tron.name(), "Tron");
+        assert_eq!(CoinType::Custom(456).name(), "Custom");
+    }
+
+    #[test]
+    fn test_cointype_custom() {
+        let custom = CoinType::Custom(128); // Monero
+        assert_eq!(custom.index(), 128);
+        assert_eq!(custom.symbol(), "CUSTOM");
+        assert_eq!(custom.name(), "Custom");
+    }
+
+    #[test]
+    fn test_cointype_equality() {
+        assert_eq!(CoinType::Bitcoin, CoinType::Bitcoin);
+        assert_eq!(CoinType::Ethereum, CoinType::Ethereum);
+        assert_ne!(CoinType::Bitcoin, CoinType::Ethereum);
+        
+        assert_eq!(CoinType::Custom(100), CoinType::Custom(100));
+        assert_ne!(CoinType::Custom(100), CoinType::Custom(101));
+    }
+
+    #[test]
+    fn test_cointype_clone() {
+        let coin = CoinType::Bitcoin;
+        let cloned = coin;
+        assert_eq!(coin, cloned);
+
+        let custom = CoinType::Custom(999);
+        let cloned_custom = custom;
+        assert_eq!(custom, cloned_custom);
+    }
+
+    #[test]
+    fn test_cointype_debug() {
+        assert_eq!(format!("{:?}", CoinType::Bitcoin), "Bitcoin");
+        assert_eq!(format!("{:?}", CoinType::Ethereum), "Ethereum");
+        assert_eq!(format!("{:?}", CoinType::Custom(123)), "Custom(123)");
+    }
+
+    #[test]
+    fn test_major_coins_coverage() {
+        // Ensure all major coins are accessible
+        let _btc = CoinType::Bitcoin;
+        let _eth = CoinType::Ethereum;
+        let _ltc = CoinType::Litecoin;
+        let _doge = CoinType::Dogecoin;
+        let _bch = CoinType::BitcoinCash;
+        let _bnb = CoinType::BinanceCoin;
+        let _sol = CoinType::Solana;
+        let _ada = CoinType::Cardano;
+        let _dot = CoinType::Polkadot;
+        let _atom = CoinType::Cosmos;
+    }
+
+    #[test]
+    fn test_slip44_compliance() {
+        // Verify indices match SLIP-44 registry
+        // https://github.com/satoshilabs/slips/blob/master/slip-0044.md
+        assert_eq!(CoinType::Bitcoin.index(), 0);
+        assert_eq!(CoinType::BitcoinTestnet.index(), 1);
+        assert_eq!(CoinType::Litecoin.index(), 2);
+        assert_eq!(CoinType::Dogecoin.index(), 3);
+        assert_eq!(CoinType::Ethereum.index(), 60);
+    }
+}

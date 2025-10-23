@@ -23,7 +23,7 @@ mod error;
 mod types;
 
 pub use error::Error;
-pub use types::{Chain, Purpose};
+pub use types::{Chain, CoinType, Purpose};
 
 /// Result type alias for BIP-44 operations.
 pub type Result<T> = std::result::Result<T, Error>;
