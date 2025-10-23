@@ -12,7 +12,7 @@ Create error types: `InvalidPurpose`, `InvalidCoinType`, `InvalidChain`, `Invali
 ### ✅ Task 03: Define and test Purpose enum (BIP44, BIP49, BIP84, BIP86) with conversions (TDD)
 Implement `Purpose` enum with BIP44/49/84/86 variants, conversion traits (TryFrom<u32>, From for u32), and Display. Test valid/invalid conversions.
 
-### 🔲 Task 04: Define and test Chain enum (External=0, Internal=1) with conversions (TDD)
+### ✅ Task 04: Define and test Chain enum (External=0, Internal=1) with conversions (TDD)
 Implement `Chain` enum for receive (0) and change (1) addresses with conversions and helper methods. Test valid/invalid chain values.
 
 ## 💰 PHASE 2: Coin Type Registry (HIGH Priority)
