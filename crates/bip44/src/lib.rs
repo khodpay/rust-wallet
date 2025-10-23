@@ -20,9 +20,11 @@
 #![deny(unsafe_code)]
 
 mod error;
+mod path;
 mod types;
 
 pub use error::Error;
+pub use path::Bip44Path;
 pub use types::{Chain, CoinType, Purpose};
 
 /// Result type alias for BIP-44 operations.

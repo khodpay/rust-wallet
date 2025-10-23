@@ -25,7 +25,7 @@ Implement conversions (TryFrom<u32>, From for u32) and helpers (`is_testnet()`, 
 
 ## 🛤️ PHASE 3: Path Construction (HIGH → MEDIUM Priority)
 
-### 🔲 Task 07: Define Bip44Path struct with all fields and write tests for constructor (TDD)
+### ✅ Task 07: Define Bip44Path struct with all fields and write tests for constructor (TDD)
 Create `Bip44Path` struct with purpose, coin_type, account, chain, and address_index fields. Test constructor validation.
 
 ### 🔲 Task 08: Implement Bip44PathBuilder pattern with fluent API (TDD)
