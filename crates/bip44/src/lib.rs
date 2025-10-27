@@ -28,7 +28,7 @@ mod types;
 pub use account::Account;
 pub use discovery::{
     AccountDiscovery, AccountScanResult, AccountScanner, ChainScanResult, GapLimitChecker,
-    DEFAULT_GAP_LIMIT,
+    MockBlockchain, DEFAULT_GAP_LIMIT,
 };
 pub use error::Error;
 pub use path::{Bip44Path, Bip44PathBuilder};

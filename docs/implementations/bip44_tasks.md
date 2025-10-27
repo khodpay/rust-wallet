@@ -64,7 +64,7 @@ Create trait for blockchain queries. Implement gap limit (stop after 20 consecut
 ### ✅ Task 17: Implement AccountScanner with discover_accounts() and scan_chain() methods (TDD)
 Scan accounts and chains using discovery trait. Find all used accounts/addresses. Test discovery algorithm.
 
-### 🔲 Task 18: Create mock blockchain backend for testing (TDD)
+### ✅ Task 18: Create mock blockchain backend for testing (TDD)
 Mock blockchain with configurable used addresses for testing account discovery without real blockchain.
 
 ## 🏦 PHASE 7: Wallet Abstraction (LOW → MEDIUM Priority)

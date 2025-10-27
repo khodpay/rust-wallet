@@ -604,21 +604,182 @@ impl AccountScanner {
     }
 }
 
+/// Mock blockchain backend for testing account discovery.
+///
+/// This provides a simple in-memory blockchain state for testing without
+/// requiring actual blockchain connectivity.
+///
+/// # Examples
+///
+/// ```rust
+/// use khodpay_bip44::{MockBlockchain, AccountDiscovery};
+///
+/// let mut blockchain = MockBlockchain::new();
+/// blockchain.mark_used(0);
+/// blockchain.mark_used(2);
+/// blockchain.mark_used(5);
+///
+/// assert!(blockchain.is_address_used(0).unwrap());
+/// assert!(!blockchain.is_address_used(1).unwrap());
+/// assert!(blockchain.is_address_used(5).unwrap());
+/// ```
+#[derive(Debug, Clone, Default)]
+pub struct MockBlockchain {
+    used_addresses: std::collections::HashSet<u32>,
+}
+
+impl MockBlockchain {
+    /// Creates a new empty mock blockchain.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::MockBlockchain;
+    ///
+    /// let blockchain = MockBlockchain::new();
+    /// ```
+    pub fn new() -> Self {
+        Self {
+            used_addresses: std::collections::HashSet::new(),
+        }
+    }
+
+    /// Creates a mock blockchain with pre-configured used addresses.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::MockBlockchain;
+    ///
+    /// let blockchain = MockBlockchain::with_used_addresses(&[0, 2, 5, 10]);
+    /// assert!(blockchain.is_address_used(5).unwrap());
+    /// ```
+    pub fn with_used_addresses(addresses: &[u32]) -> Self {
+        Self {
+            used_addresses: addresses.iter().copied().collect(),
+        }
+    }
+
+    /// Marks an address as used.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::MockBlockchain;
+    ///
+    /// let mut blockchain = MockBlockchain::new();
+    /// blockchain.mark_used(5);
+    /// assert!(blockchain.is_address_used(5).unwrap());
+    /// ```
+    pub fn mark_used(&mut self, address_index: u32) {
+        self.used_addresses.insert(address_index);
+    }
+
+    /// Marks multiple addresses as used.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::MockBlockchain;
+    ///
+    /// let mut blockchain = MockBlockchain::new();
+    /// blockchain.mark_used_batch(&[0, 1, 2, 5]);
+    /// assert_eq!(blockchain.used_count(), 4);
+    /// ```
+    pub fn mark_used_batch(&mut self, addresses: &[u32]) {
+        for &addr in addresses {
+            self.used_addresses.insert(addr);
+        }
+    }
+
+    /// Marks an address as unused (removes it).
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::MockBlockchain;
+    ///
+    /// let mut blockchain = MockBlockchain::with_used_addresses(&[0, 1, 2]);
+    /// blockchain.mark_unused(1);
+    /// assert!(!blockchain.is_address_used(1).unwrap());
+    /// ```
+    pub fn mark_unused(&mut self, address_index: u32) {
+        self.used_addresses.remove(&address_index);
+    }
+
+    /// Returns the number of used addresses.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::MockBlockchain;
+    ///
+    /// let blockchain = MockBlockchain::with_used_addresses(&[0, 2, 5]);
+    /// assert_eq!(blockchain.used_count(), 3);
+    /// ```
+    pub fn used_count(&self) -> usize {
+        self.used_addresses.len()
+    }
+
+    /// Returns a sorted vector of all used address indices.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::MockBlockchain;
+    ///
+    /// let blockchain = MockBlockchain::with_used_addresses(&[5, 0, 2]);
+    /// assert_eq!(blockchain.get_used_addresses(), vec![0, 2, 5]);
+    /// ```
+    pub fn get_used_addresses(&self) -> Vec<u32> {
+        let mut addresses: Vec<u32> = self.used_addresses.iter().copied().collect();
+        addresses.sort_unstable();
+        addresses
+    }
+
+    /// Clears all used addresses.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::MockBlockchain;
+    ///
+    /// let mut blockchain = MockBlockchain::with_used_addresses(&[0, 1, 2]);
+    /// blockchain.clear();
+    /// assert_eq!(blockchain.used_count(), 0);
+    /// ```
+    pub fn clear(&mut self) {
+        self.used_addresses.clear();
+    }
+
+    /// Checks if any addresses are marked as used.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::MockBlockchain;
+    ///
+    /// let empty = MockBlockchain::new();
+    /// assert!(empty.is_empty());
+    ///
+    /// let used = MockBlockchain::with_used_addresses(&[0]);
+    /// assert!(!used.is_empty());
+    /// ```
+    pub fn is_empty(&self) -> bool {
+        self.used_addresses.is_empty()
+    }
+}
+
+impl AccountDiscovery for MockBlockchain {
+    fn is_address_used(&self, address_index: u32) -> std::result::Result<bool, Box<dyn std::error::Error>> {
+        Ok(self.used_addresses.contains(&address_index))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use std::collections::HashSet;
-
-    // Mock blockchain implementation for testing
-    struct MockBlockchain {
-        used_addresses: HashSet<u32>,
-    }
-
-    impl AccountDiscovery for MockBlockchain {
-        fn is_address_used(&self, address_index: u32) -> std::result::Result<bool, Box<dyn std::error::Error>> {
-            Ok(self.used_addresses.contains(&address_index))
-        }
-    }
 
     #[test]
     fn test_gap_limit_checker_new() {
@@ -1118,6 +1279,205 @@ mod tests {
         
         let debug_str = format!("{:?}", result);
         assert!(debug_str.contains("AccountScanResult"));
+    }
+
+    // MockBlockchain tests
+    #[test]
+    fn test_mock_blockchain_new() {
+        let blockchain = MockBlockchain::new();
+        assert_eq!(blockchain.used_count(), 0);
+        assert!(blockchain.is_empty());
+    }
+
+    #[test]
+    fn test_mock_blockchain_default() {
+        let blockchain = MockBlockchain::default();
+        assert_eq!(blockchain.used_count(), 0);
+    }
+
+    #[test]
+    fn test_mock_blockchain_with_used_addresses() {
+        let blockchain = MockBlockchain::with_used_addresses(&[0, 2, 5, 10]);
+        
+        assert_eq!(blockchain.used_count(), 4);
+        assert!(blockchain.is_address_used(0).unwrap());
+        assert!(!blockchain.is_address_used(1).unwrap());
+        assert!(blockchain.is_address_used(2).unwrap());
+        assert!(blockchain.is_address_used(10).unwrap());
+    }
+
+    #[test]
+    fn test_mock_blockchain_mark_used() {
+        let mut blockchain = MockBlockchain::new();
+        
+        blockchain.mark_used(5);
+        assert!(blockchain.is_address_used(5).unwrap());
+        assert_eq!(blockchain.used_count(), 1);
+    }
+
+    #[test]
+    fn test_mock_blockchain_mark_used_duplicate() {
+        let mut blockchain = MockBlockchain::new();
+        
+        blockchain.mark_used(5);
+        blockchain.mark_used(5);
+        
+        assert_eq!(blockchain.used_count(), 1);
+    }
+
+    #[test]
+    fn test_mock_blockchain_mark_used_batch() {
+        let mut blockchain = MockBlockchain::new();
+        
+        blockchain.mark_used_batch(&[0, 1, 2, 5, 10]);
+        
+        assert_eq!(blockchain.used_count(), 5);
+        assert!(blockchain.is_address_used(0).unwrap());
+        assert!(blockchain.is_address_used(10).unwrap());
+    }
+
+    #[test]
+    fn test_mock_blockchain_mark_unused() {
+        let mut blockchain = MockBlockchain::with_used_addresses(&[0, 1, 2]);
+        
+        blockchain.mark_unused(1);
+        
+        assert!(!blockchain.is_address_used(1).unwrap());
+        assert_eq!(blockchain.used_count(), 2);
+    }
+
+    #[test]
+    fn test_mock_blockchain_mark_unused_not_present() {
+        let mut blockchain = MockBlockchain::with_used_addresses(&[0, 1]);
+        
+        blockchain.mark_unused(5);
+        
+        assert_eq!(blockchain.used_count(), 2);
+    }
+
+    #[test]
+    fn test_mock_blockchain_get_used_addresses() {
+        let blockchain = MockBlockchain::with_used_addresses(&[10, 5, 0, 2]);
+        
+        let used = blockchain.get_used_addresses();
+        assert_eq!(used, vec![0, 2, 5, 10]);
+    }
+
+    #[test]
+    fn test_mock_blockchain_get_used_addresses_empty() {
+        let blockchain = MockBlockchain::new();
+        
+        let used = blockchain.get_used_addresses();
+        assert_eq!(used, Vec::<u32>::new());
+    }
+
+    #[test]
+    fn test_mock_blockchain_clear() {
+        let mut blockchain = MockBlockchain::with_used_addresses(&[0, 1, 2, 5]);
+        
+        assert_eq!(blockchain.used_count(), 4);
+        
+        blockchain.clear();
+        
+        assert_eq!(blockchain.used_count(), 0);
+        assert!(blockchain.is_empty());
+    }
+
+    #[test]
+    fn test_mock_blockchain_is_empty() {
+        let empty = MockBlockchain::new();
+        assert!(empty.is_empty());
+        
+        let not_empty = MockBlockchain::with_used_addresses(&[0]);
+        assert!(!not_empty.is_empty());
+    }
+
+    #[test]
+    fn test_mock_blockchain_clone() {
+        let blockchain1 = MockBlockchain::with_used_addresses(&[0, 1, 2]);
+        let blockchain2 = blockchain1.clone();
+        
+        assert_eq!(blockchain1.used_count(), blockchain2.used_count());
+        assert_eq!(blockchain1.get_used_addresses(), blockchain2.get_used_addresses());
+    }
+
+    #[test]
+    fn test_mock_blockchain_debug() {
+        let blockchain = MockBlockchain::with_used_addresses(&[0, 1]);
+        let debug_str = format!("{:?}", blockchain);
+        
+        assert!(debug_str.contains("MockBlockchain"));
+    }
+
+    #[test]
+    fn test_mock_blockchain_account_discovery_trait() {
+        let blockchain = MockBlockchain::with_used_addresses(&[0, 5, 10]);
+        
+        // Test via trait
+        assert!(blockchain.is_address_used(0).unwrap());
+        assert!(!blockchain.is_address_used(1).unwrap());
+        assert!(blockchain.is_address_used(10).unwrap());
+    }
+
+    #[test]
+    fn test_mock_blockchain_with_gap_limit_checker() {
+        let blockchain = MockBlockchain::with_used_addresses(&[0, 2, 5]);
+        let checker = GapLimitChecker::new(20);
+        
+        let last_used = checker.find_last_used_index(&blockchain, 0).unwrap();
+        assert_eq!(last_used, Some(5));
+        
+        let used_indices = checker.find_used_indices(&blockchain, 0).unwrap();
+        assert_eq!(used_indices, vec![0, 2, 5]);
+    }
+
+    #[test]
+    fn test_mock_blockchain_with_scanner() {
+        use crate::Chain;
+        
+        let blockchain = MockBlockchain::with_used_addresses(&[0, 1, 5, 10]);
+        let scanner = AccountScanner::new(GapLimitChecker::new(20));
+        
+        let result = scanner.scan_chain(&blockchain, Chain::External).unwrap();
+        
+        assert_eq!(result.used_indices, vec![0, 1, 5, 10]);
+        assert_eq!(result.last_used_index, Some(10));
+    }
+
+    #[test]
+    fn test_mock_blockchain_mutability() {
+        let mut blockchain = MockBlockchain::new();
+        
+        // Add some addresses
+        blockchain.mark_used(0);
+        blockchain.mark_used(1);
+        assert_eq!(blockchain.used_count(), 2);
+        
+        // Remove one
+        blockchain.mark_unused(0);
+        assert_eq!(blockchain.used_count(), 1);
+        
+        // Add batch
+        blockchain.mark_used_batch(&[5, 10, 15]);
+        assert_eq!(blockchain.used_count(), 4);
+        
+        // Clear all
+        blockchain.clear();
+        assert_eq!(blockchain.used_count(), 0);
+    }
+
+    #[test]
+    fn test_mock_blockchain_large_indices() {
+        let mut blockchain = MockBlockchain::new();
+        
+        blockchain.mark_used(1000);
+        blockchain.mark_used(10000);
+        blockchain.mark_used(100000);
+        
+        assert!(blockchain.is_address_used(1000).unwrap());
+        assert!(blockchain.is_address_used(10000).unwrap());
+        assert!(blockchain.is_address_used(100000).unwrap());
+        assert_eq!(blockchain.used_count(), 3);
     }
 }
 
