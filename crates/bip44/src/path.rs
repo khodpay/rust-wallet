@@ -229,6 +229,48 @@ impl Bip44Path {
         self.address_index
     }
 
+    /// Validates that this path conforms to BIP-44 rules.
+    ///
+    /// This method is informational since all `Bip44Path` instances are guaranteed
+    /// to be valid through the constructor. However, it can be useful for
+    /// documentation and explicit validation checks.
+    ///
+    /// # BIP-44 Rules
+    ///
+    /// - Path must have exactly 5 levels
+    /// - Account index must be ≤ 2^31 - 1
+    /// - All component values must be valid
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{Bip44Path, Purpose, CoinType, Chain};
+    ///
+    /// let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+    /// assert!(path.is_valid());
+    /// ```
+    pub const fn is_valid(&self) -> bool {
+        // All Bip44Path instances are valid by construction
+        // Account validation is done in the constructor
+        true
+    }
+
+    /// Returns the depth of this BIP-44 path.
+    ///
+    /// BIP-44 paths always have a depth of 5 levels.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{Bip44Path, Purpose, CoinType, Chain};
+    ///
+    /// let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+    /// assert_eq!(path.depth(), 5);
+    /// ```
+    pub const fn depth(&self) -> u8 {
+        5
+    }
+
     /// Creates a new builder for constructing a BIP-44 path.
     ///
     /// # Examples
@@ -336,6 +378,123 @@ impl From<&Bip44Path> for DerivationPath {
     /// ```
     fn from(path: &Bip44Path) -> Self {
         path.to_derivation_path()
+    }
+}
+
+impl TryFrom<DerivationPath> for Bip44Path {
+    type Error = Error;
+
+    /// Attempts to convert a BIP-32 derivation path to a BIP-44 path.
+    ///
+    /// This validates that the derivation path follows BIP-44 rules:
+    /// - Must have exactly 5 levels
+    /// - First 3 levels must be hardened (purpose, coin_type, account)
+    /// - Last 2 levels must be normal (chain, address_index)
+    /// - Purpose must be valid (44, 49, 84, or 86)
+    /// - Chain must be valid (0 or 1)
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    /// - Path depth is not 5
+    /// - Hardening is incorrect
+    /// - Purpose or chain values are invalid
+    /// - Account index is out of range
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{Bip44Path, Purpose, CoinType, Chain};
+    /// use khodpay_bip32::DerivationPath;
+    /// use std::str::FromStr;
+    ///
+    /// // Valid BIP-44 path
+    /// let derivation = DerivationPath::from_str("m/44'/0'/0'/0/0").unwrap();
+    /// let bip44 = Bip44Path::try_from(derivation).unwrap();
+    /// assert_eq!(bip44.purpose(), Purpose::BIP44);
+    ///
+    /// // Invalid: wrong depth
+    /// let invalid = DerivationPath::from_str("m/44'/0'/0'").unwrap();
+    /// assert!(Bip44Path::try_from(invalid).is_err());
+    ///
+    /// // Invalid: chain is hardened
+    /// let invalid = DerivationPath::from_str("m/44'/0'/0'/0'/0").unwrap();
+    /// assert!(Bip44Path::try_from(invalid).is_err());
+    /// ```
+    fn try_from(path: DerivationPath) -> Result<Self> {
+        // Validate depth
+        if path.depth() != 5 {
+            return Err(Error::InvalidDepth {
+                depth: path.depth() as usize,
+            });
+        }
+
+        let children = path.as_slice();
+
+        // Validate first 3 levels are hardened
+        if !children[0].is_hardened() {
+            return Err(Error::InvalidHardenedLevel {
+                reason: "Purpose (level 0) must be hardened".to_string(),
+            });
+        }
+        if !children[1].is_hardened() {
+            return Err(Error::InvalidHardenedLevel {
+                reason: "Coin type (level 1) must be hardened".to_string(),
+            });
+        }
+        if !children[2].is_hardened() {
+            return Err(Error::InvalidHardenedLevel {
+                reason: "Account (level 2) must be hardened".to_string(),
+            });
+        }
+
+        // Validate last 2 levels are normal
+        if children[3].is_hardened() {
+            return Err(Error::InvalidHardenedLevel {
+                reason: "Chain (level 3) must not be hardened".to_string(),
+            });
+        }
+        if children[4].is_hardened() {
+            return Err(Error::InvalidHardenedLevel {
+                reason: "Address index (level 4) must not be hardened".to_string(),
+            });
+        }
+
+        // Extract values (use .value() to get base index without hardening bit)
+        let purpose_value = children[0].value();
+        let coin_type_value = children[1].value();
+        let account = children[2].value();
+        let chain_value = children[3].value();
+        let address_index = children[4].value();
+
+        // Validate and convert types
+        let purpose = Purpose::try_from(purpose_value)?;
+        let coin_type = CoinType::try_from(coin_type_value)?;
+        let chain = Chain::try_from(chain_value)?;
+
+        // Create the path (this also validates account range)
+        Bip44Path::new(purpose, coin_type, account, chain, address_index)
+    }
+}
+
+impl TryFrom<&DerivationPath> for Bip44Path {
+    type Error = Error;
+
+    /// Attempts to convert a reference to a BIP-32 derivation path to a BIP-44 path.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{Bip44Path, Purpose};
+    /// use khodpay_bip32::DerivationPath;
+    /// use std::str::FromStr;
+    ///
+    /// let derivation = DerivationPath::from_str("m/44'/0'/0'/0/0").unwrap();
+    /// let bip44 = Bip44Path::try_from(&derivation).unwrap();
+    /// assert_eq!(bip44.purpose(), Purpose::BIP44);
+    /// ```
+    fn try_from(path: &DerivationPath) -> Result<Self> {
+        Bip44Path::try_from(path.clone())
     }
 }
 
@@ -1441,5 +1600,260 @@ mod tests {
         let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
         assert_eq!(format!("{}", path), "m/44'/0'/0'/0/0");
         assert_eq!(format!("{:?}", path).contains("Bip44Path"), true);
+    }
+
+    // Validation tests
+    #[test]
+    fn test_is_valid() {
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        assert!(path.is_valid());
+
+        let path2 = Bip44Path::new(Purpose::BIP84, CoinType::Ethereum, 100, Chain::Internal, u32::MAX).unwrap();
+        assert!(path2.is_valid());
+    }
+
+    #[test]
+    fn test_depth() {
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        assert_eq!(path.depth(), 5);
+    }
+
+    #[test]
+    fn test_try_from_derivation_path_valid() {
+        use khodpay_bip32::DerivationPath;
+        use std::str::FromStr;
+
+        let derivation = DerivationPath::from_str("m/44'/0'/0'/0/0").unwrap();
+        let bip44 = Bip44Path::try_from(derivation).unwrap();
+        
+        assert_eq!(bip44.purpose(), Purpose::BIP44);
+        assert_eq!(bip44.coin_type(), CoinType::Bitcoin);
+        assert_eq!(bip44.account(), 0);
+        assert_eq!(bip44.chain(), Chain::External);
+        assert_eq!(bip44.address_index(), 0);
+    }
+
+    #[test]
+    fn test_try_from_derivation_path_ethereum() {
+        use khodpay_bip32::DerivationPath;
+        use std::str::FromStr;
+
+        let derivation = DerivationPath::from_str("m/44'/60'/0'/0/0").unwrap();
+        let bip44 = Bip44Path::try_from(derivation).unwrap();
+        
+        assert_eq!(bip44.coin_type(), CoinType::Ethereum);
+    }
+
+    #[test]
+    fn test_try_from_derivation_path_bip84() {
+        use khodpay_bip32::DerivationPath;
+        use std::str::FromStr;
+
+        let derivation = DerivationPath::from_str("m/84'/0'/0'/0/0").unwrap();
+        let bip44 = Bip44Path::try_from(derivation).unwrap();
+        
+        assert_eq!(bip44.purpose(), Purpose::BIP84);
+    }
+
+    #[test]
+    fn test_try_from_derivation_path_complex() {
+        use khodpay_bip32::DerivationPath;
+        use std::str::FromStr;
+
+        let derivation = DerivationPath::from_str("m/49'/2'/10'/1/999").unwrap();
+        let bip44 = Bip44Path::try_from(derivation).unwrap();
+        
+        assert_eq!(bip44.purpose(), Purpose::BIP49);
+        assert_eq!(bip44.coin_type(), CoinType::Litecoin);
+        assert_eq!(bip44.account(), 10);
+        assert_eq!(bip44.chain(), Chain::Internal);
+        assert_eq!(bip44.address_index(), 999);
+    }
+
+    #[test]
+    fn test_try_from_derivation_path_ref() {
+        use khodpay_bip32::DerivationPath;
+        use std::str::FromStr;
+
+        let derivation = DerivationPath::from_str("m/44'/0'/0'/0/0").unwrap();
+        let bip44 = Bip44Path::try_from(&derivation).unwrap();
+        
+        assert_eq!(bip44.purpose(), Purpose::BIP44);
+        // Original should still be usable
+        assert_eq!(derivation.depth(), 5);
+    }
+
+    #[test]
+    fn test_try_from_derivation_path_invalid_depth_too_short() {
+        use khodpay_bip32::DerivationPath;
+        use std::str::FromStr;
+
+        let derivation = DerivationPath::from_str("m/44'/0'/0'").unwrap();
+        let result = Bip44Path::try_from(derivation);
+        
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), Error::InvalidDepth { depth: 3 }));
+    }
+
+    #[test]
+    fn test_try_from_derivation_path_invalid_depth_too_long() {
+        use khodpay_bip32::DerivationPath;
+        use std::str::FromStr;
+
+        let derivation = DerivationPath::from_str("m/44'/0'/0'/0/0/1").unwrap();
+        let result = Bip44Path::try_from(derivation);
+        
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), Error::InvalidDepth { depth: 6 }));
+    }
+
+    #[test]
+    fn test_try_from_derivation_path_invalid_purpose_not_hardened() {
+        use khodpay_bip32::DerivationPath;
+        use std::str::FromStr;
+
+        let derivation = DerivationPath::from_str("m/44/0'/0'/0/0").unwrap();
+        let result = Bip44Path::try_from(derivation);
+        
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), Error::InvalidHardenedLevel { .. }));
+    }
+
+    #[test]
+    fn test_try_from_derivation_path_invalid_coin_not_hardened() {
+        use khodpay_bip32::DerivationPath;
+        use std::str::FromStr;
+
+        let derivation = DerivationPath::from_str("m/44'/0/0'/0/0").unwrap();
+        let result = Bip44Path::try_from(derivation);
+        
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), Error::InvalidHardenedLevel { .. }));
+    }
+
+    #[test]
+    fn test_try_from_derivation_path_invalid_account_not_hardened() {
+        use khodpay_bip32::DerivationPath;
+        use std::str::FromStr;
+
+        let derivation = DerivationPath::from_str("m/44'/0'/0/0/0").unwrap();
+        let result = Bip44Path::try_from(derivation);
+        
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), Error::InvalidHardenedLevel { .. }));
+    }
+
+    #[test]
+    fn test_try_from_derivation_path_invalid_chain_hardened() {
+        use khodpay_bip32::DerivationPath;
+        use std::str::FromStr;
+
+        let derivation = DerivationPath::from_str("m/44'/0'/0'/0'/0").unwrap();
+        let result = Bip44Path::try_from(derivation);
+        
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), Error::InvalidHardenedLevel { .. }));
+    }
+
+    #[test]
+    fn test_try_from_derivation_path_invalid_address_hardened() {
+        use khodpay_bip32::DerivationPath;
+        use std::str::FromStr;
+
+        let derivation = DerivationPath::from_str("m/44'/0'/0'/0/0'").unwrap();
+        let result = Bip44Path::try_from(derivation);
+        
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), Error::InvalidHardenedLevel { .. }));
+    }
+
+    #[test]
+    fn test_try_from_derivation_path_invalid_purpose_value() {
+        use khodpay_bip32::DerivationPath;
+        use std::str::FromStr;
+
+        let derivation = DerivationPath::from_str("m/99'/0'/0'/0/0").unwrap();
+        let result = Bip44Path::try_from(derivation);
+        
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), Error::InvalidPurpose { value: 99 }));
+    }
+
+    #[test]
+    fn test_try_from_derivation_path_invalid_chain_value() {
+        use khodpay_bip32::DerivationPath;
+        use std::str::FromStr;
+
+        let derivation = DerivationPath::from_str("m/44'/0'/0'/5/0").unwrap();
+        let result = Bip44Path::try_from(derivation);
+        
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), Error::InvalidChain { value: 5 }));
+    }
+
+    #[test]
+    fn test_try_from_derivation_path_invalid_account_too_large() {
+        use khodpay_bip32::{DerivationPath, ChildNumber};
+
+        let derivation = DerivationPath::new(vec![
+            ChildNumber::Hardened(44),
+            ChildNumber::Hardened(0),
+            ChildNumber::Hardened(MAX_HARDENED_INDEX + 1),
+            ChildNumber::Normal(0),
+            ChildNumber::Normal(0),
+        ]);
+        
+        let result = Bip44Path::try_from(derivation);
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), Error::InvalidAccount { .. }));
+    }
+
+    #[test]
+    fn test_try_from_derivation_path_custom_coin() {
+        use khodpay_bip32::DerivationPath;
+        use std::str::FromStr;
+
+        let derivation = DerivationPath::from_str("m/44'/999'/0'/0/0").unwrap();
+        let bip44 = Bip44Path::try_from(derivation).unwrap();
+        
+        assert_eq!(bip44.coin_type(), CoinType::Custom(999));
+    }
+
+    #[test]
+    fn test_round_trip_bip44_to_derivation_to_bip44() {
+        let original = Bip44Path::new(Purpose::BIP84, CoinType::Ethereum, 5, Chain::Internal, 100).unwrap();
+        
+        let derivation: DerivationPath = original.into();
+        let converted = Bip44Path::try_from(derivation).unwrap();
+        
+        assert_eq!(original, converted);
+    }
+
+    #[test]
+    fn test_validation_all_purposes() {
+        use khodpay_bip32::DerivationPath;
+        use std::str::FromStr;
+
+        for (purpose_val, expected) in [(44, Purpose::BIP44), (49, Purpose::BIP49), (84, Purpose::BIP84), (86, Purpose::BIP86)] {
+            let path_str = format!("m/{}'/0'/0'/0/0", purpose_val);
+            let derivation = DerivationPath::from_str(&path_str).unwrap();
+            let bip44 = Bip44Path::try_from(derivation).unwrap();
+            assert_eq!(bip44.purpose(), expected);
+        }
+    }
+
+    #[test]
+    fn test_validation_preserves_all_fields() {
+        use khodpay_bip32::DerivationPath;
+        use std::str::FromStr;
+
+        let derivation = DerivationPath::from_str("m/49'/2'/10'/1/999").unwrap();
+        let bip44 = Bip44Path::try_from(derivation).unwrap();
+        
+        assert_eq!(bip44.purpose().value(), 49);
+        assert_eq!(bip44.coin_type().index(), 2);
+        assert_eq!(bip44.account(), 10);
+        assert_eq!(bip44.chain().value(), 1);
+        assert_eq!(bip44.address_index(), 999);
     }
 }
