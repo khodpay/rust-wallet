@@ -271,6 +271,218 @@ impl Bip44Path {
         5
     }
 
+    /// Returns a new path with the address index incremented by 1.
+    ///
+    /// This is useful for generating sequential addresses on the same chain.
+    /// If the address index is at `u32::MAX`, it wraps around to 0.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{Bip44Path, Purpose, CoinType, Chain};
+    ///
+    /// let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+    /// let next = path.next_address();
+    /// 
+    /// assert_eq!(next.address_index(), 1);
+    /// assert_eq!(next.chain(), Chain::External);
+    /// assert_eq!(next.account(), 0);
+    /// ```
+    pub fn next_address(&self) -> Self {
+        Self {
+            purpose: self.purpose,
+            coin_type: self.coin_type,
+            account: self.account,
+            chain: self.chain,
+            address_index: self.address_index.wrapping_add(1),
+        }
+    }
+
+    /// Returns a new path with the specified address index.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{Bip44Path, Purpose, CoinType, Chain};
+    ///
+    /// let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+    /// let addr_5 = path.with_address_index(5);
+    /// 
+    /// assert_eq!(addr_5.address_index(), 5);
+    /// ```
+    pub fn with_address_index(&self, address_index: u32) -> Self {
+        Self {
+            purpose: self.purpose,
+            coin_type: self.coin_type,
+            account: self.account,
+            chain: self.chain,
+            address_index,
+        }
+    }
+
+    /// Returns a new path with the specified chain.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{Bip44Path, Purpose, CoinType, Chain};
+    ///
+    /// let external = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+    /// let internal = external.with_chain(Chain::Internal);
+    /// 
+    /// assert_eq!(internal.chain(), Chain::Internal);
+    /// assert_eq!(internal.address_index(), 0);
+    /// ```
+    pub fn with_chain(&self, chain: Chain) -> Self {
+        Self {
+            purpose: self.purpose,
+            coin_type: self.coin_type,
+            account: self.account,
+            chain,
+            address_index: self.address_index,
+        }
+    }
+
+    /// Returns a new path for the external (receiving) chain with the same address index.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{Bip44Path, Purpose, CoinType, Chain};
+    ///
+    /// let change = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::Internal, 5).unwrap();
+    /// let receive = change.to_external();
+    /// 
+    /// assert_eq!(receive.chain(), Chain::External);
+    /// assert_eq!(receive.address_index(), 5);
+    /// ```
+    pub fn to_external(&self) -> Self {
+        self.with_chain(Chain::External)
+    }
+
+    /// Returns a new path for the internal (change) chain with the same address index.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{Bip44Path, Purpose, CoinType, Chain};
+    ///
+    /// let receive = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 5).unwrap();
+    /// let change = receive.to_internal();
+    /// 
+    /// assert_eq!(change.chain(), Chain::Internal);
+    /// assert_eq!(change.address_index(), 5);
+    /// ```
+    pub fn to_internal(&self) -> Self {
+        self.with_chain(Chain::Internal)
+    }
+
+    /// Returns a new path with the specified account index.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`Error::InvalidAccount`] if the account index exceeds 2^31 - 1.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{Bip44Path, Purpose, CoinType, Chain};
+    ///
+    /// let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+    /// let account_1 = path.with_account(1).unwrap();
+    /// 
+    /// assert_eq!(account_1.account(), 1);
+    /// ```
+    pub fn with_account(&self, account: u32) -> Result<Self> {
+        if account > MAX_HARDENED_INDEX {
+            return Err(Error::InvalidAccount {
+                reason: format!(
+                    "Account index {} exceeds maximum hardened index {}",
+                    account, MAX_HARDENED_INDEX
+                ),
+            });
+        }
+
+        Ok(Self {
+            purpose: self.purpose,
+            coin_type: self.coin_type,
+            account,
+            chain: self.chain,
+            address_index: self.address_index,
+        })
+    }
+
+    /// Returns a new path with the account incremented by 1.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`Error::InvalidAccount`] if incrementing would exceed 2^31 - 1.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{Bip44Path, Purpose, CoinType, Chain};
+    ///
+    /// let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+    /// let next = path.next_account().unwrap();
+    /// 
+    /// assert_eq!(next.account(), 1);
+    /// ```
+    pub fn next_account(&self) -> Result<Self> {
+        let next_account = self.account.checked_add(1).ok_or_else(|| Error::InvalidAccount {
+            reason: format!(
+                "Cannot increment account beyond maximum value {}",
+                MAX_HARDENED_INDEX
+            ),
+        })?;
+        
+        self.with_account(next_account)
+    }
+
+    /// Returns a new path with the specified purpose.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{Bip44Path, Purpose, CoinType, Chain};
+    ///
+    /// let bip44 = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+    /// let bip84 = bip44.with_purpose(Purpose::BIP84);
+    /// 
+    /// assert_eq!(bip84.purpose(), Purpose::BIP84);
+    /// ```
+    pub fn with_purpose(&self, purpose: Purpose) -> Self {
+        Self {
+            purpose,
+            coin_type: self.coin_type,
+            account: self.account,
+            chain: self.chain,
+            address_index: self.address_index,
+        }
+    }
+
+    /// Returns a new path with the specified coin type.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{Bip44Path, Purpose, CoinType, Chain};
+    ///
+    /// let btc = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+    /// let eth = btc.with_coin_type(CoinType::Ethereum);
+    /// 
+    /// assert_eq!(eth.coin_type(), CoinType::Ethereum);
+    /// ```
+    pub fn with_coin_type(&self, coin_type: CoinType) -> Self {
+        Self {
+            purpose: self.purpose,
+            coin_type,
+            account: self.account,
+            chain: self.chain,
+            address_index: self.address_index,
+        }
+    }
+
     /// Creates a new builder for constructing a BIP-44 path.
     ///
     /// # Examples
@@ -1855,5 +2067,245 @@ mod tests {
         assert_eq!(bip44.account(), 10);
         assert_eq!(bip44.chain().value(), 1);
         assert_eq!(bip44.address_index(), 999);
+    }
+
+    // Path manipulation tests
+    #[test]
+    fn test_next_address() {
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let next = path.next_address();
+        
+        assert_eq!(next.address_index(), 1);
+        assert_eq!(next.chain(), Chain::External);
+        assert_eq!(next.account(), 0);
+        assert_eq!(next.purpose(), Purpose::BIP44);
+        assert_eq!(next.coin_type(), CoinType::Bitcoin);
+    }
+
+    #[test]
+    fn test_next_address_sequence() {
+        let mut path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        
+        for i in 1..=10 {
+            path = path.next_address();
+            assert_eq!(path.address_index(), i);
+        }
+    }
+
+    #[test]
+    fn test_next_address_wrapping() {
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, u32::MAX).unwrap();
+        let next = path.next_address();
+        
+        assert_eq!(next.address_index(), 0); // Wraps around
+    }
+
+    #[test]
+    fn test_with_address_index() {
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let new_path = path.with_address_index(100);
+        
+        assert_eq!(new_path.address_index(), 100);
+        assert_eq!(new_path.chain(), path.chain());
+        assert_eq!(new_path.account(), path.account());
+    }
+
+    #[test]
+    fn test_with_chain() {
+        let external = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 5).unwrap();
+        let internal = external.with_chain(Chain::Internal);
+        
+        assert_eq!(internal.chain(), Chain::Internal);
+        assert_eq!(internal.address_index(), 5);
+        assert_eq!(internal.account(), 0);
+    }
+
+    #[test]
+    fn test_to_external() {
+        let change = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::Internal, 5).unwrap();
+        let receive = change.to_external();
+        
+        assert_eq!(receive.chain(), Chain::External);
+        assert_eq!(receive.address_index(), 5);
+    }
+
+    #[test]
+    fn test_to_internal() {
+        let receive = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 5).unwrap();
+        let change = receive.to_internal();
+        
+        assert_eq!(change.chain(), Chain::Internal);
+        assert_eq!(change.address_index(), 5);
+    }
+
+    #[test]
+    fn test_chain_switching() {
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 10).unwrap();
+        let internal = path.to_internal();
+        let external_again = internal.to_external();
+        
+        assert_eq!(external_again.chain(), Chain::External);
+        assert_eq!(external_again.address_index(), 10);
+    }
+
+    #[test]
+    fn test_with_account() {
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let new_path = path.with_account(5).unwrap();
+        
+        assert_eq!(new_path.account(), 5);
+        assert_eq!(new_path.purpose(), path.purpose());
+        assert_eq!(new_path.coin_type(), path.coin_type());
+    }
+
+    #[test]
+    fn test_with_account_invalid() {
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let result = path.with_account(MAX_HARDENED_INDEX + 1);
+        
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), Error::InvalidAccount { .. }));
+    }
+
+    #[test]
+    fn test_next_account() {
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let next = path.next_account().unwrap();
+        
+        assert_eq!(next.account(), 1);
+        assert_eq!(next.purpose(), path.purpose());
+        assert_eq!(next.coin_type(), path.coin_type());
+    }
+
+    #[test]
+    fn test_next_account_sequence() {
+        let mut path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        
+        for i in 1..=5 {
+            path = path.next_account().unwrap();
+            assert_eq!(path.account(), i);
+        }
+    }
+
+    #[test]
+    fn test_next_account_overflow() {
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, MAX_HARDENED_INDEX, Chain::External, 0).unwrap();
+        let result = path.next_account();
+        
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), Error::InvalidAccount { .. }));
+    }
+
+    #[test]
+    fn test_with_purpose() {
+        let bip44 = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let bip84 = bip44.with_purpose(Purpose::BIP84);
+        
+        assert_eq!(bip84.purpose(), Purpose::BIP84);
+        assert_eq!(bip84.coin_type(), bip44.coin_type());
+        assert_eq!(bip84.account(), bip44.account());
+    }
+
+    #[test]
+    fn test_purpose_switching() {
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        
+        for purpose in [Purpose::BIP44, Purpose::BIP49, Purpose::BIP84, Purpose::BIP86] {
+            let new_path = path.with_purpose(purpose);
+            assert_eq!(new_path.purpose(), purpose);
+        }
+    }
+
+    #[test]
+    fn test_with_coin_type() {
+        let btc = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let eth = btc.with_coin_type(CoinType::Ethereum);
+        
+        assert_eq!(eth.coin_type(), CoinType::Ethereum);
+        assert_eq!(eth.purpose(), btc.purpose());
+        assert_eq!(eth.account(), btc.account());
+    }
+
+    #[test]
+    fn test_coin_type_switching() {
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        
+        let eth = path.with_coin_type(CoinType::Ethereum);
+        let ltc = eth.with_coin_type(CoinType::Litecoin);
+        let custom = ltc.with_coin_type(CoinType::Custom(999));
+        
+        assert_eq!(custom.coin_type(), CoinType::Custom(999));
+    }
+
+    #[test]
+    fn test_complex_path_manipulation() {
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        
+        let result = path
+            .next_address()
+            .next_address()
+            .to_internal()
+            .with_address_index(5)
+            .next_account().unwrap()
+            .with_purpose(Purpose::BIP84);
+        
+        assert_eq!(result.purpose(), Purpose::BIP84);
+        assert_eq!(result.account(), 1);
+        assert_eq!(result.chain(), Chain::Internal);
+        assert_eq!(result.address_index(), 5);
+    }
+
+    #[test]
+    fn test_path_immutability() {
+        let original = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let _modified = original.next_address();
+        
+        // Original should be unchanged
+        assert_eq!(original.address_index(), 0);
+    }
+
+    #[test]
+    fn test_generate_address_range() {
+        let base = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let mut paths = vec![base];
+        
+        for _ in 0..9 {
+            paths.push(paths.last().unwrap().next_address());
+        }
+        
+        assert_eq!(paths.len(), 10);
+        for (i, path) in paths.iter().enumerate() {
+            assert_eq!(path.address_index(), i as u32);
+        }
+    }
+
+    #[test]
+    fn test_account_and_chain_combination() {
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        
+        // Switch to account 1, internal chain
+        let modified = path.with_account(1).unwrap().to_internal();
+        
+        assert_eq!(modified.account(), 1);
+        assert_eq!(modified.chain(), Chain::Internal);
+        assert_eq!(modified.address_index(), 0);
+    }
+
+    #[test]
+    fn test_all_fields_independence() {
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        
+        let modified = path
+            .with_purpose(Purpose::BIP84)
+            .with_coin_type(CoinType::Ethereum)
+            .with_account(5).unwrap()
+            .with_chain(Chain::Internal)
+            .with_address_index(100);
+        
+        assert_eq!(modified.purpose(), Purpose::BIP84);
+        assert_eq!(modified.coin_type(), CoinType::Ethereum);
+        assert_eq!(modified.account(), 5);
+        assert_eq!(modified.chain(), Chain::Internal);
+        assert_eq!(modified.address_index(), 100);
     }
 }
