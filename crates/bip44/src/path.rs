@@ -41,6 +41,8 @@
 
 use crate::{Chain, CoinType, Error, Purpose, Result};
 use khodpay_bip32::{ChildNumber, DerivationPath};
+use std::fmt;
+use std::str::FromStr;
 
 /// Maximum value for hardened derivation indices (2^31 - 1).
 ///
@@ -334,6 +336,181 @@ impl From<&Bip44Path> for DerivationPath {
     /// ```
     fn from(path: &Bip44Path) -> Self {
         path.to_derivation_path()
+    }
+}
+
+impl fmt::Display for Bip44Path {
+    /// Formats the BIP-44 path using standard notation.
+    ///
+    /// The format follows BIP-44 notation: `m/purpose'/coin_type'/account'/chain/address_index`
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{Bip44Path, Purpose, CoinType, Chain};
+    ///
+    /// let path = Bip44Path::new(
+    ///     Purpose::BIP44,
+    ///     CoinType::Bitcoin,
+    ///     0,
+    ///     Chain::External,
+    ///     0,
+    /// ).unwrap();
+    ///
+    /// assert_eq!(path.to_string(), "m/44'/0'/0'/0/0");
+    ///
+    /// let eth_path = Bip44Path::new(
+    ///     Purpose::BIP44,
+    ///     CoinType::Ethereum,
+    ///     1,
+    ///     Chain::Internal,
+    ///     5,
+    /// ).unwrap();
+    ///
+    /// assert_eq!(eth_path.to_string(), "m/44'/60'/1'/1/5");
+    /// ```
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "m/{}'/{}'/{}'/{}/{}",
+            self.purpose.value(),
+            self.coin_type.index(),
+            self.account,
+            self.chain.value(),
+            self.address_index
+        )
+    }
+}
+
+impl FromStr for Bip44Path {
+    type Err = Error;
+
+    /// Parses a BIP-44 path from a string.
+    ///
+    /// The string must follow BIP-44 notation: `m/purpose'/coin_type'/account'/chain/address_index`
+    ///
+    /// # Rules
+    ///
+    /// - Must start with `m/`
+    /// - Must have exactly 5 levels
+    /// - First 3 levels (purpose, coin_type, account) must be hardened (marked with `'`)
+    /// - Last 2 levels (chain, address_index) must be normal (no `'`)
+    /// - All indices must be valid numbers
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    /// - The path doesn't start with `m/`
+    /// - The path doesn't have exactly 5 levels
+    /// - Hardening is incorrect (first 3 must be hardened, last 2 must not be)
+    /// - Any index is invalid or out of range
+    /// - The purpose or chain value is not recognized
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{Bip44Path, Purpose, CoinType, Chain};
+    /// use std::str::FromStr;
+    ///
+    /// // Valid Bitcoin path
+    /// let path = Bip44Path::from_str("m/44'/0'/0'/0/0").unwrap();
+    /// assert_eq!(path.purpose(), Purpose::BIP44);
+    /// assert_eq!(path.coin_type(), CoinType::Bitcoin);
+    ///
+    /// // Valid Ethereum path
+    /// let eth = Bip44Path::from_str("m/44'/60'/0'/0/0").unwrap();
+    /// assert_eq!(eth.coin_type(), CoinType::Ethereum);
+    ///
+    /// // Invalid: missing hardening on account
+    /// assert!(Bip44Path::from_str("m/44'/0'/0/0/0").is_err());
+    ///
+    /// // Invalid: wrong number of levels
+    /// assert!(Bip44Path::from_str("m/44'/0'/0'").is_err());
+    /// ```
+    fn from_str(s: &str) -> Result<Self> {
+        // Check if path starts with "m/"
+        if !s.starts_with("m/") {
+            return Err(Error::ParseError {
+                reason: format!("Path must start with 'm/': {}", s),
+            });
+        }
+
+        // Split the path into components
+        let parts: Vec<&str> = s[2..].split('/').collect();
+
+        // BIP-44 paths must have exactly 5 levels
+        if parts.len() != 5 {
+            return Err(Error::ParseError {
+                reason: format!("BIP-44 path must have 5 levels, found {}: {}", parts.len(), s),
+            });
+        }
+
+        // Parse purpose (must be hardened)
+        let purpose_str = parts[0];
+        if !purpose_str.ends_with('\'') {
+            return Err(Error::ParseError {
+                reason: format!("Purpose must be hardened (end with '): {}", s),
+            });
+        }
+        let purpose_value: u32 = purpose_str[..purpose_str.len() - 1]
+            .parse()
+            .map_err(|_| Error::ParseError {
+                reason: format!("Invalid purpose value '{}' in path: {}", purpose_str, s),
+            })?;
+        let purpose = Purpose::try_from(purpose_value)?;
+
+        // Parse coin_type (must be hardened)
+        let coin_type_str = parts[1];
+        if !coin_type_str.ends_with('\'') {
+            return Err(Error::ParseError {
+                reason: format!("Coin type must be hardened (end with '): {}", s),
+            });
+        }
+        let coin_type_value: u32 = coin_type_str[..coin_type_str.len() - 1]
+            .parse()
+            .map_err(|_| Error::ParseError {
+                reason: format!("Invalid coin type value '{}' in path: {}", coin_type_str, s),
+            })?;
+        let coin_type = CoinType::try_from(coin_type_value)?;
+
+        // Parse account (must be hardened)
+        let account_str = parts[2];
+        if !account_str.ends_with('\'') {
+            return Err(Error::ParseError {
+                reason: format!("Account must be hardened (end with '): {}", s),
+            });
+        }
+        let account: u32 = account_str[..account_str.len() - 1]
+            .parse()
+            .map_err(|_| Error::ParseError {
+                reason: format!("Invalid account value '{}' in path: {}", account_str, s),
+            })?;
+
+        // Parse chain (must NOT be hardened)
+        let chain_str = parts[3];
+        if chain_str.ends_with('\'') {
+            return Err(Error::ParseError {
+                reason: format!("Chain must not be hardened: {}", s),
+            });
+        }
+        let chain_value: u32 = chain_str.parse().map_err(|_| Error::ParseError {
+            reason: format!("Invalid chain value '{}' in path: {}", chain_str, s),
+        })?;
+        let chain = Chain::try_from(chain_value)?;
+
+        // Parse address_index (must NOT be hardened)
+        let address_str = parts[4];
+        if address_str.ends_with('\'') {
+            return Err(Error::ParseError {
+                reason: format!("Address index must not be hardened: {}", s),
+            });
+        }
+        let address_index: u32 = address_str.parse().map_err(|_| Error::ParseError {
+            reason: format!("Invalid address index value '{}' in path: {}", address_str, s),
+        })?;
+
+        // Create the path using the constructor (which validates account range)
+        Bip44Path::new(purpose, coin_type, account, chain, address_index)
     }
 }
 
@@ -1045,5 +1222,224 @@ mod tests {
         
         // Check string representation
         assert_eq!(derivation.to_string(), "m/44'/0'/0'/0/5");
+    }
+
+    // Display tests
+    #[test]
+    fn test_display_bitcoin() {
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        assert_eq!(path.to_string(), "m/44'/0'/0'/0/0");
+    }
+
+    #[test]
+    fn test_display_ethereum() {
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Ethereum, 0, Chain::External, 0).unwrap();
+        assert_eq!(path.to_string(), "m/44'/60'/0'/0/0");
+    }
+
+    #[test]
+    fn test_display_with_account() {
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 5, Chain::External, 0).unwrap();
+        assert_eq!(path.to_string(), "m/44'/0'/5'/0/0");
+    }
+
+    #[test]
+    fn test_display_internal_chain() {
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::Internal, 0).unwrap();
+        assert_eq!(path.to_string(), "m/44'/0'/0'/1/0");
+    }
+
+    #[test]
+    fn test_display_with_address_index() {
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 42).unwrap();
+        assert_eq!(path.to_string(), "m/44'/0'/0'/0/42");
+    }
+
+    #[test]
+    fn test_display_bip84() {
+        let path = Bip44Path::new(Purpose::BIP84, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        assert_eq!(path.to_string(), "m/84'/0'/0'/0/0");
+    }
+
+    #[test]
+    fn test_display_complex_path() {
+        let path = Bip44Path::new(Purpose::BIP49, CoinType::Litecoin, 10, Chain::Internal, 999).unwrap();
+        assert_eq!(path.to_string(), "m/49'/2'/10'/1/999");
+    }
+
+    #[test]
+    fn test_display_custom_coin() {
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Custom(999), 0, Chain::External, 0).unwrap();
+        assert_eq!(path.to_string(), "m/44'/999'/0'/0/0");
+    }
+
+    // FromStr tests
+    #[test]
+    fn test_from_str_bitcoin() {
+        let path = Bip44Path::from_str("m/44'/0'/0'/0/0").unwrap();
+        assert_eq!(path.purpose(), Purpose::BIP44);
+        assert_eq!(path.coin_type(), CoinType::Bitcoin);
+        assert_eq!(path.account(), 0);
+        assert_eq!(path.chain(), Chain::External);
+        assert_eq!(path.address_index(), 0);
+    }
+
+    #[test]
+    fn test_from_str_ethereum() {
+        let path = Bip44Path::from_str("m/44'/60'/0'/0/0").unwrap();
+        assert_eq!(path.coin_type(), CoinType::Ethereum);
+    }
+
+    #[test]
+    fn test_from_str_with_account() {
+        let path = Bip44Path::from_str("m/44'/0'/5'/0/0").unwrap();
+        assert_eq!(path.account(), 5);
+    }
+
+    #[test]
+    fn test_from_str_internal_chain() {
+        let path = Bip44Path::from_str("m/44'/0'/0'/1/0").unwrap();
+        assert_eq!(path.chain(), Chain::Internal);
+    }
+
+    #[test]
+    fn test_from_str_with_address_index() {
+        let path = Bip44Path::from_str("m/44'/0'/0'/0/42").unwrap();
+        assert_eq!(path.address_index(), 42);
+    }
+
+    #[test]
+    fn test_from_str_bip84() {
+        let path = Bip44Path::from_str("m/84'/0'/0'/0/0").unwrap();
+        assert_eq!(path.purpose(), Purpose::BIP84);
+    }
+
+    #[test]
+    fn test_from_str_complex_path() {
+        let path = Bip44Path::from_str("m/49'/2'/10'/1/999").unwrap();
+        assert_eq!(path.purpose(), Purpose::BIP49);
+        assert_eq!(path.coin_type(), CoinType::Litecoin);
+        assert_eq!(path.account(), 10);
+        assert_eq!(path.chain(), Chain::Internal);
+        assert_eq!(path.address_index(), 999);
+    }
+
+    #[test]
+    fn test_from_str_custom_coin() {
+        let path = Bip44Path::from_str("m/44'/999'/0'/0/0").unwrap();
+        assert_eq!(path.coin_type(), CoinType::Custom(999));
+    }
+
+    #[test]
+    fn test_from_str_invalid_no_m_prefix() {
+        let result = Bip44Path::from_str("44'/0'/0'/0/0");
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), Error::ParseError { .. }));
+    }
+
+    #[test]
+    fn test_from_str_invalid_wrong_depth() {
+        let result = Bip44Path::from_str("m/44'/0'/0'");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_from_str_invalid_purpose_not_hardened() {
+        let result = Bip44Path::from_str("m/44/0'/0'/0/0");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_from_str_invalid_coin_not_hardened() {
+        let result = Bip44Path::from_str("m/44'/0/0'/0/0");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_from_str_invalid_account_not_hardened() {
+        let result = Bip44Path::from_str("m/44'/0'/0/0/0");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_from_str_invalid_chain_hardened() {
+        let result = Bip44Path::from_str("m/44'/0'/0'/0'/0");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_from_str_invalid_address_hardened() {
+        let result = Bip44Path::from_str("m/44'/0'/0'/0/0'");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_from_str_invalid_purpose_value() {
+        let result = Bip44Path::from_str("m/99'/0'/0'/0/0");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_from_str_invalid_chain_value() {
+        let result = Bip44Path::from_str("m/44'/0'/0'/5/0");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_from_str_invalid_account_too_large() {
+        let result = Bip44Path::from_str("m/44'/0'/2147483648'/0/0");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_from_str_invalid_not_a_number() {
+        let result = Bip44Path::from_str("m/44'/abc'/0'/0/0");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_from_str_empty_string() {
+        let result = Bip44Path::from_str("");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_from_str_only_m() {
+        let result = Bip44Path::from_str("m/");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_round_trip_display_from_str() {
+        let original = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let string = original.to_string();
+        let parsed = Bip44Path::from_str(&string).unwrap();
+        assert_eq!(original, parsed);
+    }
+
+    #[test]
+    fn test_round_trip_complex_path() {
+        let original = Bip44Path::new(Purpose::BIP84, CoinType::Ethereum, 5, Chain::Internal, 100).unwrap();
+        let string = original.to_string();
+        let parsed = Bip44Path::from_str(&string).unwrap();
+        assert_eq!(original, parsed);
+        assert_eq!(string, "m/84'/60'/5'/1/100");
+    }
+
+    #[test]
+    fn test_round_trip_all_purposes() {
+        for purpose in [Purpose::BIP44, Purpose::BIP49, Purpose::BIP84, Purpose::BIP86] {
+            let original = Bip44Path::new(purpose, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+            let string = original.to_string();
+            let parsed = Bip44Path::from_str(&string).unwrap();
+            assert_eq!(original, parsed);
+        }
+    }
+
+    #[test]
+    fn test_display_formatting() {
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        assert_eq!(format!("{}", path), "m/44'/0'/0'/0/0");
+        assert_eq!(format!("{:?}", path).contains("Bip44Path"), true);
     }
 }

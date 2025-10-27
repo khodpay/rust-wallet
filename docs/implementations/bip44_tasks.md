@@ -34,7 +34,7 @@ Create builder for fluent path construction: `Bip44Path::builder().purpose(BIP44
 ### ✅ Task 09: Implement and test conversion to BIP32 DerivationPath (TDD)
 Convert `Bip44Path` to BIP32 `DerivationPath` with proper hardened levels (m/purpose'/coin'/account'/chain/index). Test conversion.
 
-### 🔲 Task 10: Implement and test FromStr and Display traits for path parsing/formatting (TDD)
+### ✅ Task 10: Implement and test FromStr and Display traits for path parsing/formatting (TDD)
 Parse "m/44'/0'/0'/0/0" strings to `Bip44Path` and format back. Test valid/invalid path strings.
 
 ## 🏗️ PHASE 4: Path Validation & Helpers (MEDIUM Priority)
