@@ -58,7 +58,7 @@ Derive single address by index and batch derive address ranges. Test sequential 
 
 ## 🔍 PHASE 6: Account Discovery Algorithm (MEDIUM Priority)
 
-### 🔲 Task 16: Define AccountDiscovery trait and implement gap limit logic (TDD)
+### ✅ Task 16: Define AccountDiscovery trait and implement gap limit logic (TDD)
 Create trait for blockchain queries. Implement gap limit (stop after 20 consecutive unused addresses). Test gap detection.
 
 ### 🔲 Task 17: Implement AccountScanner with discover_accounts() and scan_chain() methods (TDD)
