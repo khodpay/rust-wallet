@@ -39,7 +39,7 @@ Parse "m/44'/0'/0'/0/0" strings to `Bip44Path` and format back. Test valid/inval
 
 ## 🏗️ PHASE 4: Path Validation & Helpers (MEDIUM Priority)
 
-### 🔲 Task 11: Implement and test path validation (depth, hardened levels, ranges) (TDD)
+### ✅ Task 11: Implement and test path validation (depth, hardened levels, ranges) (TDD)
 Validate path depth (must be 5), first 3 levels hardened, and index ranges. Test invalid paths are rejected.
 
 ### 🔲 Task 12: Implement and test path manipulation helpers (increment, next address) (TDD)
