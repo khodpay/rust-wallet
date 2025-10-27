@@ -19,10 +19,12 @@
 #![warn(rustdoc::broken_intra_doc_links)]
 #![deny(unsafe_code)]
 
+mod account;
 mod error;
 mod path;
 mod types;
 
+pub use account::Account;
 pub use error::Error;
 pub use path::{Bip44Path, Bip44PathBuilder};
 pub use types::{Chain, CoinType, Purpose};

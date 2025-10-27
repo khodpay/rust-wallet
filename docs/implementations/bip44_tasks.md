@@ -47,7 +47,7 @@ Add methods to increment address index, get next chain address, and navigate pat
 
 ## 🎯 PHASE 5: Account Management (MEDIUM Priority)
 
-### 🔲 Task 13: Define Account struct and implement constructor from BIP32 keys (TDD)
+### ✅ Task 13: Define Account struct and implement constructor from BIP32 keys (TDD)
 Wrap `ExtendedPrivateKey` with BIP44 metadata (purpose, coin, account). Create from BIP32 keys. Test construction.
 
 ### 🔲 Task 14: Implement and test derive_external() and derive_internal() methods (TDD)
