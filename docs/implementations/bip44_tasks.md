@@ -53,7 +53,7 @@ Wrap `ExtendedPrivateKey` with BIP44 metadata (purpose, coin, account). Create f
 ### ✅ Task 14: Implement and test derive_external() and derive_internal() methods (TDD)
 Derive receiving (external) and change (internal) addresses from account key. Test both chain derivations.
 
-### 🔲 Task 15: Implement and test derive_address() and derive_address_range() methods (TDD)
+### ✅ Task 15: Implement and test derive_address() and derive_address_range() methods (TDD)
 Derive single address by index and batch derive address ranges. Test sequential address generation.
 
 ## 🔍 PHASE 6: Account Discovery Algorithm (MEDIUM Priority)
