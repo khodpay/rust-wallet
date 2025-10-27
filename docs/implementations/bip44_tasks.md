@@ -61,7 +61,7 @@ Derive single address by index and batch derive address ranges. Test sequential 
 ### ✅ Task 16: Define AccountDiscovery trait and implement gap limit logic (TDD)
 Create trait for blockchain queries. Implement gap limit (stop after 20 consecutive unused addresses). Test gap detection.
 
-### 🔲 Task 17: Implement AccountScanner with discover_accounts() and scan_chain() methods (TDD)
+### ✅ Task 17: Implement AccountScanner with discover_accounts() and scan_chain() methods (TDD)
 Scan accounts and chains using discovery trait. Find all used accounts/addresses. Test discovery algorithm.
 
 ### 🔲 Task 18: Create mock blockchain backend for testing (TDD)

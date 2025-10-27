@@ -26,7 +26,10 @@ mod path;
 mod types;
 
 pub use account::Account;
-pub use discovery::{AccountDiscovery, GapLimitChecker, DEFAULT_GAP_LIMIT};
+pub use discovery::{
+    AccountDiscovery, AccountScanResult, AccountScanner, ChainScanResult, GapLimitChecker,
+    DEFAULT_GAP_LIMIT,
+};
 pub use error::Error;
 pub use path::{Bip44Path, Bip44PathBuilder};
 pub use types::{Chain, CoinType, Purpose};

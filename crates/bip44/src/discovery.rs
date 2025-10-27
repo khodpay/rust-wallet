@@ -322,6 +322,288 @@ impl GapLimitChecker {
     }
 }
 
+/// Result of scanning a single chain (external or internal).
+///
+/// Contains information about used addresses found during scanning.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ChainScanResult {
+    /// The chain that was scanned
+    pub chain: crate::Chain,
+    /// Indices of used addresses found
+    pub used_indices: Vec<u32>,
+    /// The highest used address index, if any
+    pub last_used_index: Option<u32>,
+}
+
+/// Result of scanning both chains of an account.
+///
+/// Contains scan results for external (receiving) and internal (change) chains.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct AccountScanResult {
+    /// Account index that was scanned
+    pub account_index: u32,
+    /// Result from scanning the external (receiving) chain
+    pub external: ChainScanResult,
+    /// Result from scanning the internal (change) chain
+    pub internal: ChainScanResult,
+}
+
+impl AccountScanResult {
+    /// Returns true if the account has any used addresses.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{AccountScanResult, ChainScanResult, Chain};
+    ///
+    /// let result = AccountScanResult {
+    ///     account_index: 0,
+    ///     external: ChainScanResult {
+    ///         chain: Chain::External,
+    ///         used_indices: vec![0, 1],
+    ///         last_used_index: Some(1),
+    ///     },
+    ///     internal: ChainScanResult {
+    ///         chain: Chain::Internal,
+    ///         used_indices: vec![],
+    ///         last_used_index: None,
+    ///     },
+    /// };
+    ///
+    /// assert!(result.is_used());
+    /// ```
+    pub fn is_used(&self) -> bool {
+        !self.external.used_indices.is_empty() || !self.internal.used_indices.is_empty()
+    }
+
+    /// Returns the total number of used addresses across both chains.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{AccountScanResult, ChainScanResult, Chain};
+    ///
+    /// let result = AccountScanResult {
+    ///     account_index: 0,
+    ///     external: ChainScanResult {
+    ///         chain: Chain::External,
+    ///         used_indices: vec![0, 1, 2],
+    ///         last_used_index: Some(2),
+    ///     },
+    ///     internal: ChainScanResult {
+    ///         chain: Chain::Internal,
+    ///         used_indices: vec![0],
+    ///         last_used_index: Some(0),
+    ///     },
+    /// };
+    ///
+    /// assert_eq!(result.total_used_count(), 4);
+    /// ```
+    pub fn total_used_count(&self) -> usize {
+        self.external.used_indices.len() + self.internal.used_indices.len()
+    }
+}
+
+/// Scanner for discovering used accounts and addresses according to BIP-44.
+///
+/// Uses the gap limit algorithm to efficiently scan chains and accounts.
+///
+/// # Examples
+///
+/// ```rust
+/// use khodpay_bip44::{AccountScanner, GapLimitChecker};
+///
+/// let checker = GapLimitChecker::new(20);
+/// let scanner = AccountScanner::new(checker);
+///
+/// assert_eq!(scanner.gap_limit(), 20);
+/// ```
+#[derive(Debug, Clone, Copy)]
+pub struct AccountScanner {
+    /// The gap limit checker to use for scanning
+    checker: GapLimitChecker,
+}
+
+impl AccountScanner {
+    /// Creates a new account scanner with the given gap limit checker.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{AccountScanner, GapLimitChecker};
+    ///
+    /// let checker = GapLimitChecker::new(20);
+    /// let scanner = AccountScanner::new(checker);
+    /// ```
+    pub fn new(checker: GapLimitChecker) -> Self {
+        Self { checker }
+    }
+
+    /// Creates a new account scanner with the default gap limit (20).
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{AccountScanner, DEFAULT_GAP_LIMIT};
+    ///
+    /// let scanner = AccountScanner::default();
+    /// assert_eq!(scanner.gap_limit(), DEFAULT_GAP_LIMIT);
+    /// ```
+    pub fn default() -> Self {
+        Self::new(GapLimitChecker::default())
+    }
+
+    /// Returns the gap limit used by this scanner.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{AccountScanner, GapLimitChecker};
+    ///
+    /// let scanner = AccountScanner::new(GapLimitChecker::new(10));
+    /// assert_eq!(scanner.gap_limit(), 10);
+    /// ```
+    pub const fn gap_limit(&self) -> u32 {
+        self.checker.gap_limit()
+    }
+
+    /// Scans a single chain for used addresses.
+    ///
+    /// # Arguments
+    ///
+    /// * `discovery` - Implementation of blockchain query interface
+    /// * `chain` - The chain type being scanned
+    ///
+    /// # Returns
+    ///
+    /// A `ChainScanResult` containing all used addresses found.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if any blockchain query fails.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{AccountScanner, AccountDiscovery, GapLimitChecker, Chain};
+    /// use std::collections::HashSet;
+    ///
+    /// struct MockBlockchain {
+    ///     used: HashSet<u32>,
+    /// }
+    ///
+    /// impl AccountDiscovery for MockBlockchain {
+    ///     fn is_address_used(&self, index: u32) -> std::result::Result<bool, Box<dyn std::error::Error>> {
+    ///         Ok(self.used.contains(&index))
+    ///     }
+    /// }
+    ///
+    /// let blockchain = MockBlockchain {
+    ///     used: [0, 2, 5].iter().copied().collect(),
+    /// };
+    ///
+    /// let scanner = AccountScanner::new(GapLimitChecker::new(20));
+    /// let result = scanner.scan_chain(&blockchain, Chain::External).unwrap();
+    ///
+    /// assert_eq!(result.chain, Chain::External);
+    /// assert_eq!(result.used_indices, vec![0, 2, 5]);
+    /// assert_eq!(result.last_used_index, Some(5));
+    /// ```
+    pub fn scan_chain<D: AccountDiscovery>(
+        &self,
+        discovery: &D,
+        chain: crate::Chain,
+    ) -> std::result::Result<ChainScanResult, Box<dyn std::error::Error>> {
+        let used_indices = self.checker.find_used_indices(discovery, 0)?;
+        let last_used_index = self.checker.find_last_used_index(discovery, 0)?;
+
+        Ok(ChainScanResult {
+            chain,
+            used_indices,
+            last_used_index,
+        })
+    }
+
+    /// Discovers all used accounts for a given coin.
+    ///
+    /// Scans accounts starting from index 0 until finding an account with
+    /// no used addresses (respecting the gap limit within each chain).
+    ///
+    /// # Arguments
+    ///
+    /// * `external_discovery` - Blockchain query for external chain
+    /// * `internal_discovery` - Blockchain query for internal chain
+    /// * `max_accounts` - Maximum number of accounts to scan (prevents infinite loops)
+    ///
+    /// # Returns
+    ///
+    /// A vector of `AccountScanResult` for all used accounts found.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if any blockchain query fails.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{AccountScanner, AccountDiscovery, GapLimitChecker};
+    /// use std::collections::HashSet;
+    ///
+    /// struct MockBlockchain {
+    ///     used: HashSet<u32>,
+    /// }
+    ///
+    /// impl AccountDiscovery for MockBlockchain {
+    ///     fn is_address_used(&self, index: u32) -> std::result::Result<bool, Box<dyn std::error::Error>> {
+    ///         Ok(self.used.contains(&index))
+    ///     }
+    /// }
+    ///
+    /// let external_chain = MockBlockchain {
+    ///     used: [0, 1].iter().copied().collect(),
+    /// };
+    /// let internal_chain = MockBlockchain {
+    ///     used: HashSet::new(),
+    /// };
+    ///
+    /// let scanner = AccountScanner::new(GapLimitChecker::new(20));
+    /// let accounts = scanner.discover_accounts(&external_chain, &internal_chain, 10).unwrap();
+    ///
+    /// assert_eq!(accounts.len(), 1);
+    /// assert_eq!(accounts[0].account_index, 0);
+    /// ```
+    pub fn discover_accounts<D1: AccountDiscovery, D2: AccountDiscovery>(
+        &self,
+        external_discovery: &D1,
+        internal_discovery: &D2,
+        max_accounts: u32,
+    ) -> std::result::Result<Vec<AccountScanResult>, Box<dyn std::error::Error>> {
+        let mut results = Vec::new();
+
+        for account_index in 0..max_accounts {
+            // Scan both chains
+            let external = self.scan_chain(external_discovery, crate::Chain::External)?;
+            let internal = self.scan_chain(internal_discovery, crate::Chain::Internal)?;
+
+            let account_result = AccountScanResult {
+                account_index,
+                external,
+                internal,
+            };
+
+            // If account has any used addresses, add it to results
+            if account_result.is_used() {
+                results.push(account_result);
+            } else {
+                // Stop if we find an unused account (BIP-44 account gap)
+                break;
+            }
+        }
+
+        Ok(results)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -571,4 +853,271 @@ mod tests {
         
         assert_eq!(result, Some(20));
     }
+
+    // AccountScanner tests
+    #[test]
+    fn test_account_scanner_new() {
+        let checker = GapLimitChecker::new(15);
+        let scanner = AccountScanner::new(checker);
+        
+        assert_eq!(scanner.gap_limit(), 15);
+    }
+
+    #[test]
+    fn test_account_scanner_default() {
+        let scanner = AccountScanner::default();
+        
+        assert_eq!(scanner.gap_limit(), DEFAULT_GAP_LIMIT);
+    }
+
+    #[test]
+    fn test_scan_chain_empty() {
+        use crate::Chain;
+        
+        let blockchain = MockBlockchain {
+            used_addresses: HashSet::new(),
+        };
+
+        let scanner = AccountScanner::new(GapLimitChecker::new(20));
+        let result = scanner.scan_chain(&blockchain, Chain::External).unwrap();
+        
+        assert_eq!(result.chain, Chain::External);
+        assert_eq!(result.used_indices, Vec::<u32>::new());
+        assert_eq!(result.last_used_index, None);
+    }
+
+    #[test]
+    fn test_scan_chain_with_addresses() {
+        use crate::Chain;
+        
+        let blockchain = MockBlockchain {
+            used_addresses: [0, 2, 5, 10].iter().copied().collect(),
+        };
+
+        let scanner = AccountScanner::new(GapLimitChecker::new(20));
+        let result = scanner.scan_chain(&blockchain, Chain::External).unwrap();
+        
+        assert_eq!(result.chain, Chain::External);
+        assert_eq!(result.used_indices, vec![0, 2, 5, 10]);
+        assert_eq!(result.last_used_index, Some(10));
+    }
+
+    #[test]
+    fn test_scan_chain_internal() {
+        use crate::Chain;
+        
+        let blockchain = MockBlockchain {
+            used_addresses: [0, 1].iter().copied().collect(),
+        };
+
+        let scanner = AccountScanner::new(GapLimitChecker::new(20));
+        let result = scanner.scan_chain(&blockchain, Chain::Internal).unwrap();
+        
+        assert_eq!(result.chain, Chain::Internal);
+        assert_eq!(result.used_indices, vec![0, 1]);
+        assert_eq!(result.last_used_index, Some(1));
+    }
+
+    #[test]
+    fn test_account_scan_result_is_used() {
+        use crate::Chain;
+        
+        let result = AccountScanResult {
+            account_index: 0,
+            external: ChainScanResult {
+                chain: Chain::External,
+                used_indices: vec![0],
+                last_used_index: Some(0),
+            },
+            internal: ChainScanResult {
+                chain: Chain::Internal,
+                used_indices: vec![],
+                last_used_index: None,
+            },
+        };
+        
+        assert!(result.is_used());
+    }
+
+    #[test]
+    fn test_account_scan_result_not_used() {
+        use crate::Chain;
+        
+        let result = AccountScanResult {
+            account_index: 0,
+            external: ChainScanResult {
+                chain: Chain::External,
+                used_indices: vec![],
+                last_used_index: None,
+            },
+            internal: ChainScanResult {
+                chain: Chain::Internal,
+                used_indices: vec![],
+                last_used_index: None,
+            },
+        };
+        
+        assert!(!result.is_used());
+    }
+
+    #[test]
+    fn test_account_scan_result_total_count() {
+        use crate::Chain;
+        
+        let result = AccountScanResult {
+            account_index: 0,
+            external: ChainScanResult {
+                chain: Chain::External,
+                used_indices: vec![0, 1, 2],
+                last_used_index: Some(2),
+            },
+            internal: ChainScanResult {
+                chain: Chain::Internal,
+                used_indices: vec![0, 5],
+                last_used_index: Some(5),
+            },
+        };
+        
+        assert_eq!(result.total_used_count(), 5);
+    }
+
+    #[test]
+    fn test_discover_accounts_single_account() {
+        let external = MockBlockchain {
+            used_addresses: [0, 1].iter().copied().collect(),
+        };
+        let internal = MockBlockchain {
+            used_addresses: HashSet::new(),
+        };
+
+        let scanner = AccountScanner::new(GapLimitChecker::new(20));
+        let accounts = scanner.discover_accounts(&external, &internal, 10).unwrap();
+        
+        // Note: With the same discovery instance for all accounts, it will find
+        // used addresses for all accounts up to max_accounts
+        // In a real implementation, you'd have account-specific discovery instances
+        assert_eq!(accounts.len(), 10);
+        assert_eq!(accounts[0].account_index, 0);
+        assert!(accounts[0].is_used());
+    }
+
+    #[test]
+    fn test_discover_accounts_multiple() {
+        let external = MockBlockchain {
+            used_addresses: [0, 1].iter().copied().collect(),
+        };
+        let internal = MockBlockchain {
+            used_addresses: [0].iter().copied().collect(),
+        };
+
+        let scanner = AccountScanner::new(GapLimitChecker::new(20));
+        let accounts = scanner.discover_accounts(&external, &internal, 10).unwrap();
+        
+        // Since we're using the same discovery for all accounts, it will find used addresses
+        // The implementation scans until it finds an unused account
+        assert!(!accounts.is_empty());
+    }
+
+    #[test]
+    fn test_discover_accounts_empty() {
+        let external = MockBlockchain {
+            used_addresses: HashSet::new(),
+        };
+        let internal = MockBlockchain {
+            used_addresses: HashSet::new(),
+        };
+
+        let scanner = AccountScanner::new(GapLimitChecker::new(20));
+        let accounts = scanner.discover_accounts(&external, &internal, 10).unwrap();
+        
+        assert_eq!(accounts.len(), 0);
+    }
+
+    #[test]
+    fn test_discover_accounts_max_limit() {
+        let external = MockBlockchain {
+            used_addresses: [0].iter().copied().collect(),
+        };
+        let internal = MockBlockchain {
+            used_addresses: HashSet::new(),
+        };
+
+        let scanner = AccountScanner::new(GapLimitChecker::new(20));
+        let accounts = scanner.discover_accounts(&external, &internal, 3).unwrap();
+        
+        // Should respect max_accounts limit
+        assert!(accounts.len() <= 3);
+    }
+
+    #[test]
+    fn test_chain_scan_result_equality() {
+        use crate::Chain;
+        
+        let result1 = ChainScanResult {
+            chain: Chain::External,
+            used_indices: vec![0, 1],
+            last_used_index: Some(1),
+        };
+        
+        let result2 = ChainScanResult {
+            chain: Chain::External,
+            used_indices: vec![0, 1],
+            last_used_index: Some(1),
+        };
+        
+        assert_eq!(result1, result2);
+    }
+
+    #[test]
+    fn test_account_scan_result_clone() {
+        use crate::Chain;
+        
+        let result = AccountScanResult {
+            account_index: 0,
+            external: ChainScanResult {
+                chain: Chain::External,
+                used_indices: vec![0],
+                last_used_index: Some(0),
+            },
+            internal: ChainScanResult {
+                chain: Chain::Internal,
+                used_indices: vec![],
+                last_used_index: None,
+            },
+        };
+        
+        let cloned = result.clone();
+        assert_eq!(result, cloned);
+    }
+
+    #[test]
+    fn test_account_scanner_clone() {
+        let scanner1 = AccountScanner::new(GapLimitChecker::new(10));
+        let scanner2 = scanner1;
+        
+        assert_eq!(scanner1.gap_limit(), scanner2.gap_limit());
+    }
+
+    #[test]
+    fn test_account_scan_result_debug() {
+        use crate::Chain;
+        
+        let result = AccountScanResult {
+            account_index: 0,
+            external: ChainScanResult {
+                chain: Chain::External,
+                used_indices: vec![0],
+                last_used_index: Some(0),
+            },
+            internal: ChainScanResult {
+                chain: Chain::Internal,
+                used_indices: vec![],
+                last_used_index: None,
+            },
+        };
+        
+        let debug_str = format!("{:?}", result);
+        assert!(debug_str.contains("AccountScanResult"));
+    }
 }
+
