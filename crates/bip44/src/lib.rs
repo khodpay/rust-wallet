@@ -20,6 +20,7 @@
 #![deny(unsafe_code)]
 
 mod account;
+mod builder;
 mod discovery;
 mod error;
 mod path;
@@ -27,6 +28,7 @@ mod types;
 mod wallet;
 
 pub use account::Account;
+pub use builder::WalletBuilder;
 pub use discovery::{
     AccountDiscovery, AccountScanResult, AccountScanner, ChainScanResult, GapLimitChecker,
     MockBlockchain, DEFAULT_GAP_LIMIT,
