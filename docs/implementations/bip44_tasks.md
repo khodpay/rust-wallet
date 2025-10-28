@@ -80,7 +80,7 @@ Derive and cache accounts by coin/index. Support multiple cryptocurrencies. Test
 ### ✅ Task 21: Implement WalletBuilder pattern for fluent construction (TDD)
 Builder for wallet creation with options: `Wallet::builder().mnemonic(...).network(...).build()`. Test builder.
 
-### 🔲 Task 22: Implement AddressIterator for chain traversal (TDD)
+### ✅ Task 22: Implement AddressIterator for chain traversal (TDD)
 Iterator for sequential address generation on a chain. Test infinite and bounded iteration.
 
 ### 🔲 Task 23: Implement DerivedAddress struct with metadata and helper functions (TDD)

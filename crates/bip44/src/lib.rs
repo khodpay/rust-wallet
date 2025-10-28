@@ -23,6 +23,7 @@ mod account;
 mod builder;
 mod discovery;
 mod error;
+mod iterator;
 mod path;
 mod types;
 mod wallet;
@@ -34,6 +35,7 @@ pub use discovery::{
     MockBlockchain, DEFAULT_GAP_LIMIT,
 };
 pub use error::Error;
+pub use iterator::AddressIterator;
 pub use path::{Bip44Path, Bip44PathBuilder};
 pub use types::{Chain, CoinType, Purpose};
 pub use wallet::Wallet;
