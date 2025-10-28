@@ -21,6 +21,7 @@
 
 mod account;
 mod builder;
+mod derived;
 mod discovery;
 mod error;
 mod iterator;
@@ -30,6 +31,7 @@ mod wallet;
 
 pub use account::Account;
 pub use builder::WalletBuilder;
+pub use derived::DerivedAddress;
 pub use discovery::{
     AccountDiscovery, AccountScanResult, AccountScanner, ChainScanResult, GapLimitChecker,
     MockBlockchain, DEFAULT_GAP_LIMIT,
