@@ -42,6 +42,35 @@
 use crate::{CoinType, Purpose, Result};
 use khodpay_bip32::ExtendedPrivateKey;
 
+#[cfg(feature = "serde")]
+mod network_serde {
+    use khodpay_bip32::Network;
+    use serde::{Deserialize, Deserializer, Serializer};
+
+    pub fn serialize<S>(network: &Network, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let s = match network {
+            Network::BitcoinMainnet => "BitcoinMainnet",
+            Network::BitcoinTestnet => "BitcoinTestnet",
+        };
+        serializer.serialize_str(s)
+    }
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Network, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        match s.as_str() {
+            "BitcoinMainnet" => Ok(Network::BitcoinMainnet),
+            "BitcoinTestnet" => Ok(Network::BitcoinTestnet),
+            _ => Err(serde::de::Error::custom(format!("Unknown network: {}", s))),
+        }
+    }
+}
+
 /// A BIP-44 account wrapping a BIP-32 extended private key with metadata.
 ///
 /// An account represents the third level of the BIP-44 hierarchy
@@ -1177,5 +1206,209 @@ mod tests {
         
         // Should saturate at u32::MAX
         assert_eq!(keys.len(), 10);
+    }
+}
+
+/// Serializable account metadata without private keys.
+///
+/// This struct contains only the metadata about an account,
+/// without the sensitive extended private key. It's safe to
+/// serialize and persist.
+///
+/// # Security
+///
+/// This struct does NOT contain private keys and is safe to serialize.
+/// Use this for persisting wallet state without exposing keys.
+///
+/// # Examples
+///
+/// ```rust
+/// use khodpay_bip44::{AccountMetadata, Purpose, CoinType};
+/// use khodpay_bip32::Network;
+///
+/// let metadata = AccountMetadata::new(
+///     Purpose::BIP44,
+///     CoinType::Bitcoin,
+///     0,
+///     Network::BitcoinMainnet,
+/// );
+///
+/// assert_eq!(metadata.purpose(), Purpose::BIP44);
+/// assert_eq!(metadata.coin_type(), CoinType::Bitcoin);
+/// ```
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AccountMetadata {
+    purpose: Purpose,
+    coin_type: CoinType,
+    account_index: u32,
+    #[cfg_attr(feature = "serde", serde(with = "network_serde"))]
+    network: khodpay_bip32::Network,
+}
+
+impl AccountMetadata {
+    /// Creates new account metadata.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{AccountMetadata, Purpose, CoinType};
+    /// use khodpay_bip32::Network;
+    ///
+    /// let metadata = AccountMetadata::new(
+    ///     Purpose::BIP44,
+    ///     CoinType::Bitcoin,
+    ///     0,
+    ///     Network::BitcoinMainnet,
+    /// );
+    /// ```
+    pub fn new(
+        purpose: Purpose,
+        coin_type: CoinType,
+        account_index: u32,
+        network: khodpay_bip32::Network,
+    ) -> Self {
+        Self {
+            purpose,
+            coin_type,
+            account_index,
+            network,
+        }
+    }
+
+    /// Creates metadata from an Account.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{Account, AccountMetadata, Purpose, CoinType};
+    /// use khodpay_bip32::{ExtendedPrivateKey, Network, ChildNumber};
+    ///
+    /// # let seed = [0u8; 64];
+    /// # let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+    /// # let purpose_key = master.derive_child(ChildNumber::Hardened(44)).unwrap();
+    /// # let coin_key = purpose_key.derive_child(ChildNumber::Hardened(0)).unwrap();
+    /// # let account_key = coin_key.derive_child(ChildNumber::Hardened(0)).unwrap();
+    /// let account = Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
+    /// let metadata = AccountMetadata::from_account(&account);
+    ///
+    /// assert_eq!(metadata.purpose(), Purpose::BIP44);
+    /// ```
+    pub fn from_account(account: &Account) -> Self {
+        Self {
+            purpose: account.purpose(),
+            coin_type: account.coin_type(),
+            account_index: account.account_index(),
+            network: account.network(),
+        }
+    }
+
+    /// Returns the purpose.
+    pub fn purpose(&self) -> Purpose {
+        self.purpose
+    }
+
+    /// Returns the coin type.
+    pub fn coin_type(&self) -> CoinType {
+        self.coin_type
+    }
+
+    /// Returns the account index.
+    pub fn account_index(&self) -> u32 {
+        self.account_index
+    }
+
+    /// Returns the network.
+    pub fn network(&self) -> khodpay_bip32::Network {
+        self.network
+    }
+}
+
+#[cfg(all(test, feature = "serde"))]
+mod serde_tests {
+    use super::*;
+
+    #[test]
+    fn test_account_metadata_serialize() {
+        let metadata = AccountMetadata::new(
+            Purpose::BIP44,
+            CoinType::Bitcoin,
+            0,
+            khodpay_bip32::Network::BitcoinMainnet,
+        );
+
+        let json = serde_json::to_string(&metadata).unwrap();
+        assert!(json.contains("BIP44"));
+        assert!(json.contains("Bitcoin"));
+    }
+
+    #[test]
+    fn test_account_metadata_deserialize() {
+        let json = r#"{"purpose":"BIP44","coin_type":"Bitcoin","account_index":0,"network":"BitcoinMainnet"}"#;
+        let metadata: AccountMetadata = serde_json::from_str(json).unwrap();
+
+        assert_eq!(metadata.purpose(), Purpose::BIP44);
+        assert_eq!(metadata.coin_type(), CoinType::Bitcoin);
+        assert_eq!(metadata.account_index(), 0);
+    }
+
+    #[test]
+    fn test_account_metadata_round_trip() {
+        let metadata = AccountMetadata::new(
+            Purpose::BIP84,
+            CoinType::Ethereum,
+            5,
+            khodpay_bip32::Network::BitcoinMainnet,
+        );
+
+        let json = serde_json::to_string(&metadata).unwrap();
+        let deserialized: AccountMetadata = serde_json::from_str(&json).unwrap();
+
+        assert_eq!(metadata, deserialized);
+    }
+
+    #[test]
+    fn test_account_metadata_from_account() {
+        use khodpay_bip32::{ChildNumber, ExtendedPrivateKey, Network};
+
+        let seed = [0u8; 64];
+        let master = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+        let purpose_key = master.derive_child(ChildNumber::Hardened(44)).unwrap();
+        let coin_key = purpose_key.derive_child(ChildNumber::Hardened(0)).unwrap();
+        let account_key = coin_key.derive_child(ChildNumber::Hardened(0)).unwrap();
+
+        let account = Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
+        let metadata = AccountMetadata::from_account(&account);
+
+        assert_eq!(metadata.purpose(), Purpose::BIP44);
+        assert_eq!(metadata.coin_type(), CoinType::Bitcoin);
+        assert_eq!(metadata.account_index(), 0);
+        assert_eq!(metadata.network(), Network::BitcoinMainnet);
+    }
+
+    #[test]
+    fn test_account_metadata_clone() {
+        let metadata1 = AccountMetadata::new(
+            Purpose::BIP44,
+            CoinType::Bitcoin,
+            0,
+            khodpay_bip32::Network::BitcoinMainnet,
+        );
+        let metadata2 = metadata1.clone();
+
+        assert_eq!(metadata1, metadata2);
+    }
+
+    #[test]
+    fn test_account_metadata_debug() {
+        let metadata = AccountMetadata::new(
+            Purpose::BIP44,
+            CoinType::Bitcoin,
+            0,
+            khodpay_bip32::Network::BitcoinMainnet,
+        );
+
+        let debug_str = format!("{:?}", metadata);
+        assert!(debug_str.contains("AccountMetadata"));
     }
 }
