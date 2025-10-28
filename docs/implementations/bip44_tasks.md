@@ -72,7 +72,7 @@ Mock blockchain with configurable used addresses for testing account discovery w
 ### ✅ Task 19: Define Wallet struct and implement from_mnemonic() and from_seed() (TDD)
 High-level wallet holding master key. Create from BIP39 mnemonic or seed. Test wallet initialization.
 
-### 🔲 Task 20: Implement get_account() with caching and multi-coin support (TDD)
+### ✅ Task 20: Implement get_account() with caching and multi-coin support (TDD)
 Derive and cache accounts by coin/index. Support multiple cryptocurrencies. Test account caching.
 
 ## ⚙️ PHASE 8: Convenience APIs & Utilities (LOW Priority)

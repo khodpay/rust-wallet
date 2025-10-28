@@ -14,9 +14,10 @@
 //! let wallet = Wallet::from_seed(&seed, Network::BitcoinMainnet).unwrap();
 //! ```
 
-use crate::{Error, Result};
-use khodpay_bip32::{ExtendedPrivateKey, Network};
+use crate::{Account, CoinType, Error, Purpose, Result};
+use khodpay_bip32::{ChildNumber, ExtendedPrivateKey, Network};
 use khodpay_bip39::{Language, Mnemonic};
+use std::collections::HashMap;
 
 /// High-level BIP-44 wallet holding the master key.
 ///
@@ -40,6 +41,8 @@ pub struct Wallet {
     master_key: ExtendedPrivateKey,
     /// The network this wallet operates on
     network: Network,
+    /// Cache of derived accounts (key: "purpose-cointype-account")
+    account_cache: HashMap<String, Account>,
 }
 
 impl Wallet {
@@ -155,6 +158,7 @@ impl Wallet {
         Ok(Self {
             master_key,
             network,
+            account_cache: HashMap::new(),
         })
     }
 
@@ -191,6 +195,145 @@ impl Wallet {
     /// ```
     pub fn master_key(&self) -> &ExtendedPrivateKey {
         &self.master_key
+    }
+
+    /// Derives and caches an account for a specific cryptocurrency and account index.
+    ///
+    /// This method derives the account key at path `m/purpose'/coin_type'/account'`
+    /// and caches it for future use. Subsequent calls with the same parameters
+    /// return the cached account without re-deriving.
+    ///
+    /// # Arguments
+    ///
+    /// * `purpose` - The BIP purpose (44, 49, 84, or 86)
+    /// * `coin_type` - The cryptocurrency type
+    /// * `account_index` - The account index (typically 0 for first account)
+    ///
+    /// # Returns
+    ///
+    /// A reference to the cached `Account`.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if key derivation fails.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{Wallet, Purpose, CoinType};
+    /// use khodpay_bip32::Network;
+    ///
+    /// let seed = [0u8; 64];
+    /// let mut wallet = Wallet::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+    ///
+    /// // Get Bitcoin account 0
+    /// let account = wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 0).unwrap();
+    /// assert_eq!(account.coin_type(), CoinType::Bitcoin);
+    /// assert_eq!(account.account_index(), 0);
+    /// ```
+    pub fn get_account(
+        &mut self,
+        purpose: Purpose,
+        coin_type: CoinType,
+        account_index: u32,
+    ) -> Result<&Account> {
+        let cache_key = format!("{}-{}-{}", purpose.value(), coin_type.index(), account_index);
+
+        // Check if account is already cached
+        if !self.account_cache.contains_key(&cache_key) {
+            // Derive the account key
+            let account_key = self.derive_account_key(purpose, coin_type, account_index)?;
+            
+            // Create Account instance
+            let account = Account::from_extended_key(account_key, purpose, coin_type, account_index);
+            
+            // Cache it
+            self.account_cache.insert(cache_key.clone(), account);
+        }
+
+        Ok(self.account_cache.get(&cache_key).unwrap())
+    }
+
+    /// Derives an account key without caching.
+    ///
+    /// This is a lower-level method that derives the extended private key
+    /// at the account level without caching the result.
+    ///
+    /// # Arguments
+    ///
+    /// * `purpose` - The BIP purpose
+    /// * `coin_type` - The cryptocurrency type
+    /// * `account_index` - The account index
+    ///
+    /// # Returns
+    ///
+    /// The derived `ExtendedPrivateKey` at the account level.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if key derivation fails.
+    fn derive_account_key(
+        &self,
+        purpose: Purpose,
+        coin_type: CoinType,
+        account_index: u32,
+    ) -> Result<ExtendedPrivateKey> {
+        // Derive m/purpose'
+        let purpose_key = self.master_key
+            .derive_child(ChildNumber::Hardened(purpose.value()))
+            .map_err(|e| Error::KeyDerivation(format!("Failed to derive purpose key: {}", e)))?;
+
+        // Derive m/purpose'/coin_type'
+        let coin_key = purpose_key
+            .derive_child(ChildNumber::Hardened(coin_type.index()))
+            .map_err(|e| Error::KeyDerivation(format!("Failed to derive coin type key: {}", e)))?;
+
+        // Derive m/purpose'/coin_type'/account'
+        let account_key = coin_key
+            .derive_child(ChildNumber::Hardened(account_index))
+            .map_err(|e| Error::KeyDerivation(format!("Failed to derive account key: {}", e)))?;
+
+        Ok(account_key)
+    }
+
+    /// Clears the account cache.
+    ///
+    /// This removes all cached accounts, forcing them to be re-derived
+    /// on the next `get_account()` call.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{Wallet, Purpose, CoinType};
+    /// use khodpay_bip32::Network;
+    ///
+    /// let seed = [0u8; 64];
+    /// let mut wallet = Wallet::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+    ///
+    /// wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 0).unwrap();
+    /// wallet.clear_cache();
+    /// ```
+    pub fn clear_cache(&mut self) {
+        self.account_cache.clear();
+    }
+
+    /// Returns the number of cached accounts.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{Wallet, Purpose, CoinType};
+    /// use khodpay_bip32::Network;
+    ///
+    /// let seed = [0u8; 64];
+    /// let mut wallet = Wallet::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+    ///
+    /// assert_eq!(wallet.cached_account_count(), 0);
+    /// wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 0).unwrap();
+    /// assert_eq!(wallet.cached_account_count(), 1);
+    /// ```
+    pub fn cached_account_count(&self) -> usize {
+        self.account_cache.len()
     }
 }
 
@@ -372,5 +515,193 @@ mod tests {
         
         // This should fail because English words aren't in Spanish wordlist
         assert!(result.is_err());
+    }
+
+    // Account derivation and caching tests
+    #[test]
+    fn test_get_account_bitcoin() {
+        let seed = [0u8; 64];
+        let mut wallet = Wallet::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+
+        let account = wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 0).unwrap();
+        
+        assert_eq!(account.purpose(), Purpose::BIP44);
+        assert_eq!(account.coin_type(), CoinType::Bitcoin);
+        assert_eq!(account.account_index(), 0);
+    }
+
+    #[test]
+    fn test_get_account_ethereum() {
+        let seed = [0u8; 64];
+        let mut wallet = Wallet::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+
+        let account = wallet.get_account(Purpose::BIP44, CoinType::Ethereum, 0).unwrap();
+        
+        assert_eq!(account.purpose(), Purpose::BIP44);
+        assert_eq!(account.coin_type(), CoinType::Ethereum);
+        assert_eq!(account.account_index(), 0);
+    }
+
+    #[test]
+    fn test_get_account_multiple_coins() {
+        let seed = [0u8; 64];
+        let mut wallet = Wallet::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+
+        {
+            let btc_account = wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 0).unwrap();
+            assert_eq!(btc_account.coin_type(), CoinType::Bitcoin);
+        }
+        
+        {
+            let eth_account = wallet.get_account(Purpose::BIP44, CoinType::Ethereum, 0).unwrap();
+            assert_eq!(eth_account.coin_type(), CoinType::Ethereum);
+        }
+        
+        assert_eq!(wallet.cached_account_count(), 2);
+    }
+
+    #[test]
+    fn test_get_account_multiple_indices() {
+        let seed = [0u8; 64];
+        let mut wallet = Wallet::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+
+        {
+            let account0 = wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 0).unwrap();
+            assert_eq!(account0.account_index(), 0);
+        }
+        
+        {
+            let account1 = wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 1).unwrap();
+            assert_eq!(account1.account_index(), 1);
+        }
+        
+        {
+            let account2 = wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 2).unwrap();
+            assert_eq!(account2.account_index(), 2);
+        }
+        
+        assert_eq!(wallet.cached_account_count(), 3);
+    }
+
+    #[test]
+    fn test_get_account_caching() {
+        let seed = [0u8; 64];
+        let mut wallet = Wallet::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+
+        // First call - should derive
+        assert_eq!(wallet.cached_account_count(), 0);
+        {
+            let account1 = wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 0).unwrap();
+            assert_eq!(account1.account_index(), 0);
+        }
+        assert_eq!(wallet.cached_account_count(), 1);
+
+        // Second call - should return cached
+        {
+            let account2 = wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 0).unwrap();
+            assert_eq!(account2.account_index(), 0);
+        }
+        assert_eq!(wallet.cached_account_count(), 1);
+    }
+
+    #[test]
+    fn test_get_account_different_purposes() {
+        let seed = [0u8; 64];
+        let mut wallet = Wallet::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+
+        {
+            let bip44_account = wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 0).unwrap();
+            assert_eq!(bip44_account.purpose(), Purpose::BIP44);
+        }
+        
+        {
+            let bip49_account = wallet.get_account(Purpose::BIP49, CoinType::Bitcoin, 0).unwrap();
+            assert_eq!(bip49_account.purpose(), Purpose::BIP49);
+        }
+        
+        {
+            let bip84_account = wallet.get_account(Purpose::BIP84, CoinType::Bitcoin, 0).unwrap();
+            assert_eq!(bip84_account.purpose(), Purpose::BIP84);
+        }
+        
+        assert_eq!(wallet.cached_account_count(), 3);
+    }
+
+    #[test]
+    fn test_clear_cache() {
+        let seed = [0u8; 64];
+        let mut wallet = Wallet::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+
+        wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 0).unwrap();
+        wallet.get_account(Purpose::BIP44, CoinType::Ethereum, 0).unwrap();
+        assert_eq!(wallet.cached_account_count(), 2);
+
+        wallet.clear_cache();
+        assert_eq!(wallet.cached_account_count(), 0);
+    }
+
+    #[test]
+    fn test_cached_account_count() {
+        let seed = [0u8; 64];
+        let mut wallet = Wallet::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+
+        assert_eq!(wallet.cached_account_count(), 0);
+        
+        wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 0).unwrap();
+        assert_eq!(wallet.cached_account_count(), 1);
+        
+        wallet.get_account(Purpose::BIP44, CoinType::Ethereum, 0).unwrap();
+        assert_eq!(wallet.cached_account_count(), 2);
+        
+        wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 1).unwrap();
+        assert_eq!(wallet.cached_account_count(), 3);
+    }
+
+    #[test]
+    fn test_get_account_derive_addresses() {
+        let seed = [0u8; 64];
+        let mut wallet = Wallet::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+
+        let account = wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 0).unwrap();
+        
+        // Derive some addresses to verify the account works
+        let addr0 = account.derive_external(0).unwrap();
+        let addr1 = account.derive_external(1).unwrap();
+        
+        assert_eq!(addr0.depth(), 5);
+        assert_eq!(addr1.depth(), 5);
+    }
+
+    #[test]
+    fn test_wallet_clone_preserves_cache() {
+        let seed = [0u8; 64];
+        let mut wallet1 = Wallet::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+
+        wallet1.get_account(Purpose::BIP44, CoinType::Bitcoin, 0).unwrap();
+        assert_eq!(wallet1.cached_account_count(), 1);
+
+        let wallet2 = wallet1.clone();
+        assert_eq!(wallet2.cached_account_count(), 1);
+    }
+
+    #[test]
+    fn test_get_account_litecoin() {
+        let seed = [0u8; 64];
+        let mut wallet = Wallet::from_seed(&seed, Network::BitcoinMainnet).unwrap();
+
+        let account = wallet.get_account(Purpose::BIP44, CoinType::Litecoin, 0).unwrap();
+        
+        assert_eq!(account.coin_type(), CoinType::Litecoin);
+    }
+
+    #[test]
+    fn test_get_account_testnet() {
+        let seed = [0u8; 64];
+        let mut wallet = Wallet::from_seed(&seed, Network::BitcoinTestnet).unwrap();
+
+        let account = wallet.get_account(Purpose::BIP44, CoinType::BitcoinTestnet, 0).unwrap();
+        
+        assert_eq!(account.coin_type(), CoinType::BitcoinTestnet);
+        assert_eq!(account.network(), Network::BitcoinTestnet);
     }
 }
