@@ -86,6 +86,7 @@ pub const MAX_HARDENED_INDEX: u32 = 0x7FFF_FFFF;
 /// ).unwrap();
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Bip44Path {
     purpose: Purpose,
     coin_type: CoinType,
@@ -2307,5 +2308,100 @@ mod tests {
         assert_eq!(modified.account(), 5);
         assert_eq!(modified.chain(), Chain::Internal);
         assert_eq!(modified.address_index(), 100);
+    }
+
+    #[cfg(feature = "serde")]
+    #[test]
+    fn test_serialize_deserialize() {
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 5).unwrap();
+        
+        let json = serde_json::to_string(&path).unwrap();
+        let deserialized: Bip44Path = serde_json::from_str(&json).unwrap();
+        
+        assert_eq!(path, deserialized);
+    }
+
+    #[cfg(feature = "serde")]
+    #[test]
+    fn test_serialize_format() {
+        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        
+        let json = serde_json::to_string(&path).unwrap();
+        assert!(json.contains("\"purpose\""));
+        assert!(json.contains("\"coin_type\""));
+        assert!(json.contains("\"account\""));
+        assert!(json.contains("\"chain\""));
+        assert!(json.contains("\"address_index\""));
+    }
+
+    #[cfg(feature = "serde")]
+    #[test]
+    fn test_deserialize_from_json() {
+        let json = r#"{"purpose":"BIP44","coin_type":"Bitcoin","account":0,"chain":"External","address_index":5}"#;
+        let path: Bip44Path = serde_json::from_str(json).unwrap();
+        
+        assert_eq!(path.purpose(), Purpose::BIP44);
+        assert_eq!(path.coin_type(), CoinType::Bitcoin);
+        assert_eq!(path.account(), 0);
+        assert_eq!(path.chain(), Chain::External);
+        assert_eq!(path.address_index(), 5);
+    }
+
+    #[cfg(feature = "serde")]
+    #[test]
+    fn test_serialize_different_purposes() {
+        let bip44 = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let bip49 = Bip44Path::new(Purpose::BIP49, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let bip84 = Bip44Path::new(Purpose::BIP84, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        
+        let json44 = serde_json::to_string(&bip44).unwrap();
+        let json49 = serde_json::to_string(&bip49).unwrap();
+        let json84 = serde_json::to_string(&bip84).unwrap();
+        
+        assert!(json44.contains("BIP44"));
+        assert!(json49.contains("BIP49"));
+        assert!(json84.contains("BIP84"));
+    }
+
+    #[cfg(feature = "serde")]
+    #[test]
+    fn test_serialize_different_coins() {
+        let btc = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let eth = Bip44Path::new(Purpose::BIP44, CoinType::Ethereum, 0, Chain::External, 0).unwrap();
+        
+        let json_btc = serde_json::to_string(&btc).unwrap();
+        let json_eth = serde_json::to_string(&eth).unwrap();
+        
+        assert!(json_btc.contains("Bitcoin"));
+        assert!(json_eth.contains("Ethereum"));
+    }
+
+    #[cfg(feature = "serde")]
+    #[test]
+    fn test_serialize_both_chains() {
+        let external = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let internal = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::Internal, 0).unwrap();
+        
+        let json_ext = serde_json::to_string(&external).unwrap();
+        let json_int = serde_json::to_string(&internal).unwrap();
+        
+        assert!(json_ext.contains("External"));
+        assert!(json_int.contains("Internal"));
+    }
+
+    #[cfg(feature = "serde")]
+    #[test]
+    fn test_serde_round_trip_complex() {
+        let path = Bip44Path::new(Purpose::BIP84, CoinType::Ethereum, 5, Chain::Internal, 1000).unwrap();
+        
+        let json = serde_json::to_string(&path).unwrap();
+        let deserialized: Bip44Path = serde_json::from_str(&json).unwrap();
+        
+        assert_eq!(path, deserialized);
+        assert_eq!(deserialized.purpose(), Purpose::BIP84);
+        assert_eq!(deserialized.coin_type(), CoinType::Ethereum);
+        assert_eq!(deserialized.account(), 5);
+        assert_eq!(deserialized.chain(), Chain::Internal);
+        assert_eq!(deserialized.address_index(), 1000);
     }
 }

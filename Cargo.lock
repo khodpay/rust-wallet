@@ -393,6 +393,7 @@ dependencies = [
  "khodpay-bip32",
  "khodpay-bip39",
  "serde",
+ "serde_json",
  "thiserror",
 ]
 

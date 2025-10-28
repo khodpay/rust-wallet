@@ -52,6 +52,7 @@ use std::fmt;
 /// assert_eq!(parsed, Purpose::BIP84);
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Purpose {
     /// BIP-44: Legacy P2PKH addresses.
     ///
@@ -340,6 +341,7 @@ mod tests {
 /// assert!(!change.is_external());
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Chain {
     /// External chain (0) for receiving addresses.
     ///
@@ -618,6 +620,7 @@ mod chain_tests {
 /// assert_eq!(eth.index(), 60);
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CoinType {
     /// Bitcoin (BTC) - Coin type 0.
     ///

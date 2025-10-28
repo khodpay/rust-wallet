@@ -88,7 +88,7 @@ Wrap derived keys with metadata (path, index, chain). Add utility functions. Tes
 
 ## 📦 PHASE 9: Serialization & Persistence (LOW Priority)
 
-### 🔲 Task 24: Add serde dependency and implement Serialize/Deserialize for Bip44Path (TDD)
+### ✅ Task 24: Add serde dependency and implement Serialize/Deserialize for Bip44Path (TDD)
 Add serde feature flag. Serialize paths to JSON/other formats. Test serialization round-trips.
 
 ### 🔲 Task 25: Implement Serialize/Deserialize for Account metadata and wallet state (TDD)
