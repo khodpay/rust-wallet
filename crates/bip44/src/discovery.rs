@@ -569,7 +569,9 @@ impl AccountScanner {
     /// let scanner = AccountScanner::new(GapLimitChecker::new(20));
     /// let accounts = scanner.discover_accounts(&external_chain, &internal_chain, 10).unwrap();
     ///
-    /// assert_eq!(accounts.len(), 1);
+    /// // Note: With the same discovery for all accounts, it finds used addresses for all
+    /// // In real usage, you'd have account-specific discovery instances
+    /// assert_eq!(accounts.len(), 10);
     /// assert_eq!(accounts[0].account_index, 0);
     /// ```
     pub fn discover_accounts<D1: AccountDiscovery, D2: AccountDiscovery>(
@@ -649,7 +651,7 @@ impl MockBlockchain {
     /// # Examples
     ///
     /// ```rust
-    /// use khodpay_bip44::MockBlockchain;
+    /// use khodpay_bip44::{MockBlockchain, AccountDiscovery};
     ///
     /// let blockchain = MockBlockchain::with_used_addresses(&[0, 2, 5, 10]);
     /// assert!(blockchain.is_address_used(5).unwrap());
@@ -665,7 +667,7 @@ impl MockBlockchain {
     /// # Examples
     ///
     /// ```rust
-    /// use khodpay_bip44::MockBlockchain;
+    /// use khodpay_bip44::{MockBlockchain, AccountDiscovery};
     ///
     /// let mut blockchain = MockBlockchain::new();
     /// blockchain.mark_used(5);
@@ -697,7 +699,7 @@ impl MockBlockchain {
     /// # Examples
     ///
     /// ```rust
-    /// use khodpay_bip44::MockBlockchain;
+    /// use khodpay_bip44::{MockBlockchain, AccountDiscovery};
     ///
     /// let mut blockchain = MockBlockchain::with_used_addresses(&[0, 1, 2]);
     /// blockchain.mark_unused(1);
