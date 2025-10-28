@@ -83,7 +83,7 @@ Builder for wallet creation with options: `Wallet::builder().mnemonic(...).netwo
 ### ✅ Task 22: Implement AddressIterator for chain traversal (TDD)
 Iterator for sequential address generation on a chain. Test infinite and bounded iteration.
 
-### 🔲 Task 23: Implement DerivedAddress struct with metadata and helper functions (TDD)
+### ✅ Task 23: Implement DerivedAddress struct with metadata and helper functions (TDD)
 Wrap derived keys with metadata (path, index, chain). Add utility functions. Test metadata tracking.
 
 ## 📦 PHASE 9: Serialization & Persistence (LOW Priority)
