@@ -29,7 +29,7 @@ mod path;
 mod types;
 mod wallet;
 
-pub use account::Account;
+pub use account::{Account, AccountMetadata};
 pub use builder::WalletBuilder;
 pub use derived::DerivedAddress;
 pub use discovery::{

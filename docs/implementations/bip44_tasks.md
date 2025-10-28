@@ -91,7 +91,7 @@ Wrap derived keys with metadata (path, index, chain). Add utility functions. Tes
 ### ✅ Task 24: Add serde dependency and implement Serialize/Deserialize for Bip44Path (TDD)
 Add serde feature flag. Serialize paths to JSON/other formats. Test serialization round-trips.
 
-### 🔲 Task 25: Implement Serialize/Deserialize for Account metadata and wallet state (TDD)
+### ✅ Task 25: Implement Serialize/Deserialize for Account metadata and wallet state (TDD)
 Serialize account metadata and wallet state for persistence. Test state save/restore.
 
 ## 🧪 PHASE 10: Integration & Test Vectors (MEDIUM Priority)
