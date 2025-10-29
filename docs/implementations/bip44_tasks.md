@@ -96,7 +96,7 @@ Serialize account metadata and wallet state for persistence. Test state save/res
 
 ## 🧪 PHASE 10: Integration & Test Vectors (MEDIUM Priority)
 
-### 🔲 Task 26: Write integration tests with BIP32 and BIP39 crates
+### ✅ Task 26: Write integration tests with BIP32 and BIP39 crates
 Test full workflow: mnemonic → seed → master key → BIP44 paths → derived keys. Verify integration.
 
 ### 🔲 Task 27: Add and validate BIP44 reference test vectors from specification
