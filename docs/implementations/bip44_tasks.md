@@ -99,7 +99,7 @@ Serialize account metadata and wallet state for persistence. Test state save/res
 ### ✅ Task 26: Write integration tests with BIP32 and BIP39 crates
 Test full workflow: mnemonic → seed → master key → BIP44 paths → derived keys. Verify integration.
 
-### 🔲 Task 27: Add and validate BIP44 reference test vectors from specification
+### ✅ Task 27: Add and validate BIP44 reference test vectors from specification
 Implement official BIP44 test vectors. Verify all expected paths and keys match specification.
 
 ### 🔲 Task 28: Write cross-compatibility and common wallet scenario tests
