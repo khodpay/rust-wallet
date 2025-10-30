@@ -6,18 +6,21 @@
 //!
 //! ```rust
 //! use khodpay_bip44::{Account, Purpose, CoinType, AddressIterator};
-//! use khodpay_bip32::{ExtendedPrivateKey, Network};
+//! use khodpay_bip32::{ExtendedPrivateKey, Network, ChildNumber};
 //!
 //! let seed = [0u8; 64];
 //! let master_key = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
-//! let account = Account::from_extended_key(master_key, Purpose::BIP44, CoinType::Bitcoin, 0);
+//! let purpose_key = master_key.derive_child(ChildNumber::Hardened(44)).unwrap();
+//! let coin_key = purpose_key.derive_child(ChildNumber::Hardened(0)).unwrap();
+//! let account_key = coin_key.derive_child(ChildNumber::Hardened(0)).unwrap();
+//! let account = Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 //!
 //! // Iterate over first 5 external addresses
-//! let addresses: Vec<_> = AddressIterator::new_external(&account)
+//! let addresses: Result<Vec<_>, _> = AddressIterator::new_external(&account)
 //!     .take(5)
 //!     .collect();
 //!
-//! assert_eq!(addresses.len(), 5);
+//! assert_eq!(addresses.unwrap().len(), 5);
 //! ```
 
 use crate::{Account, Chain};
@@ -32,11 +35,14 @@ use khodpay_bip32::ExtendedPrivateKey;
 ///
 /// ```rust
 /// use khodpay_bip44::{Account, Purpose, CoinType, AddressIterator};
-/// use khodpay_bip32::{ExtendedPrivateKey, Network};
+/// use khodpay_bip32::{ExtendedPrivateKey, Network, ChildNumber};
 ///
 /// let seed = [0u8; 64];
 /// let master_key = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
-/// let account = Account::from_extended_key(master_key, Purpose::BIP44, CoinType::Bitcoin, 0);
+/// let purpose_key = master_key.derive_child(ChildNumber::Hardened(44)).unwrap();
+/// let coin_key = purpose_key.derive_child(ChildNumber::Hardened(0)).unwrap();
+/// let account_key = coin_key.derive_child(ChildNumber::Hardened(0)).unwrap();
+/// let account = Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 ///
 /// // Create iterator for external chain
 /// let mut iter = AddressIterator::new_external(&account);
