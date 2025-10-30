@@ -26,6 +26,11 @@ optional = true
 [dev-dependencies]
 hex = "0.4"
 serde_json = "1.0"
+criterion = "0.5"
+
+[[bench]]
+name = "bip44_benchmarks"
+harness = false
 
 [features]
 default = []

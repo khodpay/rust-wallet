@@ -389,6 +389,7 @@ dependencies = [
 name = "khodpay-bip44"
 version = "0.1.0"
 dependencies = [
+ "criterion",
  "hex",
  "khodpay-bip32",
  "khodpay-bip39",
