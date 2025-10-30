@@ -105,7 +105,7 @@ Implement official BIP44 test vectors. Verify all expected paths and keys match 
 ### ✅ Task 28: Write cross-compatibility and common wallet scenario tests
 Test compatibility with other wallets (Electrum, Ledger, etc.). Cover common use cases (Bitcoin, Ethereum, multi-account).
 
-### 🔲 Task 29: Add edge case and property-based tests (optional)
+### ✅ Task 29: Add edge case and property-based tests (optional)
 Test boundary conditions, max values, and use proptest for property-based testing.
 
 ## 🎯 PHASE 11: Final Polish & Documentation (LOW Priority)
