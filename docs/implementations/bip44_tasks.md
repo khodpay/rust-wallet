@@ -119,7 +119,7 @@ Write README with installation, usage examples, BIP44 path explanation, and secu
 ### ✅ Task 32: Create examples directory with common use cases (basic, multi-account, discovery, multi-coin)
 Create example programs: basic wallet, multi-account, account discovery, multi-coin support.
 
-### 🔲 Task 33: Add benchmarks for key operations (path derivation, account operations)
+### ✅ Task 33: Add benchmarks for key operations (path derivation, account operations)
 Benchmark path construction, derivation, and account operations. Identify performance bottlenecks.
 
 ### 🔲 Task 34: Final code review, run clippy, cargo fmt, and prepare for publication
