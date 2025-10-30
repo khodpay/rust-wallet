@@ -116,7 +116,7 @@ Document all public APIs with doc comments. Include code examples for common ope
 ### ✅ Task 31: Create README.md with quick start, path structure, and security considerations
 Write README with installation, usage examples, BIP44 path explanation, and security best practices.
 
-### 🔲 Task 32: Create examples directory with common use cases (basic, multi-account, discovery, multi-coin)
+### ✅ Task 32: Create examples directory with common use cases (basic, multi-account, discovery, multi-coin)
 Create example programs: basic wallet, multi-account, account discovery, multi-coin support.
 
 ### 🔲 Task 33: Add benchmarks for key operations (path derivation, account operations)
