@@ -15,14 +15,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Create a wallet
     let mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
-    
-    let mut wallet = Wallet::from_mnemonic(
-        mnemonic,
-        "",
-        Language::English,
-        Network::BitcoinMainnet,
-    )?;
-    
+
+    let mut wallet =
+        Wallet::from_mnemonic(mnemonic, "", Language::English, Network::BitcoinMainnet)?;
+
     println!("Wallet created for Bitcoin\n");
 
     // Account 0: Personal
@@ -31,7 +27,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let personal = wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 0)?;
         println!("  Path: m/44'/0'/0'");
         println!("  Purpose: Use for personal transactions");
-        
+
         // Generate first 3 receiving addresses
         println!("  Receiving addresses:");
         let mut addrs = Vec::new();
@@ -40,7 +36,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("    {}: m/44'/0'/0'/0/{} (depth: {})", i, i, addr.depth());
             addrs.push(addr);
         }
-        
+
         // Generate first 2 change addresses
         println!("  Change addresses:");
         let mut change = Vec::new();
@@ -59,7 +55,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let business = wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 1)?;
         println!("  Path: m/44'/0'/1'");
         println!("  Purpose: Use for business transactions");
-        
+
         // Batch generate addresses
         let addrs = business.derive_address_range(Chain::External, 0, 5)?;
         println!("  Receiving addresses (batch):");
@@ -76,10 +72,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let savings = wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 2)?;
         println!("  Path: m/44'/0'/2'");
         println!("  Purpose: Long-term savings");
-        
+
         // Generate just the first address
         let addr = savings.derive_external(0)?;
-        println!("  Primary address: m/44'/0'/2'/0/0 (depth: {})", addr.depth());
+        println!(
+            "  Primary address: m/44'/0'/2'/0/0 (depth: {})",
+            addr.depth()
+        );
         addr
     };
     println!();
@@ -90,9 +89,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let donations = wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 3)?;
         println!("  Path: m/44'/0'/3'");
         println!("  Purpose: Receive donations");
-        
+
         let addr = donations.derive_external(0)?;
-        println!("  Donation address: m/44'/0'/3'/0/0 (depth: {})", addr.depth());
+        println!(
+            "  Donation address: m/44'/0'/3'/0/0 (depth: {})",
+            addr.depth()
+        );
         addr
     };
     println!();
@@ -101,7 +103,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("--- Account Independence ---");
     let personal_addr = &personal_addrs[0];
     let business_addr = &business_addrs[0];
-    
+
     println!("  Personal address 0 and Business address 0 are different:");
     println!("    Same index, different accounts");
     println!("    Personal: depth {}", personal_addr.depth());
@@ -139,6 +141,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!();
 
     println!("=== Example Complete ===");
-    
+
     Ok(())
 }

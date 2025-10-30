@@ -251,13 +251,13 @@ mod tests {
     fn create_test_account() -> Account {
         let seed = [0u8; 64];
         let master_key = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
-        
+
         // Derive to account level: m/44'/0'/0'
         use khodpay_bip32::ChildNumber;
         let purpose_key = master_key.derive_child(ChildNumber::Hardened(44)).unwrap();
         let coin_key = purpose_key.derive_child(ChildNumber::Hardened(0)).unwrap();
         let account_key = coin_key.derive_child(ChildNumber::Hardened(0)).unwrap();
-        
+
         Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0)
     }
 
@@ -290,9 +290,7 @@ mod tests {
     #[test]
     fn test_iterator_take() {
         let account = create_test_account();
-        let addresses: Vec<_> = AddressIterator::new_external(&account)
-            .take(5)
-            .collect();
+        let addresses: Vec<_> = AddressIterator::new_external(&account).take(5).collect();
 
         assert_eq!(addresses.len(), 5);
         for addr in addresses {
@@ -306,7 +304,7 @@ mod tests {
         let mut iter = AddressIterator::new_external(&account).start_at(10);
 
         assert_eq!(iter.current_index(), 10);
-        
+
         let addr = iter.next().unwrap().unwrap();
         assert_eq!(addr.depth(), 5);
         assert_eq!(iter.current_index(), 11);
@@ -336,9 +334,7 @@ mod tests {
     #[test]
     fn test_iterator_internal_chain() {
         let account = create_test_account();
-        let addresses: Vec<_> = AddressIterator::new_internal(&account)
-            .take(3)
-            .collect();
+        let addresses: Vec<_> = AddressIterator::new_internal(&account).take(3).collect();
 
         assert_eq!(addresses.len(), 3);
         for addr in addresses {
@@ -361,9 +357,8 @@ mod tests {
     #[test]
     fn test_iterator_collect() {
         let account = create_test_account();
-        let addresses: Result<Vec<_>, _> = AddressIterator::new_external(&account)
-            .take(10)
-            .collect();
+        let addresses: Result<Vec<_>, _> =
+            AddressIterator::new_external(&account).take(10).collect();
 
         assert!(addresses.is_ok());
         assert_eq!(addresses.unwrap().len(), 10);
@@ -426,9 +421,7 @@ mod tests {
     #[test]
     fn test_iterator_large_range() {
         let account = create_test_account();
-        let addresses: Vec<_> = AddressIterator::new_external(&account)
-            .take(1000)
-            .collect();
+        let addresses: Vec<_> = AddressIterator::new_external(&account).take(1000).collect();
 
         assert_eq!(addresses.len(), 1000);
     }

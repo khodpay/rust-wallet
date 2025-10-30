@@ -189,9 +189,9 @@ impl WalletBuilder {
     /// ```
     pub fn build(self) -> Result<Wallet> {
         // Validate network is set
-        let network = self.network.ok_or_else(|| {
-            Error::InvalidSeed("Network must be specified".to_string())
-        })?;
+        let network = self
+            .network
+            .ok_or_else(|| Error::InvalidSeed("Network must be specified".to_string()))?;
 
         // Build from mnemonic or seed
         if let Some(mnemonic) = self.mnemonic {
@@ -219,7 +219,7 @@ mod tests {
     #[test]
     fn test_builder_from_mnemonic() {
         let mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
-        
+
         let wallet = WalletBuilder::new()
             .mnemonic(mnemonic)
             .network(Network::BitcoinMainnet)
@@ -232,7 +232,7 @@ mod tests {
     #[test]
     fn test_builder_from_seed() {
         let seed = [0u8; 64];
-        
+
         let wallet = WalletBuilder::new()
             .seed(&seed)
             .network(Network::BitcoinMainnet)
@@ -245,7 +245,7 @@ mod tests {
     #[test]
     fn test_builder_with_password() {
         let mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
-        
+
         let wallet = WalletBuilder::new()
             .mnemonic(mnemonic)
             .password("my-password")
@@ -259,7 +259,7 @@ mod tests {
     #[test]
     fn test_builder_with_language() {
         let mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
-        
+
         let wallet = WalletBuilder::new()
             .mnemonic(mnemonic)
             .language(Language::English)
@@ -273,7 +273,7 @@ mod tests {
     #[test]
     fn test_builder_testnet() {
         let seed = [0u8; 64];
-        
+
         let wallet = WalletBuilder::new()
             .seed(&seed)
             .network(Network::BitcoinTestnet)
@@ -286,10 +286,8 @@ mod tests {
     #[test]
     fn test_builder_no_network_error() {
         let seed = [0u8; 64];
-        
-        let result = WalletBuilder::new()
-            .seed(&seed)
-            .build();
+
+        let result = WalletBuilder::new().seed(&seed).build();
 
         assert!(result.is_err());
         match result {
@@ -318,7 +316,7 @@ mod tests {
     #[test]
     fn test_builder_fluent_api() {
         let mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
-        
+
         let wallet = WalletBuilder::new()
             .mnemonic(mnemonic)
             .password("")
@@ -333,7 +331,7 @@ mod tests {
     #[test]
     fn test_builder_default() {
         let builder = WalletBuilder::default();
-        
+
         // Should have default values
         assert_eq!(builder.password, "");
         assert!(matches!(builder.language, Language::English));
@@ -346,7 +344,7 @@ mod tests {
             .network(Network::BitcoinMainnet);
 
         let builder2 = builder1.clone();
-        
+
         let wallet1 = builder1.build().unwrap();
         let wallet2 = builder2.build().unwrap();
 
@@ -356,7 +354,7 @@ mod tests {
     #[test]
     fn test_builder_multiple_builds() {
         let seed = [0u8; 64];
-        
+
         let builder = WalletBuilder::new()
             .seed(&seed)
             .network(Network::BitcoinMainnet);
@@ -371,7 +369,7 @@ mod tests {
     #[test]
     fn test_builder_override_values() {
         let mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
-        
+
         // Override network
         let wallet = WalletBuilder::new()
             .mnemonic(mnemonic)
@@ -406,7 +404,7 @@ mod tests {
     #[test]
     fn test_builder_24_word_mnemonic() {
         let mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon art";
-        
+
         let wallet = WalletBuilder::new()
             .mnemonic(mnemonic)
             .network(Network::BitcoinMainnet)

@@ -7,8 +7,7 @@
 
 use khodpay_bip32::Network;
 use khodpay_bip44::{
-    AccountDiscovery, CoinType, GapLimitChecker, Language, Purpose, Wallet,
-    DEFAULT_GAP_LIMIT,
+    AccountDiscovery, CoinType, GapLimitChecker, Language, Purpose, Wallet, DEFAULT_GAP_LIMIT,
 };
 use std::collections::HashSet;
 
@@ -21,31 +20,27 @@ struct MockBlockchain {
 impl MockBlockchain {
     fn new_external() -> Self {
         let mut used = HashSet::new();
-        
+
         // Simulate that these addresses have been used
         // In reality, you'd check the blockchain
         used.insert(0);
         used.insert(1);
         used.insert(5);
         used.insert(10);
-        
-        Self {
-            used_indices: used,
-        }
+
+        Self { used_indices: used }
     }
-    
+
     fn new_internal() -> Self {
         let mut used = HashSet::new();
-        
+
         // Change addresses
         used.insert(0);
         used.insert(2);
-        
-        Self {
-            used_indices: used,
-        }
+
+        Self { used_indices: used }
     }
-    
+
     fn format_path(purpose: u32, coin: u32, account: u32, chain: u32, index: u32) -> String {
         format!("m/{}'/{}'/{}'/{}/{}", purpose, coin, account, chain, index)
     }
@@ -63,23 +58,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Create a wallet
     let mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
-    
-    let mut wallet = Wallet::from_mnemonic(
-        mnemonic,
-        "",
-        Language::English,
-        Network::BitcoinMainnet,
-    )?;
-    
+
+    let mut wallet =
+        Wallet::from_mnemonic(mnemonic, "", Language::English, Network::BitcoinMainnet)?;
+
     println!("Wallet created from mnemonic");
     println!("Gap limit: {} addresses\n", DEFAULT_GAP_LIMIT);
 
     // Get the first Bitcoin account
     let _account = wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 0)?;
-    
+
     // Create mock blockchains
     let external_blockchain = MockBlockchain::new_external();
-    
+
     println!("Simulated used external addresses:");
     for &index in &external_blockchain.used_indices {
         let path = MockBlockchain::format_path(44, 0, 0, 0, index);
@@ -89,16 +80,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Create gap limit checker
     let checker = GapLimitChecker::new(DEFAULT_GAP_LIMIT);
-    
+
     // Scan external chain (receiving addresses)
     println!("--- Scanning External Chain (Receiving) ---");
-    println!("Checking addresses with gap limit of {}...\n", DEFAULT_GAP_LIMIT);
-    
+    println!(
+        "Checking addresses with gap limit of {}...\n",
+        DEFAULT_GAP_LIMIT
+    );
+
     let external_last = checker.find_last_used_index(&external_blockchain, 0)?;
-    
+
     println!("External chain results:");
     println!("  Last used index: {:?}", external_last);
-    
+
     if let Some(last_used) = external_last {
         println!("  Used address indices:");
         for i in 0..=last_used {
@@ -115,16 +109,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Scan internal chain (change addresses)
     println!("--- Scanning Internal Chain (Change) ---");
-    println!("Checking addresses with gap limit of {}...\n", DEFAULT_GAP_LIMIT);
-    
+    println!(
+        "Checking addresses with gap limit of {}...\n",
+        DEFAULT_GAP_LIMIT
+    );
+
     // Create a new mock blockchain for internal chain
     let internal_blockchain = MockBlockchain::new_internal();
-    
+
     let internal_last = checker.find_last_used_index(&internal_blockchain, 0)?;
-    
+
     println!("Internal chain results:");
     println!("  Last used index: {:?}", internal_last);
-    
+
     if let Some(last_used) = internal_last {
         println!("  Used address indices:");
         for i in 0..=last_used {
@@ -141,11 +138,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Summary
     println!("--- Discovery Summary ---");
-    let total_used = external_blockchain.used_indices.len() + internal_blockchain.used_indices.len();
-    
+    let total_used =
+        external_blockchain.used_indices.len() + internal_blockchain.used_indices.len();
+
     println!("  Total used addresses: {}", total_used);
-    println!("  External used: {}", external_blockchain.used_indices.len());
-    println!("  Internal used: {}", internal_blockchain.used_indices.len());
+    println!(
+        "  External used: {}",
+        external_blockchain.used_indices.len()
+    );
+    println!(
+        "  Internal used: {}",
+        internal_blockchain.used_indices.len()
+    );
     println!();
 
     // Explain gap limit
@@ -157,7 +161,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("    1. Start scanning from address index 0");
     println!("    2. Check each address for transactions on the blockchain");
     println!("    3. Count consecutive unused addresses");
-    println!("    4. Stop when {} consecutive unused addresses are found", DEFAULT_GAP_LIMIT);
+    println!(
+        "    4. Stop when {} consecutive unused addresses are found",
+        DEFAULT_GAP_LIMIT
+    );
     println!();
     println!("  Why it matters:");
     println!("    - Ensures all used addresses are discovered");
@@ -180,6 +187,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!();
 
     println!("=== Example Complete ===");
-    
+
     Ok(())
 }
