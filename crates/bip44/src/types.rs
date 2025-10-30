@@ -275,7 +275,12 @@ mod tests {
 
     #[test]
     fn test_purpose_round_trip() {
-        for purpose in [Purpose::BIP44, Purpose::BIP49, Purpose::BIP84, Purpose::BIP86] {
+        for purpose in [
+            Purpose::BIP44,
+            Purpose::BIP49,
+            Purpose::BIP84,
+            Purpose::BIP86,
+        ] {
             let value: u32 = purpose.into();
             let parsed = Purpose::try_from(value).unwrap();
             assert_eq!(parsed, purpose);
@@ -1059,7 +1064,7 @@ mod cointype_tests {
         assert_eq!(CoinType::Bitcoin, CoinType::Bitcoin);
         assert_eq!(CoinType::Ethereum, CoinType::Ethereum);
         assert_ne!(CoinType::Bitcoin, CoinType::Ethereum);
-        
+
         assert_eq!(CoinType::Custom(100), CoinType::Custom(100));
         assert_ne!(CoinType::Custom(100), CoinType::Custom(101));
     }
@@ -1178,7 +1183,7 @@ mod cointype_tests {
     #[test]
     fn test_cointype_is_testnet() {
         assert!(CoinType::BitcoinTestnet.is_testnet());
-        
+
         assert!(!CoinType::Bitcoin.is_testnet());
         assert!(!CoinType::Ethereum.is_testnet());
         assert!(!CoinType::Litecoin.is_testnet());

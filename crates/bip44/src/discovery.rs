@@ -76,7 +76,10 @@ pub trait AccountDiscovery {
     /// # Errors
     ///
     /// Returns an error if the blockchain query fails.
-    fn is_address_used(&self, address_index: u32) -> std::result::Result<bool, Box<dyn std::error::Error>>;
+    fn is_address_used(
+        &self,
+        address_index: u32,
+    ) -> std::result::Result<bool, Box<dyn std::error::Error>>;
 }
 
 /// Gap limit checker for BIP-44 address discovery.
@@ -132,20 +135,6 @@ impl GapLimitChecker {
     /// ```
     pub fn new(gap_limit: u32) -> Self {
         Self { gap_limit }
-    }
-
-    /// Creates a new gap limit checker with the default BIP-44 limit (20).
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// use khodpay_bip44::{GapLimitChecker, DEFAULT_GAP_LIMIT};
-    ///
-    /// let checker = GapLimitChecker::default();
-    /// assert_eq!(checker.gap_limit(), DEFAULT_GAP_LIMIT);
-    /// ```
-    pub fn default() -> Self {
-        Self::new(DEFAULT_GAP_LIMIT)
     }
 
     /// Returns the configured gap limit.
@@ -322,6 +311,22 @@ impl GapLimitChecker {
     }
 }
 
+impl Default for GapLimitChecker {
+    /// Creates a new gap limit checker with the default BIP-44 limit (20).
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{GapLimitChecker, DEFAULT_GAP_LIMIT};
+    ///
+    /// let checker = GapLimitChecker::default();
+    /// assert_eq!(checker.gap_limit(), DEFAULT_GAP_LIMIT);
+    /// ```
+    fn default() -> Self {
+        Self::new(DEFAULT_GAP_LIMIT)
+    }
+}
+
 /// Result of scanning a single chain (external or internal).
 ///
 /// Contains information about used addresses found during scanning.
@@ -437,20 +442,6 @@ impl AccountScanner {
     /// ```
     pub fn new(checker: GapLimitChecker) -> Self {
         Self { checker }
-    }
-
-    /// Creates a new account scanner with the default gap limit (20).
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// use khodpay_bip44::{AccountScanner, DEFAULT_GAP_LIMIT};
-    ///
-    /// let scanner = AccountScanner::default();
-    /// assert_eq!(scanner.gap_limit(), DEFAULT_GAP_LIMIT);
-    /// ```
-    pub fn default() -> Self {
-        Self::new(GapLimitChecker::default())
     }
 
     /// Returns the gap limit used by this scanner.
@@ -603,6 +594,22 @@ impl AccountScanner {
         }
 
         Ok(results)
+    }
+}
+
+impl Default for AccountScanner {
+    /// Creates a new account scanner with the default gap limit (20).
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::{AccountScanner, DEFAULT_GAP_LIMIT};
+    ///
+    /// let scanner = AccountScanner::default();
+    /// assert_eq!(scanner.gap_limit(), DEFAULT_GAP_LIMIT);
+    /// ```
+    fn default() -> Self {
+        Self::new(GapLimitChecker::default())
     }
 }
 
@@ -773,7 +780,10 @@ impl MockBlockchain {
 }
 
 impl AccountDiscovery for MockBlockchain {
-    fn is_address_used(&self, address_index: u32) -> std::result::Result<bool, Box<dyn std::error::Error>> {
+    fn is_address_used(
+        &self,
+        address_index: u32,
+    ) -> std::result::Result<bool, Box<dyn std::error::Error>> {
         Ok(self.used_addresses.contains(&address_index))
     }
 }
@@ -807,7 +817,7 @@ mod tests {
 
         let checker = GapLimitChecker::new(20);
         let result = checker.find_last_used_index(&blockchain, 0).unwrap();
-        
+
         assert_eq!(result, None);
     }
 
@@ -819,7 +829,7 @@ mod tests {
 
         let checker = GapLimitChecker::new(20);
         let result = checker.find_last_used_index(&blockchain, 0).unwrap();
-        
+
         assert_eq!(result, Some(5));
     }
 
@@ -831,7 +841,7 @@ mod tests {
 
         let checker = GapLimitChecker::new(20);
         let result = checker.find_last_used_index(&blockchain, 0).unwrap();
-        
+
         assert_eq!(result, Some(10));
     }
 
@@ -843,7 +853,7 @@ mod tests {
 
         let checker = GapLimitChecker::new(20);
         let result = checker.find_last_used_index(&blockchain, 0).unwrap();
-        
+
         // Should stop at index 2 because there's a gap of 20+ after it
         assert_eq!(result, Some(2));
     }
@@ -856,7 +866,7 @@ mod tests {
 
         let checker = GapLimitChecker::new(5);
         let result = checker.find_last_used_index(&blockchain, 0).unwrap();
-        
+
         // With gap limit 5, should stop at index 2
         assert_eq!(result, Some(2));
     }
@@ -869,7 +879,7 @@ mod tests {
 
         let checker = GapLimitChecker::new(20);
         let result = checker.find_last_used_index(&blockchain, 0).unwrap();
-        
+
         assert_eq!(result, Some(9));
     }
 
@@ -881,7 +891,7 @@ mod tests {
 
         let checker = GapLimitChecker::new(20);
         let result = checker.find_last_used_index(&blockchain, 0).unwrap();
-        
+
         assert_eq!(result, Some(19));
     }
 
@@ -893,7 +903,7 @@ mod tests {
 
         let checker = GapLimitChecker::new(20);
         let result = checker.find_last_used_index(&blockchain, 10).unwrap();
-        
+
         assert_eq!(result, Some(20));
     }
 
@@ -905,7 +915,7 @@ mod tests {
 
         let checker = GapLimitChecker::new(20);
         let result = checker.find_last_used_index(&blockchain, 0).unwrap();
-        
+
         // Gap is exactly 20, should find address 20
         assert_eq!(result, Some(20));
     }
@@ -918,7 +928,7 @@ mod tests {
 
         let checker = GapLimitChecker::new(20);
         let result = checker.find_used_indices(&blockchain, 0).unwrap();
-        
+
         assert_eq!(result, Vec::<u32>::new());
     }
 
@@ -930,7 +940,7 @@ mod tests {
 
         let checker = GapLimitChecker::new(20);
         let result = checker.find_used_indices(&blockchain, 0).unwrap();
-        
+
         assert_eq!(result, vec![5]);
     }
 
@@ -942,7 +952,7 @@ mod tests {
 
         let checker = GapLimitChecker::new(20);
         let result = checker.find_used_indices(&blockchain, 0).unwrap();
-        
+
         assert_eq!(result, vec![0, 2, 5, 10]);
     }
 
@@ -954,7 +964,7 @@ mod tests {
 
         let checker = GapLimitChecker::new(20);
         let result = checker.find_used_indices(&blockchain, 0).unwrap();
-        
+
         // Should stop before reaching 30 due to gap limit
         assert_eq!(result, vec![0, 1, 2]);
     }
@@ -967,7 +977,7 @@ mod tests {
 
         let checker = GapLimitChecker::new(20);
         let result = checker.find_used_indices(&blockchain, 0).unwrap();
-        
+
         // Should return in ascending order
         assert_eq!(result, vec![0, 5, 10, 15]);
     }
@@ -976,8 +986,8 @@ mod tests {
     fn test_clone_and_copy() {
         let checker1 = GapLimitChecker::new(15);
         let checker2 = checker1;
-        let checker3 = checker1.clone();
-        
+        let checker3 = checker1;
+
         assert_eq!(checker1.gap_limit(), 15);
         assert_eq!(checker2.gap_limit(), 15);
         assert_eq!(checker3.gap_limit(), 15);
@@ -987,7 +997,7 @@ mod tests {
     fn test_debug_format() {
         let checker = GapLimitChecker::new(20);
         let debug_str = format!("{:?}", checker);
-        
+
         assert!(debug_str.contains("GapLimitChecker"));
         assert!(debug_str.contains("20"));
     }
@@ -1000,7 +1010,7 @@ mod tests {
 
         let checker = GapLimitChecker::new(1);
         let result = checker.find_last_used_index(&blockchain, 0).unwrap();
-        
+
         // Should stop immediately after first unused address
         assert_eq!(result, Some(0));
     }
@@ -1013,7 +1023,7 @@ mod tests {
 
         let checker = GapLimitChecker::new(100);
         let result = checker.find_last_used_index(&blockchain, 0).unwrap();
-        
+
         assert_eq!(result, Some(20));
     }
 
@@ -1022,28 +1032,28 @@ mod tests {
     fn test_account_scanner_new() {
         let checker = GapLimitChecker::new(15);
         let scanner = AccountScanner::new(checker);
-        
+
         assert_eq!(scanner.gap_limit(), 15);
     }
 
     #[test]
     fn test_account_scanner_default() {
         let scanner = AccountScanner::default();
-        
+
         assert_eq!(scanner.gap_limit(), DEFAULT_GAP_LIMIT);
     }
 
     #[test]
     fn test_scan_chain_empty() {
         use crate::Chain;
-        
+
         let blockchain = MockBlockchain {
             used_addresses: HashSet::new(),
         };
 
         let scanner = AccountScanner::new(GapLimitChecker::new(20));
         let result = scanner.scan_chain(&blockchain, Chain::External).unwrap();
-        
+
         assert_eq!(result.chain, Chain::External);
         assert_eq!(result.used_indices, Vec::<u32>::new());
         assert_eq!(result.last_used_index, None);
@@ -1052,14 +1062,14 @@ mod tests {
     #[test]
     fn test_scan_chain_with_addresses() {
         use crate::Chain;
-        
+
         let blockchain = MockBlockchain {
             used_addresses: [0, 2, 5, 10].iter().copied().collect(),
         };
 
         let scanner = AccountScanner::new(GapLimitChecker::new(20));
         let result = scanner.scan_chain(&blockchain, Chain::External).unwrap();
-        
+
         assert_eq!(result.chain, Chain::External);
         assert_eq!(result.used_indices, vec![0, 2, 5, 10]);
         assert_eq!(result.last_used_index, Some(10));
@@ -1068,14 +1078,14 @@ mod tests {
     #[test]
     fn test_scan_chain_internal() {
         use crate::Chain;
-        
+
         let blockchain = MockBlockchain {
             used_addresses: [0, 1].iter().copied().collect(),
         };
 
         let scanner = AccountScanner::new(GapLimitChecker::new(20));
         let result = scanner.scan_chain(&blockchain, Chain::Internal).unwrap();
-        
+
         assert_eq!(result.chain, Chain::Internal);
         assert_eq!(result.used_indices, vec![0, 1]);
         assert_eq!(result.last_used_index, Some(1));
@@ -1084,7 +1094,7 @@ mod tests {
     #[test]
     fn test_account_scan_result_is_used() {
         use crate::Chain;
-        
+
         let result = AccountScanResult {
             account_index: 0,
             external: ChainScanResult {
@@ -1098,14 +1108,14 @@ mod tests {
                 last_used_index: None,
             },
         };
-        
+
         assert!(result.is_used());
     }
 
     #[test]
     fn test_account_scan_result_not_used() {
         use crate::Chain;
-        
+
         let result = AccountScanResult {
             account_index: 0,
             external: ChainScanResult {
@@ -1119,14 +1129,14 @@ mod tests {
                 last_used_index: None,
             },
         };
-        
+
         assert!(!result.is_used());
     }
 
     #[test]
     fn test_account_scan_result_total_count() {
         use crate::Chain;
-        
+
         let result = AccountScanResult {
             account_index: 0,
             external: ChainScanResult {
@@ -1140,7 +1150,7 @@ mod tests {
                 last_used_index: Some(5),
             },
         };
-        
+
         assert_eq!(result.total_used_count(), 5);
     }
 
@@ -1155,7 +1165,7 @@ mod tests {
 
         let scanner = AccountScanner::new(GapLimitChecker::new(20));
         let accounts = scanner.discover_accounts(&external, &internal, 10).unwrap();
-        
+
         // Note: With the same discovery instance for all accounts, it will find
         // used addresses for all accounts up to max_accounts
         // In a real implementation, you'd have account-specific discovery instances
@@ -1175,7 +1185,7 @@ mod tests {
 
         let scanner = AccountScanner::new(GapLimitChecker::new(20));
         let accounts = scanner.discover_accounts(&external, &internal, 10).unwrap();
-        
+
         // Since we're using the same discovery for all accounts, it will find used addresses
         // The implementation scans until it finds an unused account
         assert!(!accounts.is_empty());
@@ -1192,7 +1202,7 @@ mod tests {
 
         let scanner = AccountScanner::new(GapLimitChecker::new(20));
         let accounts = scanner.discover_accounts(&external, &internal, 10).unwrap();
-        
+
         assert_eq!(accounts.len(), 0);
     }
 
@@ -1207,7 +1217,7 @@ mod tests {
 
         let scanner = AccountScanner::new(GapLimitChecker::new(20));
         let accounts = scanner.discover_accounts(&external, &internal, 3).unwrap();
-        
+
         // Should respect max_accounts limit
         assert!(accounts.len() <= 3);
     }
@@ -1215,26 +1225,26 @@ mod tests {
     #[test]
     fn test_chain_scan_result_equality() {
         use crate::Chain;
-        
+
         let result1 = ChainScanResult {
             chain: Chain::External,
             used_indices: vec![0, 1],
             last_used_index: Some(1),
         };
-        
+
         let result2 = ChainScanResult {
             chain: Chain::External,
             used_indices: vec![0, 1],
             last_used_index: Some(1),
         };
-        
+
         assert_eq!(result1, result2);
     }
 
     #[test]
     fn test_account_scan_result_clone() {
         use crate::Chain;
-        
+
         let result = AccountScanResult {
             account_index: 0,
             external: ChainScanResult {
@@ -1248,7 +1258,7 @@ mod tests {
                 last_used_index: None,
             },
         };
-        
+
         let cloned = result.clone();
         assert_eq!(result, cloned);
     }
@@ -1257,14 +1267,14 @@ mod tests {
     fn test_account_scanner_clone() {
         let scanner1 = AccountScanner::new(GapLimitChecker::new(10));
         let scanner2 = scanner1;
-        
+
         assert_eq!(scanner1.gap_limit(), scanner2.gap_limit());
     }
 
     #[test]
     fn test_account_scan_result_debug() {
         use crate::Chain;
-        
+
         let result = AccountScanResult {
             account_index: 0,
             external: ChainScanResult {
@@ -1278,7 +1288,7 @@ mod tests {
                 last_used_index: None,
             },
         };
-        
+
         let debug_str = format!("{:?}", result);
         assert!(debug_str.contains("AccountScanResult"));
     }
@@ -1300,7 +1310,7 @@ mod tests {
     #[test]
     fn test_mock_blockchain_with_used_addresses() {
         let blockchain = MockBlockchain::with_used_addresses(&[0, 2, 5, 10]);
-        
+
         assert_eq!(blockchain.used_count(), 4);
         assert!(blockchain.is_address_used(0).unwrap());
         assert!(!blockchain.is_address_used(1).unwrap());
@@ -1311,7 +1321,7 @@ mod tests {
     #[test]
     fn test_mock_blockchain_mark_used() {
         let mut blockchain = MockBlockchain::new();
-        
+
         blockchain.mark_used(5);
         assert!(blockchain.is_address_used(5).unwrap());
         assert_eq!(blockchain.used_count(), 1);
@@ -1320,19 +1330,19 @@ mod tests {
     #[test]
     fn test_mock_blockchain_mark_used_duplicate() {
         let mut blockchain = MockBlockchain::new();
-        
+
         blockchain.mark_used(5);
         blockchain.mark_used(5);
-        
+
         assert_eq!(blockchain.used_count(), 1);
     }
 
     #[test]
     fn test_mock_blockchain_mark_used_batch() {
         let mut blockchain = MockBlockchain::new();
-        
+
         blockchain.mark_used_batch(&[0, 1, 2, 5, 10]);
-        
+
         assert_eq!(blockchain.used_count(), 5);
         assert!(blockchain.is_address_used(0).unwrap());
         assert!(blockchain.is_address_used(10).unwrap());
@@ -1341,9 +1351,9 @@ mod tests {
     #[test]
     fn test_mock_blockchain_mark_unused() {
         let mut blockchain = MockBlockchain::with_used_addresses(&[0, 1, 2]);
-        
+
         blockchain.mark_unused(1);
-        
+
         assert!(!blockchain.is_address_used(1).unwrap());
         assert_eq!(blockchain.used_count(), 2);
     }
@@ -1351,16 +1361,16 @@ mod tests {
     #[test]
     fn test_mock_blockchain_mark_unused_not_present() {
         let mut blockchain = MockBlockchain::with_used_addresses(&[0, 1]);
-        
+
         blockchain.mark_unused(5);
-        
+
         assert_eq!(blockchain.used_count(), 2);
     }
 
     #[test]
     fn test_mock_blockchain_get_used_addresses() {
         let blockchain = MockBlockchain::with_used_addresses(&[10, 5, 0, 2]);
-        
+
         let used = blockchain.get_used_addresses();
         assert_eq!(used, vec![0, 2, 5, 10]);
     }
@@ -1368,7 +1378,7 @@ mod tests {
     #[test]
     fn test_mock_blockchain_get_used_addresses_empty() {
         let blockchain = MockBlockchain::new();
-        
+
         let used = blockchain.get_used_addresses();
         assert_eq!(used, Vec::<u32>::new());
     }
@@ -1376,11 +1386,11 @@ mod tests {
     #[test]
     fn test_mock_blockchain_clear() {
         let mut blockchain = MockBlockchain::with_used_addresses(&[0, 1, 2, 5]);
-        
+
         assert_eq!(blockchain.used_count(), 4);
-        
+
         blockchain.clear();
-        
+
         assert_eq!(blockchain.used_count(), 0);
         assert!(blockchain.is_empty());
     }
@@ -1389,7 +1399,7 @@ mod tests {
     fn test_mock_blockchain_is_empty() {
         let empty = MockBlockchain::new();
         assert!(empty.is_empty());
-        
+
         let not_empty = MockBlockchain::with_used_addresses(&[0]);
         assert!(!not_empty.is_empty());
     }
@@ -1398,23 +1408,26 @@ mod tests {
     fn test_mock_blockchain_clone() {
         let blockchain1 = MockBlockchain::with_used_addresses(&[0, 1, 2]);
         let blockchain2 = blockchain1.clone();
-        
+
         assert_eq!(blockchain1.used_count(), blockchain2.used_count());
-        assert_eq!(blockchain1.get_used_addresses(), blockchain2.get_used_addresses());
+        assert_eq!(
+            blockchain1.get_used_addresses(),
+            blockchain2.get_used_addresses()
+        );
     }
 
     #[test]
     fn test_mock_blockchain_debug() {
         let blockchain = MockBlockchain::with_used_addresses(&[0, 1]);
         let debug_str = format!("{:?}", blockchain);
-        
+
         assert!(debug_str.contains("MockBlockchain"));
     }
 
     #[test]
     fn test_mock_blockchain_account_discovery_trait() {
         let blockchain = MockBlockchain::with_used_addresses(&[0, 5, 10]);
-        
+
         // Test via trait
         assert!(blockchain.is_address_used(0).unwrap());
         assert!(!blockchain.is_address_used(1).unwrap());
@@ -1425,10 +1438,10 @@ mod tests {
     fn test_mock_blockchain_with_gap_limit_checker() {
         let blockchain = MockBlockchain::with_used_addresses(&[0, 2, 5]);
         let checker = GapLimitChecker::new(20);
-        
+
         let last_used = checker.find_last_used_index(&blockchain, 0).unwrap();
         assert_eq!(last_used, Some(5));
-        
+
         let used_indices = checker.find_used_indices(&blockchain, 0).unwrap();
         assert_eq!(used_indices, vec![0, 2, 5]);
     }
@@ -1436,12 +1449,12 @@ mod tests {
     #[test]
     fn test_mock_blockchain_with_scanner() {
         use crate::Chain;
-        
+
         let blockchain = MockBlockchain::with_used_addresses(&[0, 1, 5, 10]);
         let scanner = AccountScanner::new(GapLimitChecker::new(20));
-        
+
         let result = scanner.scan_chain(&blockchain, Chain::External).unwrap();
-        
+
         assert_eq!(result.used_indices, vec![0, 1, 5, 10]);
         assert_eq!(result.last_used_index, Some(10));
     }
@@ -1449,20 +1462,20 @@ mod tests {
     #[test]
     fn test_mock_blockchain_mutability() {
         let mut blockchain = MockBlockchain::new();
-        
+
         // Add some addresses
         blockchain.mark_used(0);
         blockchain.mark_used(1);
         assert_eq!(blockchain.used_count(), 2);
-        
+
         // Remove one
         blockchain.mark_unused(0);
         assert_eq!(blockchain.used_count(), 1);
-        
+
         // Add batch
         blockchain.mark_used_batch(&[5, 10, 15]);
         assert_eq!(blockchain.used_count(), 4);
-        
+
         // Clear all
         blockchain.clear();
         assert_eq!(blockchain.used_count(), 0);
@@ -1471,15 +1484,14 @@ mod tests {
     #[test]
     fn test_mock_blockchain_large_indices() {
         let mut blockchain = MockBlockchain::new();
-        
+
         blockchain.mark_used(1000);
         blockchain.mark_used(10000);
         blockchain.mark_used(100000);
-        
+
         assert!(blockchain.is_address_used(1000).unwrap());
         assert!(blockchain.is_address_used(10000).unwrap());
         assert!(blockchain.is_address_used(100000).unwrap());
         assert_eq!(blockchain.used_count(), 3);
     }
 }
-

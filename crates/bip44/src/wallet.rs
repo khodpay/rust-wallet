@@ -80,15 +80,21 @@ impl Wallet {
     ///
     /// assert_eq!(wallet.network(), Network::BitcoinMainnet);
     /// ```
-    pub fn from_mnemonic(mnemonic: &str, password: &str, language: Language, network: Network) -> Result<Self> {
+    pub fn from_mnemonic(
+        mnemonic: &str,
+        password: &str,
+        language: Language,
+        network: Network,
+    ) -> Result<Self> {
         // Parse the mnemonic using khodpay-bip39
         let mnemonic = Mnemonic::from_phrase(mnemonic, language)
             .map_err(|e| Error::InvalidMnemonic(format!("Failed to parse mnemonic: {}", e)))?;
-        
+
         // Convert to seed using BIP39
-        let seed = mnemonic.to_seed(password)
+        let seed = mnemonic
+            .to_seed(password)
             .map_err(|e| Error::InvalidMnemonic(format!("Failed to generate seed: {}", e)))?;
-        
+
         // Create wallet from seed
         Self::from_seed(&seed, network)
     }
@@ -237,16 +243,22 @@ impl Wallet {
         coin_type: CoinType,
         account_index: u32,
     ) -> Result<&Account> {
-        let cache_key = format!("{}-{}-{}", purpose.value(), coin_type.index(), account_index);
+        let cache_key = format!(
+            "{}-{}-{}",
+            purpose.value(),
+            coin_type.index(),
+            account_index
+        );
 
         // Check if account is already cached
         if !self.account_cache.contains_key(&cache_key) {
             // Derive the account key
             let account_key = self.derive_account_key(purpose, coin_type, account_index)?;
-            
+
             // Create Account instance
-            let account = Account::from_extended_key(account_key, purpose, coin_type, account_index);
-            
+            let account =
+                Account::from_extended_key(account_key, purpose, coin_type, account_index);
+
             // Cache it
             self.account_cache.insert(cache_key.clone(), account);
         }
@@ -279,7 +291,8 @@ impl Wallet {
         account_index: u32,
     ) -> Result<ExtendedPrivateKey> {
         // Derive m/purpose'
-        let purpose_key = self.master_key
+        let purpose_key = self
+            .master_key
             .derive_child(ChildNumber::Hardened(purpose.value()))
             .map_err(|e| Error::KeyDerivation(format!("Failed to derive purpose key: {}", e)))?;
 
@@ -365,7 +378,7 @@ mod tests {
 
         assert!(result.is_err());
         match result {
-            Err(Error::InvalidSeed(_)) => {},
+            Err(Error::InvalidSeed(_)) => {}
             _ => panic!("Expected InvalidSeed error"),
         }
     }
@@ -373,7 +386,7 @@ mod tests {
     #[test]
     fn test_wallet_from_seed_different_networks() {
         let seed = [0u8; 64];
-        
+
         let mainnet = Wallet::from_seed(&seed, Network::BitcoinMainnet).unwrap();
         let testnet = Wallet::from_seed(&seed, Network::BitcoinTestnet).unwrap();
 
@@ -394,7 +407,9 @@ mod tests {
     #[test]
     fn test_wallet_from_mnemonic_12_words() {
         let mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
-        let wallet = Wallet::from_mnemonic(mnemonic, "", Language::English, Network::BitcoinMainnet).unwrap();
+        let wallet =
+            Wallet::from_mnemonic(mnemonic, "", Language::English, Network::BitcoinMainnet)
+                .unwrap();
 
         assert_eq!(wallet.network(), Network::BitcoinMainnet);
     }
@@ -410,7 +425,13 @@ mod tests {
     #[test]
     fn test_wallet_from_mnemonic_with_password() {
         let mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
-        let wallet = Wallet::from_mnemonic(mnemonic, "password123", Language::English, Network::BitcoinMainnet).unwrap();
+        let wallet = Wallet::from_mnemonic(
+            mnemonic,
+            "password123",
+            Language::English,
+            Network::BitcoinMainnet,
+        )
+        .unwrap();
 
         assert_eq!(wallet.network(), Network::BitcoinMainnet);
     }
@@ -421,7 +442,7 @@ mod tests {
 
         assert!(result.is_err());
         match result {
-            Err(Error::InvalidMnemonic(_)) => {},
+            Err(Error::InvalidMnemonic(_)) => {}
             _ => panic!("Expected InvalidMnemonic error"),
         }
     }
@@ -429,14 +450,15 @@ mod tests {
     #[test]
     fn test_wallet_from_mnemonic_invalid_word_count() {
         let mnemonic = "abandon abandon abandon";
-        let result = Wallet::from_mnemonic(mnemonic, "", Language::English, Network::BitcoinMainnet);
+        let result =
+            Wallet::from_mnemonic(mnemonic, "", Language::English, Network::BitcoinMainnet);
 
         assert!(result.is_err());
         match result {
             Err(Error::InvalidMnemonic(msg)) => {
                 // BIP39 crate will reject this due to invalid word count or checksum
                 assert!(msg.contains("Failed to parse mnemonic"));
-            },
+            }
             _ => panic!("Expected InvalidMnemonic error"),
         }
     }
@@ -444,7 +466,9 @@ mod tests {
     #[test]
     fn test_wallet_from_mnemonic_24_words() {
         let mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon art";
-        let wallet = Wallet::from_mnemonic(mnemonic, "", Language::English, Network::BitcoinMainnet).unwrap();
+        let wallet =
+            Wallet::from_mnemonic(mnemonic, "", Language::English, Network::BitcoinMainnet)
+                .unwrap();
 
         assert_eq!(wallet.network(), Network::BitcoinMainnet);
     }
@@ -463,7 +487,7 @@ mod tests {
     fn test_wallet_debug() {
         let seed = [0u8; 64];
         let wallet = Wallet::from_seed(&seed, Network::BitcoinMainnet).unwrap();
-        
+
         let debug_str = format!("{:?}", wallet);
         assert!(debug_str.contains("Wallet"));
     }
@@ -472,34 +496,48 @@ mod tests {
     fn test_wallet_different_seeds_different_keys() {
         let seed1 = [0u8; 64];
         let seed2 = [1u8; 64];
-        
+
         let wallet1 = Wallet::from_seed(&seed1, Network::BitcoinMainnet).unwrap();
         let wallet2 = Wallet::from_seed(&seed2, Network::BitcoinMainnet).unwrap();
 
         // Keys should be different - compare depths and networks at minimum
         assert_eq!(wallet1.master_key().depth(), wallet2.master_key().depth());
-        assert_eq!(wallet1.master_key().network(), wallet2.master_key().network());
+        assert_eq!(
+            wallet1.master_key().network(),
+            wallet2.master_key().network()
+        );
         // Different seeds should produce different wallets (we can't directly compare keys due to redaction)
     }
 
     #[test]
     fn test_wallet_same_seed_same_keys() {
         let seed = [0u8; 64];
-        
+
         let wallet1 = Wallet::from_seed(&seed, Network::BitcoinMainnet).unwrap();
         let wallet2 = Wallet::from_seed(&seed, Network::BitcoinMainnet).unwrap();
 
         // Keys should be the same - verify properties match
         assert_eq!(wallet1.master_key().depth(), wallet2.master_key().depth());
-        assert_eq!(wallet1.master_key().network(), wallet2.master_key().network());
+        assert_eq!(
+            wallet1.master_key().network(),
+            wallet2.master_key().network()
+        );
     }
 
     #[test]
     fn test_mnemonic_different_passwords_different_seeds() {
         let mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
-        
-        let wallet1 = Wallet::from_mnemonic(mnemonic, "", Language::English, Network::BitcoinMainnet).unwrap();
-        let wallet2 = Wallet::from_mnemonic(mnemonic, "password", Language::English, Network::BitcoinMainnet).unwrap();
+
+        let wallet1 =
+            Wallet::from_mnemonic(mnemonic, "", Language::English, Network::BitcoinMainnet)
+                .unwrap();
+        let wallet2 = Wallet::from_mnemonic(
+            mnemonic,
+            "password",
+            Language::English,
+            Network::BitcoinMainnet,
+        )
+        .unwrap();
 
         // Both should create valid wallets
         assert_eq!(wallet1.network(), Network::BitcoinMainnet);
@@ -511,8 +549,13 @@ mod tests {
     fn test_wallet_from_mnemonic_different_language() {
         // Test that language parameter is used - English mnemonic with Spanish language should fail
         let english_mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
-        let result = Wallet::from_mnemonic(english_mnemonic, "", Language::Spanish, Network::BitcoinMainnet);
-        
+        let result = Wallet::from_mnemonic(
+            english_mnemonic,
+            "",
+            Language::Spanish,
+            Network::BitcoinMainnet,
+        );
+
         // This should fail because English words aren't in Spanish wordlist
         assert!(result.is_err());
     }
@@ -523,8 +566,10 @@ mod tests {
         let seed = [0u8; 64];
         let mut wallet = Wallet::from_seed(&seed, Network::BitcoinMainnet).unwrap();
 
-        let account = wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 0).unwrap();
-        
+        let account = wallet
+            .get_account(Purpose::BIP44, CoinType::Bitcoin, 0)
+            .unwrap();
+
         assert_eq!(account.purpose(), Purpose::BIP44);
         assert_eq!(account.coin_type(), CoinType::Bitcoin);
         assert_eq!(account.account_index(), 0);
@@ -535,8 +580,10 @@ mod tests {
         let seed = [0u8; 64];
         let mut wallet = Wallet::from_seed(&seed, Network::BitcoinMainnet).unwrap();
 
-        let account = wallet.get_account(Purpose::BIP44, CoinType::Ethereum, 0).unwrap();
-        
+        let account = wallet
+            .get_account(Purpose::BIP44, CoinType::Ethereum, 0)
+            .unwrap();
+
         assert_eq!(account.purpose(), Purpose::BIP44);
         assert_eq!(account.coin_type(), CoinType::Ethereum);
         assert_eq!(account.account_index(), 0);
@@ -548,15 +595,19 @@ mod tests {
         let mut wallet = Wallet::from_seed(&seed, Network::BitcoinMainnet).unwrap();
 
         {
-            let btc_account = wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 0).unwrap();
+            let btc_account = wallet
+                .get_account(Purpose::BIP44, CoinType::Bitcoin, 0)
+                .unwrap();
             assert_eq!(btc_account.coin_type(), CoinType::Bitcoin);
         }
-        
+
         {
-            let eth_account = wallet.get_account(Purpose::BIP44, CoinType::Ethereum, 0).unwrap();
+            let eth_account = wallet
+                .get_account(Purpose::BIP44, CoinType::Ethereum, 0)
+                .unwrap();
             assert_eq!(eth_account.coin_type(), CoinType::Ethereum);
         }
-        
+
         assert_eq!(wallet.cached_account_count(), 2);
     }
 
@@ -566,20 +617,26 @@ mod tests {
         let mut wallet = Wallet::from_seed(&seed, Network::BitcoinMainnet).unwrap();
 
         {
-            let account0 = wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 0).unwrap();
+            let account0 = wallet
+                .get_account(Purpose::BIP44, CoinType::Bitcoin, 0)
+                .unwrap();
             assert_eq!(account0.account_index(), 0);
         }
-        
+
         {
-            let account1 = wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 1).unwrap();
+            let account1 = wallet
+                .get_account(Purpose::BIP44, CoinType::Bitcoin, 1)
+                .unwrap();
             assert_eq!(account1.account_index(), 1);
         }
-        
+
         {
-            let account2 = wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 2).unwrap();
+            let account2 = wallet
+                .get_account(Purpose::BIP44, CoinType::Bitcoin, 2)
+                .unwrap();
             assert_eq!(account2.account_index(), 2);
         }
-        
+
         assert_eq!(wallet.cached_account_count(), 3);
     }
 
@@ -591,14 +648,18 @@ mod tests {
         // First call - should derive
         assert_eq!(wallet.cached_account_count(), 0);
         {
-            let account1 = wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 0).unwrap();
+            let account1 = wallet
+                .get_account(Purpose::BIP44, CoinType::Bitcoin, 0)
+                .unwrap();
             assert_eq!(account1.account_index(), 0);
         }
         assert_eq!(wallet.cached_account_count(), 1);
 
         // Second call - should return cached
         {
-            let account2 = wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 0).unwrap();
+            let account2 = wallet
+                .get_account(Purpose::BIP44, CoinType::Bitcoin, 0)
+                .unwrap();
             assert_eq!(account2.account_index(), 0);
         }
         assert_eq!(wallet.cached_account_count(), 1);
@@ -610,20 +671,26 @@ mod tests {
         let mut wallet = Wallet::from_seed(&seed, Network::BitcoinMainnet).unwrap();
 
         {
-            let bip44_account = wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 0).unwrap();
+            let bip44_account = wallet
+                .get_account(Purpose::BIP44, CoinType::Bitcoin, 0)
+                .unwrap();
             assert_eq!(bip44_account.purpose(), Purpose::BIP44);
         }
-        
+
         {
-            let bip49_account = wallet.get_account(Purpose::BIP49, CoinType::Bitcoin, 0).unwrap();
+            let bip49_account = wallet
+                .get_account(Purpose::BIP49, CoinType::Bitcoin, 0)
+                .unwrap();
             assert_eq!(bip49_account.purpose(), Purpose::BIP49);
         }
-        
+
         {
-            let bip84_account = wallet.get_account(Purpose::BIP84, CoinType::Bitcoin, 0).unwrap();
+            let bip84_account = wallet
+                .get_account(Purpose::BIP84, CoinType::Bitcoin, 0)
+                .unwrap();
             assert_eq!(bip84_account.purpose(), Purpose::BIP84);
         }
-        
+
         assert_eq!(wallet.cached_account_count(), 3);
     }
 
@@ -632,8 +699,12 @@ mod tests {
         let seed = [0u8; 64];
         let mut wallet = Wallet::from_seed(&seed, Network::BitcoinMainnet).unwrap();
 
-        wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 0).unwrap();
-        wallet.get_account(Purpose::BIP44, CoinType::Ethereum, 0).unwrap();
+        wallet
+            .get_account(Purpose::BIP44, CoinType::Bitcoin, 0)
+            .unwrap();
+        wallet
+            .get_account(Purpose::BIP44, CoinType::Ethereum, 0)
+            .unwrap();
         assert_eq!(wallet.cached_account_count(), 2);
 
         wallet.clear_cache();
@@ -646,14 +717,20 @@ mod tests {
         let mut wallet = Wallet::from_seed(&seed, Network::BitcoinMainnet).unwrap();
 
         assert_eq!(wallet.cached_account_count(), 0);
-        
-        wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 0).unwrap();
+
+        wallet
+            .get_account(Purpose::BIP44, CoinType::Bitcoin, 0)
+            .unwrap();
         assert_eq!(wallet.cached_account_count(), 1);
-        
-        wallet.get_account(Purpose::BIP44, CoinType::Ethereum, 0).unwrap();
+
+        wallet
+            .get_account(Purpose::BIP44, CoinType::Ethereum, 0)
+            .unwrap();
         assert_eq!(wallet.cached_account_count(), 2);
-        
-        wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 1).unwrap();
+
+        wallet
+            .get_account(Purpose::BIP44, CoinType::Bitcoin, 1)
+            .unwrap();
         assert_eq!(wallet.cached_account_count(), 3);
     }
 
@@ -662,12 +739,14 @@ mod tests {
         let seed = [0u8; 64];
         let mut wallet = Wallet::from_seed(&seed, Network::BitcoinMainnet).unwrap();
 
-        let account = wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 0).unwrap();
-        
+        let account = wallet
+            .get_account(Purpose::BIP44, CoinType::Bitcoin, 0)
+            .unwrap();
+
         // Derive some addresses to verify the account works
         let addr0 = account.derive_external(0).unwrap();
         let addr1 = account.derive_external(1).unwrap();
-        
+
         assert_eq!(addr0.depth(), 5);
         assert_eq!(addr1.depth(), 5);
     }
@@ -677,7 +756,9 @@ mod tests {
         let seed = [0u8; 64];
         let mut wallet1 = Wallet::from_seed(&seed, Network::BitcoinMainnet).unwrap();
 
-        wallet1.get_account(Purpose::BIP44, CoinType::Bitcoin, 0).unwrap();
+        wallet1
+            .get_account(Purpose::BIP44, CoinType::Bitcoin, 0)
+            .unwrap();
         assert_eq!(wallet1.cached_account_count(), 1);
 
         let wallet2 = wallet1.clone();
@@ -689,8 +770,10 @@ mod tests {
         let seed = [0u8; 64];
         let mut wallet = Wallet::from_seed(&seed, Network::BitcoinMainnet).unwrap();
 
-        let account = wallet.get_account(Purpose::BIP44, CoinType::Litecoin, 0).unwrap();
-        
+        let account = wallet
+            .get_account(Purpose::BIP44, CoinType::Litecoin, 0)
+            .unwrap();
+
         assert_eq!(account.coin_type(), CoinType::Litecoin);
     }
 
@@ -699,8 +782,10 @@ mod tests {
         let seed = [0u8; 64];
         let mut wallet = Wallet::from_seed(&seed, Network::BitcoinTestnet).unwrap();
 
-        let account = wallet.get_account(Purpose::BIP44, CoinType::BitcoinTestnet, 0).unwrap();
-        
+        let account = wallet
+            .get_account(Purpose::BIP44, CoinType::BitcoinTestnet, 0)
+            .unwrap();
+
         assert_eq!(account.coin_type(), CoinType::BitcoinTestnet);
         assert_eq!(account.network(), Network::BitcoinTestnet);
     }

@@ -10,12 +10,12 @@
 //!
 //! let seed = [0u8; 64];
 //! let master_key = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
-//! 
+//!
 //! // Derive to account level
 //! let purpose_key = master_key.derive_child(ChildNumber::Hardened(44)).unwrap();
 //! let coin_key = purpose_key.derive_child(ChildNumber::Hardened(0)).unwrap();
 //! let account_key = coin_key.derive_child(ChildNumber::Hardened(0)).unwrap();
-//! 
+//!
 //! let account = Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 //! let derived = DerivedAddress::new(&account, Chain::External, 0).unwrap();
 //!
@@ -39,12 +39,12 @@ use khodpay_bip32::ExtendedPrivateKey;
 ///
 /// let seed = [0u8; 64];
 /// let master_key = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
-/// 
+///
 /// // Derive to account level
 /// let purpose_key = master_key.derive_child(ChildNumber::Hardened(44)).unwrap();
 /// let coin_key = purpose_key.derive_child(ChildNumber::Hardened(0)).unwrap();
 /// let account_key = coin_key.derive_child(ChildNumber::Hardened(0)).unwrap();
-/// 
+///
 /// let account = Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 /// let derived = DerivedAddress::new(&account, Chain::External, 0).unwrap();
 ///
@@ -87,11 +87,11 @@ impl DerivedAddress {
     ///
     /// let seed = [0u8; 64];
     /// let master_key = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
-    /// 
+    ///
     /// let purpose_key = master_key.derive_child(ChildNumber::Hardened(44)).unwrap();
     /// let coin_key = purpose_key.derive_child(ChildNumber::Hardened(0)).unwrap();
     /// let account_key = coin_key.derive_child(ChildNumber::Hardened(0)).unwrap();
-    /// 
+    ///
     /// let account = Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
     /// let derived = DerivedAddress::new(&account, Chain::External, 5).unwrap();
     ///
@@ -354,12 +354,12 @@ mod tests {
     fn create_test_account() -> Account {
         let seed = [0u8; 64];
         let master_key = ExtendedPrivateKey::from_seed(&seed, Network::BitcoinMainnet).unwrap();
-        
+
         // Derive to account level: m/44'/0'/0'
         let purpose_key = master_key.derive_child(ChildNumber::Hardened(44)).unwrap();
         let coin_key = purpose_key.derive_child(ChildNumber::Hardened(0)).unwrap();
         let account_key = coin_key.derive_child(ChildNumber::Hardened(0)).unwrap();
-        
+
         Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0)
     }
 
@@ -444,7 +444,7 @@ mod tests {
     #[test]
     fn test_derived_address_multiple_indices() {
         let account = create_test_account();
-        
+
         let addr0 = DerivedAddress::new(&account, Chain::External, 0).unwrap();
         let addr1 = DerivedAddress::new(&account, Chain::External, 1).unwrap();
         let addr2 = DerivedAddress::new(&account, Chain::External, 2).unwrap();
@@ -457,7 +457,7 @@ mod tests {
     #[test]
     fn test_derived_address_both_chains() {
         let account = create_test_account();
-        
+
         let external = DerivedAddress::new(&account, Chain::External, 0).unwrap();
         let internal = DerivedAddress::new(&account, Chain::Internal, 0).unwrap();
 

@@ -283,10 +283,10 @@ impl Account {
 
         // Derive chain 0 (external)
         let chain_key = self.extended_key.derive_child(ChildNumber::Normal(0))?;
-        
+
         // Derive address index
         let address_key = chain_key.derive_child(ChildNumber::Normal(address_index))?;
-        
+
         Ok(address_key)
     }
 
@@ -324,10 +324,10 @@ impl Account {
 
         // Derive chain 1 (internal)
         let chain_key = self.extended_key.derive_child(ChildNumber::Normal(1))?;
-        
+
         // Derive address index
         let address_key = chain_key.derive_child(ChildNumber::Normal(address_index))?;
-        
+
         Ok(address_key)
     }
 
@@ -360,7 +360,11 @@ impl Account {
     /// // Derive internal address
     /// let internal_key = account.derive_address(Chain::Internal, 0).unwrap();
     /// ```
-    pub fn derive_address(&self, chain: crate::Chain, address_index: u32) -> Result<ExtendedPrivateKey> {
+    pub fn derive_address(
+        &self,
+        chain: crate::Chain,
+        address_index: u32,
+    ) -> Result<ExtendedPrivateKey> {
         match chain {
             crate::Chain::External => self.derive_external(address_index),
             crate::Chain::Internal => self.derive_internal(address_index),
@@ -403,13 +407,13 @@ impl Account {
         count: u32,
     ) -> Result<Vec<ExtendedPrivateKey>> {
         let mut keys = Vec::with_capacity(count as usize);
-        
+
         for i in 0..count {
             let index = start_index.saturating_add(i);
             let key = self.derive_address(chain, index)?;
             keys.push(key);
         }
-        
+
         Ok(keys)
     }
 }
@@ -424,29 +428,33 @@ mod tests {
         ExtendedPrivateKey::from_seed(&seed_bytes, Network::BitcoinMainnet).unwrap()
     }
 
-    fn create_test_account_key(purpose: Purpose, coin_type: CoinType, account_index: u32, network: Network) -> ExtendedPrivateKey {
+    fn create_test_account_key(
+        purpose: Purpose,
+        coin_type: CoinType,
+        account_index: u32,
+        network: Network,
+    ) -> ExtendedPrivateKey {
         use khodpay_bip32::ChildNumber;
-        
+
         let seed_bytes = [0u8; 64];
         let master = ExtendedPrivateKey::from_seed(&seed_bytes, network).unwrap();
-        
+
         // Derive to account level: m/purpose'/coin_type'/account'
-        let purpose_key = master.derive_child(ChildNumber::Hardened(purpose.value())).unwrap();
-        let coin_key = purpose_key.derive_child(ChildNumber::Hardened(coin_type.index())).unwrap();
-        let account_key = coin_key.derive_child(ChildNumber::Hardened(account_index)).unwrap();
-        
-        account_key
+        let purpose_key = master
+            .derive_child(ChildNumber::Hardened(purpose.value()))
+            .unwrap();
+        let coin_key = purpose_key
+            .derive_child(ChildNumber::Hardened(coin_type.index()))
+            .unwrap();
+        coin_key
+            .derive_child(ChildNumber::Hardened(account_index))
+            .unwrap()
     }
 
     #[test]
     fn test_from_extended_key() {
         let master_key = create_test_master_key();
-        let account = Account::from_extended_key(
-            master_key,
-            Purpose::BIP44,
-            CoinType::Bitcoin,
-            0,
-        );
+        let account = Account::from_extended_key(master_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 
         assert_eq!(account.purpose(), Purpose::BIP44);
         assert_eq!(account.coin_type(), CoinType::Bitcoin);
@@ -456,14 +464,15 @@ mod tests {
     #[test]
     fn test_purpose_getter() {
         let master_key = create_test_master_key();
-        
-        for purpose in [Purpose::BIP44, Purpose::BIP49, Purpose::BIP84, Purpose::BIP86] {
-            let account = Account::from_extended_key(
-                master_key.clone(),
-                purpose,
-                CoinType::Bitcoin,
-                0,
-            );
+
+        for purpose in [
+            Purpose::BIP44,
+            Purpose::BIP49,
+            Purpose::BIP84,
+            Purpose::BIP86,
+        ] {
+            let account =
+                Account::from_extended_key(master_key.clone(), purpose, CoinType::Bitcoin, 0);
             assert_eq!(account.purpose(), purpose);
         }
     }
@@ -471,36 +480,24 @@ mod tests {
     #[test]
     fn test_coin_type_getter() {
         let master_key = create_test_master_key();
-        
-        let btc_account = Account::from_extended_key(
-            master_key.clone(),
-            Purpose::BIP44,
-            CoinType::Bitcoin,
-            0,
-        );
+
+        let btc_account =
+            Account::from_extended_key(master_key.clone(), Purpose::BIP44, CoinType::Bitcoin, 0);
         assert_eq!(btc_account.coin_type(), CoinType::Bitcoin);
 
-        let eth_account = Account::from_extended_key(
-            master_key.clone(),
-            Purpose::BIP44,
-            CoinType::Ethereum,
-            0,
-        );
+        let eth_account =
+            Account::from_extended_key(master_key.clone(), Purpose::BIP44, CoinType::Ethereum, 0);
         assert_eq!(eth_account.coin_type(), CoinType::Ethereum);
 
-        let custom_account = Account::from_extended_key(
-            master_key,
-            Purpose::BIP44,
-            CoinType::Custom(999),
-            0,
-        );
+        let custom_account =
+            Account::from_extended_key(master_key, Purpose::BIP44, CoinType::Custom(999), 0);
         assert_eq!(custom_account.coin_type(), CoinType::Custom(999));
     }
 
     #[test]
     fn test_account_index_getter() {
         let master_key = create_test_master_key();
-        
+
         for index in [0, 1, 5, 100, 1000] {
             let account = Account::from_extended_key(
                 master_key.clone(),
@@ -515,12 +512,8 @@ mod tests {
     #[test]
     fn test_extended_key_getter() {
         let master_key = create_test_master_key();
-        let account = Account::from_extended_key(
-            master_key.clone(),
-            Purpose::BIP44,
-            CoinType::Bitcoin,
-            0,
-        );
+        let account =
+            Account::from_extended_key(master_key.clone(), Purpose::BIP44, CoinType::Bitcoin, 0);
 
         let key = account.extended_key();
         assert_eq!(key.depth(), master_key.depth());
@@ -530,35 +523,24 @@ mod tests {
     #[test]
     fn test_network_getter() {
         let seed_bytes = [0u8; 64];
-        
-        let mainnet_key = ExtendedPrivateKey::from_seed(&seed_bytes, Network::BitcoinMainnet).unwrap();
-        let mainnet_account = Account::from_extended_key(
-            mainnet_key,
-            Purpose::BIP44,
-            CoinType::Bitcoin,
-            0,
-        );
+
+        let mainnet_key =
+            ExtendedPrivateKey::from_seed(&seed_bytes, Network::BitcoinMainnet).unwrap();
+        let mainnet_account =
+            Account::from_extended_key(mainnet_key, Purpose::BIP44, CoinType::Bitcoin, 0);
         assert_eq!(mainnet_account.network(), Network::BitcoinMainnet);
 
-        let testnet_key = ExtendedPrivateKey::from_seed(&seed_bytes, Network::BitcoinTestnet).unwrap();
-        let testnet_account = Account::from_extended_key(
-            testnet_key,
-            Purpose::BIP44,
-            CoinType::BitcoinTestnet,
-            0,
-        );
+        let testnet_key =
+            ExtendedPrivateKey::from_seed(&seed_bytes, Network::BitcoinTestnet).unwrap();
+        let testnet_account =
+            Account::from_extended_key(testnet_key, Purpose::BIP44, CoinType::BitcoinTestnet, 0);
         assert_eq!(testnet_account.network(), Network::BitcoinTestnet);
     }
 
     #[test]
     fn test_account_clone() {
         let master_key = create_test_master_key();
-        let account = Account::from_extended_key(
-            master_key,
-            Purpose::BIP44,
-            CoinType::Bitcoin,
-            0,
-        );
+        let account = Account::from_extended_key(master_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 
         let cloned = account.clone();
         assert_eq!(cloned.purpose(), account.purpose());
@@ -569,19 +551,10 @@ mod tests {
     #[test]
     fn test_multiple_accounts_same_coin() {
         let master_key = create_test_master_key();
-        
-        let account0 = Account::from_extended_key(
-            master_key.clone(),
-            Purpose::BIP44,
-            CoinType::Bitcoin,
-            0,
-        );
-        let account1 = Account::from_extended_key(
-            master_key,
-            Purpose::BIP44,
-            CoinType::Bitcoin,
-            1,
-        );
+
+        let account0 =
+            Account::from_extended_key(master_key.clone(), Purpose::BIP44, CoinType::Bitcoin, 0);
+        let account1 = Account::from_extended_key(master_key, Purpose::BIP44, CoinType::Bitcoin, 1);
 
         assert_eq!(account0.account_index(), 0);
         assert_eq!(account1.account_index(), 1);
@@ -591,19 +564,10 @@ mod tests {
     #[test]
     fn test_multiple_purposes_same_coin() {
         let master_key = create_test_master_key();
-        
-        let bip44 = Account::from_extended_key(
-            master_key.clone(),
-            Purpose::BIP44,
-            CoinType::Bitcoin,
-            0,
-        );
-        let bip84 = Account::from_extended_key(
-            master_key,
-            Purpose::BIP84,
-            CoinType::Bitcoin,
-            0,
-        );
+
+        let bip44 =
+            Account::from_extended_key(master_key.clone(), Purpose::BIP44, CoinType::Bitcoin, 0);
+        let bip84 = Account::from_extended_key(master_key, Purpose::BIP84, CoinType::Bitcoin, 0);
 
         assert_eq!(bip44.purpose(), Purpose::BIP44);
         assert_eq!(bip84.purpose(), Purpose::BIP84);
@@ -613,12 +577,7 @@ mod tests {
     #[test]
     fn test_debug_format() {
         let master_key = create_test_master_key();
-        let account = Account::from_extended_key(
-            master_key,
-            Purpose::BIP44,
-            CoinType::Bitcoin,
-            0,
-        );
+        let account = Account::from_extended_key(master_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 
         let debug_str = format!("{:?}", account);
         assert!(debug_str.contains("Account"));
@@ -630,12 +589,7 @@ mod tests {
 
         for network in [Network::BitcoinMainnet, Network::BitcoinTestnet] {
             let key = ExtendedPrivateKey::from_seed(&seed_bytes, network).unwrap();
-            let account = Account::from_extended_key(
-                key,
-                Purpose::BIP44,
-                CoinType::Bitcoin,
-                0,
-            );
+            let account = Account::from_extended_key(key, Purpose::BIP44, CoinType::Bitcoin, 0);
             assert_eq!(account.network(), network);
         }
     }
@@ -643,55 +597,55 @@ mod tests {
     // Derivation tests
     #[test]
     fn test_derive_external() {
-        let account_key = create_test_account_key(Purpose::BIP44, CoinType::Bitcoin, 0, Network::BitcoinMainnet);
-        let account = Account::from_extended_key(
-            account_key,
+        let account_key = create_test_account_key(
             Purpose::BIP44,
             CoinType::Bitcoin,
             0,
+            Network::BitcoinMainnet,
         );
+        let account = Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 
         let address_key = account.derive_external(0).unwrap();
-        
+
         // Verify depth: account (3) + chain (4) + address (5)
         assert_eq!(address_key.depth(), 5);
     }
 
     #[test]
     fn test_derive_internal() {
-        let account_key = create_test_account_key(Purpose::BIP44, CoinType::Bitcoin, 0, Network::BitcoinMainnet);
-        let account = Account::from_extended_key(
-            account_key,
+        let account_key = create_test_account_key(
             Purpose::BIP44,
             CoinType::Bitcoin,
             0,
+            Network::BitcoinMainnet,
         );
+        let account = Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 
         let change_key = account.derive_internal(0).unwrap();
-        
+
         // Verify depth: account (3) + chain (4) + address (5)
         assert_eq!(change_key.depth(), 5);
     }
 
     #[test]
     fn test_derive_external_multiple_indices() {
-        let account_key = create_test_account_key(Purpose::BIP44, CoinType::Bitcoin, 0, Network::BitcoinMainnet);
-        let account = Account::from_extended_key(
-            account_key,
+        let account_key = create_test_account_key(
             Purpose::BIP44,
             CoinType::Bitcoin,
             0,
+            Network::BitcoinMainnet,
         );
+        let account = Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 
         let key0 = account.derive_external(0).unwrap();
         let key1 = account.derive_external(1).unwrap();
         let key10 = account.derive_external(10).unwrap();
-        
+
         // All should have depth 5
         assert_eq!(key0.depth(), 5);
         assert_eq!(key1.depth(), 5);
         assert_eq!(key10.depth(), 5);
-        
+
         // Keys should be different
         assert_ne!(key0.private_key(), key1.private_key());
         assert_ne!(key1.private_key(), key10.private_key());
@@ -699,23 +653,23 @@ mod tests {
 
     #[test]
     fn test_derive_internal_multiple_indices() {
-        let account_key = create_test_account_key(Purpose::BIP44, CoinType::Bitcoin, 0, Network::BitcoinMainnet);
-        let account = Account::from_extended_key(
-            account_key,
+        let account_key = create_test_account_key(
             Purpose::BIP44,
             CoinType::Bitcoin,
             0,
+            Network::BitcoinMainnet,
         );
+        let account = Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 
         let key0 = account.derive_internal(0).unwrap();
         let key1 = account.derive_internal(1).unwrap();
         let key5 = account.derive_internal(5).unwrap();
-        
+
         // All should have depth 5
         assert_eq!(key0.depth(), 5);
         assert_eq!(key1.depth(), 5);
         assert_eq!(key5.depth(), 5);
-        
+
         // Keys should be different
         assert_ne!(key0.private_key(), key1.private_key());
         assert_ne!(key1.private_key(), key5.private_key());
@@ -723,41 +677,41 @@ mod tests {
 
     #[test]
     fn test_external_and_internal_keys_differ() {
-        let account_key = create_test_account_key(Purpose::BIP44, CoinType::Bitcoin, 0, Network::BitcoinMainnet);
-        let account = Account::from_extended_key(
-            account_key,
+        let account_key = create_test_account_key(
             Purpose::BIP44,
             CoinType::Bitcoin,
             0,
+            Network::BitcoinMainnet,
         );
+        let account = Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 
         let external = account.derive_external(0).unwrap();
         let internal = account.derive_internal(0).unwrap();
-        
+
         // Same index but different chains should produce different keys
         assert_ne!(external.private_key(), internal.private_key());
     }
 
     #[test]
     fn test_derive_sequential_external() {
-        let account_key = create_test_account_key(Purpose::BIP44, CoinType::Bitcoin, 0, Network::BitcoinMainnet);
-        let account = Account::from_extended_key(
-            account_key,
+        let account_key = create_test_account_key(
             Purpose::BIP44,
             CoinType::Bitcoin,
             0,
+            Network::BitcoinMainnet,
         );
+        let account = Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 
         // Derive first 5 receiving addresses
         let keys: Vec<_> = (0..5)
             .map(|i| account.derive_external(i).unwrap())
             .collect();
-        
+
         assert_eq!(keys.len(), 5);
-        
+
         // All keys should be unique
         for i in 0..keys.len() {
-            for j in i+1..keys.len() {
+            for j in i + 1..keys.len() {
                 assert_ne!(keys[i].private_key(), keys[j].private_key());
             }
         }
@@ -765,24 +719,24 @@ mod tests {
 
     #[test]
     fn test_derive_sequential_internal() {
-        let account_key = create_test_account_key(Purpose::BIP44, CoinType::Bitcoin, 0, Network::BitcoinMainnet);
-        let account = Account::from_extended_key(
-            account_key,
+        let account_key = create_test_account_key(
             Purpose::BIP44,
             CoinType::Bitcoin,
             0,
+            Network::BitcoinMainnet,
         );
+        let account = Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 
         // Derive first 5 change addresses
         let keys: Vec<_> = (0..5)
             .map(|i| account.derive_internal(i).unwrap())
             .collect();
-        
+
         assert_eq!(keys.len(), 5);
-        
+
         // All keys should be unique
         for i in 0..keys.len() {
-            for j in i+1..keys.len() {
+            for j in i + 1..keys.len() {
                 assert_ne!(keys[i].private_key(), keys[j].private_key());
             }
         }
@@ -790,88 +744,97 @@ mod tests {
 
     #[test]
     fn test_derive_with_different_purposes() {
-        let bip44_account_key = create_test_account_key(Purpose::BIP44, CoinType::Bitcoin, 0, Network::BitcoinMainnet);
-        let bip84_account_key = create_test_account_key(Purpose::BIP84, CoinType::Bitcoin, 0, Network::BitcoinMainnet);
-        
-        let bip44_account = Account::from_extended_key(
-            bip44_account_key,
+        let bip44_account_key = create_test_account_key(
             Purpose::BIP44,
             CoinType::Bitcoin,
             0,
+            Network::BitcoinMainnet,
         );
-        let bip84_account = Account::from_extended_key(
-            bip84_account_key,
+        let bip84_account_key = create_test_account_key(
             Purpose::BIP84,
             CoinType::Bitcoin,
             0,
+            Network::BitcoinMainnet,
         );
+
+        let bip44_account =
+            Account::from_extended_key(bip44_account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
+        let bip84_account =
+            Account::from_extended_key(bip84_account_key, Purpose::BIP84, CoinType::Bitcoin, 0);
 
         let bip44_derived_key = bip44_account.derive_external(0).unwrap();
         let bip84_derived_key = bip84_account.derive_external(0).unwrap();
-        
+
         // Different purposes should produce different keys
-        assert_ne!(bip44_derived_key.private_key(), bip84_derived_key.private_key());
+        assert_ne!(
+            bip44_derived_key.private_key(),
+            bip84_derived_key.private_key()
+        );
     }
 
     #[test]
     fn test_derive_with_different_coins() {
-        let btc_account_key = create_test_account_key(Purpose::BIP44, CoinType::Bitcoin, 0, Network::BitcoinMainnet);
-        let eth_account_key = create_test_account_key(Purpose::BIP44, CoinType::Ethereum, 0, Network::BitcoinMainnet);
-        
-        let btc_account = Account::from_extended_key(
-            btc_account_key,
+        let btc_account_key = create_test_account_key(
             Purpose::BIP44,
             CoinType::Bitcoin,
             0,
+            Network::BitcoinMainnet,
         );
-        let eth_account = Account::from_extended_key(
-            eth_account_key,
+        let eth_account_key = create_test_account_key(
             Purpose::BIP44,
             CoinType::Ethereum,
             0,
+            Network::BitcoinMainnet,
         );
+
+        let btc_account =
+            Account::from_extended_key(btc_account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
+        let eth_account =
+            Account::from_extended_key(eth_account_key, Purpose::BIP44, CoinType::Ethereum, 0);
 
         let btc_derived_key = btc_account.derive_external(0).unwrap();
         let eth_derived_key = eth_account.derive_external(0).unwrap();
-        
+
         // Different coins should produce different keys
         assert_ne!(btc_derived_key.private_key(), eth_derived_key.private_key());
     }
 
     #[test]
     fn test_derive_with_different_accounts() {
-        let account0_key = create_test_account_key(Purpose::BIP44, CoinType::Bitcoin, 0, Network::BitcoinMainnet);
-        let account1_key = create_test_account_key(Purpose::BIP44, CoinType::Bitcoin, 1, Network::BitcoinMainnet);
-        
-        let account0 = Account::from_extended_key(
-            account0_key,
+        let account0_key = create_test_account_key(
             Purpose::BIP44,
             CoinType::Bitcoin,
             0,
+            Network::BitcoinMainnet,
         );
-        let account1 = Account::from_extended_key(
-            account1_key,
+        let account1_key = create_test_account_key(
             Purpose::BIP44,
             CoinType::Bitcoin,
             1,
+            Network::BitcoinMainnet,
         );
+
+        let account0 =
+            Account::from_extended_key(account0_key, Purpose::BIP44, CoinType::Bitcoin, 0);
+        let account1 =
+            Account::from_extended_key(account1_key, Purpose::BIP44, CoinType::Bitcoin, 1);
 
         let key0 = account0.derive_external(0).unwrap();
         let key1 = account1.derive_external(0).unwrap();
-        
+
         // Different accounts should produce different keys
         assert_ne!(key0.private_key(), key1.private_key());
     }
 
     #[test]
     fn test_derive_large_index() {
-        let account_key = create_test_account_key(Purpose::BIP44, CoinType::Bitcoin, 0, Network::BitcoinMainnet);
-        let account = Account::from_extended_key(
-            account_key,
+        let account_key = create_test_account_key(
             Purpose::BIP44,
             CoinType::Bitcoin,
             0,
+            Network::BitcoinMainnet,
         );
+        let account = Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 
         // Test with large index
         let key = account.derive_external(100000).unwrap();
@@ -880,13 +843,13 @@ mod tests {
 
     #[test]
     fn test_derive_max_index() {
-        let account_key = create_test_account_key(Purpose::BIP44, CoinType::Bitcoin, 0, Network::BitcoinMainnet);
-        let account = Account::from_extended_key(
-            account_key,
+        let account_key = create_test_account_key(
             Purpose::BIP44,
             CoinType::Bitcoin,
             0,
+            Network::BitcoinMainnet,
         );
+        let account = Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 
         // Test with maximum index
         let key = account.derive_external(u32::MAX).unwrap();
@@ -896,17 +859,14 @@ mod tests {
     #[test]
     fn test_derive_network_preserved() {
         for network in [Network::BitcoinMainnet, Network::BitcoinTestnet] {
-            let account_key = create_test_account_key(Purpose::BIP44, CoinType::Bitcoin, 0, network);
-            let account = Account::from_extended_key(
-                account_key,
-                Purpose::BIP44,
-                CoinType::Bitcoin,
-                0,
-            );
+            let account_key =
+                create_test_account_key(Purpose::BIP44, CoinType::Bitcoin, 0, network);
+            let account =
+                Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 
             let external = account.derive_external(0).unwrap();
             let internal = account.derive_internal(0).unwrap();
-            
+
             assert_eq!(external.network(), network);
             assert_eq!(internal.network(), network);
         }
@@ -914,18 +874,18 @@ mod tests {
 
     #[test]
     fn test_derive_deterministic() {
-        let account_key = create_test_account_key(Purpose::BIP44, CoinType::Bitcoin, 0, Network::BitcoinMainnet);
-        let account = Account::from_extended_key(
-            account_key,
+        let account_key = create_test_account_key(
             Purpose::BIP44,
             CoinType::Bitcoin,
             0,
+            Network::BitcoinMainnet,
         );
+        let account = Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 
         // Derive the same key twice
         let key1 = account.derive_external(5).unwrap();
         let key2 = account.derive_external(5).unwrap();
-        
+
         // Should be identical
         assert_eq!(key1.private_key(), key2.private_key());
         assert_eq!(key1.chain_code(), key2.chain_code());
@@ -935,18 +895,18 @@ mod tests {
     #[test]
     fn test_derive_address_external() {
         use crate::Chain;
-        
-        let account_key = create_test_account_key(Purpose::BIP44, CoinType::Bitcoin, 0, Network::BitcoinMainnet);
-        let account = Account::from_extended_key(
-            account_key,
+
+        let account_key = create_test_account_key(
             Purpose::BIP44,
             CoinType::Bitcoin,
             0,
+            Network::BitcoinMainnet,
         );
+        let account = Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 
         let key1 = account.derive_address(Chain::External, 0).unwrap();
         let key2 = account.derive_external(0).unwrap();
-        
+
         // Should produce same key as derive_external
         assert_eq!(key1.private_key(), key2.private_key());
     }
@@ -954,18 +914,18 @@ mod tests {
     #[test]
     fn test_derive_address_internal() {
         use crate::Chain;
-        
-        let account_key = create_test_account_key(Purpose::BIP44, CoinType::Bitcoin, 0, Network::BitcoinMainnet);
-        let account = Account::from_extended_key(
-            account_key,
+
+        let account_key = create_test_account_key(
             Purpose::BIP44,
             CoinType::Bitcoin,
             0,
+            Network::BitcoinMainnet,
         );
+        let account = Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 
         let key1 = account.derive_address(Chain::Internal, 0).unwrap();
         let key2 = account.derive_internal(0).unwrap();
-        
+
         // Should produce same key as derive_internal
         assert_eq!(key1.private_key(), key2.private_key());
     }
@@ -973,18 +933,18 @@ mod tests {
     #[test]
     fn test_derive_address_both_chains() {
         use crate::Chain;
-        
-        let account_key = create_test_account_key(Purpose::BIP44, CoinType::Bitcoin, 0, Network::BitcoinMainnet);
-        let account = Account::from_extended_key(
-            account_key,
+
+        let account_key = create_test_account_key(
             Purpose::BIP44,
             CoinType::Bitcoin,
             0,
+            Network::BitcoinMainnet,
         );
+        let account = Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 
         let external = account.derive_address(Chain::External, 5).unwrap();
         let internal = account.derive_address(Chain::Internal, 5).unwrap();
-        
+
         // Different chains should produce different keys
         assert_ne!(external.private_key(), internal.private_key());
     }
@@ -993,22 +953,22 @@ mod tests {
     #[test]
     fn test_derive_address_range_basic() {
         use crate::Chain;
-        
-        let account_key = create_test_account_key(Purpose::BIP44, CoinType::Bitcoin, 0, Network::BitcoinMainnet);
-        let account = Account::from_extended_key(
-            account_key,
+
+        let account_key = create_test_account_key(
             Purpose::BIP44,
             CoinType::Bitcoin,
             0,
+            Network::BitcoinMainnet,
         );
+        let account = Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 
         let keys = account.derive_address_range(Chain::External, 0, 5).unwrap();
-        
+
         assert_eq!(keys.len(), 5);
-        
+
         // Verify all keys are unique
         for i in 0..keys.len() {
-            for j in i+1..keys.len() {
+            for j in i + 1..keys.len() {
                 assert_ne!(keys[i].private_key(), keys[j].private_key());
             }
         }
@@ -1017,17 +977,17 @@ mod tests {
     #[test]
     fn test_derive_address_range_matches_individual() {
         use crate::Chain;
-        
-        let account_key = create_test_account_key(Purpose::BIP44, CoinType::Bitcoin, 0, Network::BitcoinMainnet);
-        let account = Account::from_extended_key(
-            account_key,
+
+        let account_key = create_test_account_key(
             Purpose::BIP44,
             CoinType::Bitcoin,
             0,
+            Network::BitcoinMainnet,
         );
+        let account = Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 
         let range_keys = account.derive_address_range(Chain::External, 0, 5).unwrap();
-        
+
         // Verify each key matches individual derivation
         for (i, key) in range_keys.iter().enumerate() {
             let individual_key = account.derive_address(Chain::External, i as u32).unwrap();
@@ -1038,19 +998,21 @@ mod tests {
     #[test]
     fn test_derive_address_range_internal_chain() {
         use crate::Chain;
-        
-        let account_key = create_test_account_key(Purpose::BIP44, CoinType::Bitcoin, 0, Network::BitcoinMainnet);
-        let account = Account::from_extended_key(
-            account_key,
+
+        let account_key = create_test_account_key(
             Purpose::BIP44,
             CoinType::Bitcoin,
             0,
+            Network::BitcoinMainnet,
         );
+        let account = Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 
-        let keys = account.derive_address_range(Chain::Internal, 0, 10).unwrap();
-        
+        let keys = account
+            .derive_address_range(Chain::Internal, 0, 10)
+            .unwrap();
+
         assert_eq!(keys.len(), 10);
-        
+
         // All should have depth 5
         for key in &keys {
             assert_eq!(key.depth(), 5);
@@ -1060,23 +1022,25 @@ mod tests {
     #[test]
     fn test_derive_address_range_with_offset() {
         use crate::Chain;
-        
-        let account_key = create_test_account_key(Purpose::BIP44, CoinType::Bitcoin, 0, Network::BitcoinMainnet);
-        let account = Account::from_extended_key(
-            account_key,
+
+        let account_key = create_test_account_key(
             Purpose::BIP44,
             CoinType::Bitcoin,
             0,
+            Network::BitcoinMainnet,
         );
+        let account = Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 
-        let keys = account.derive_address_range(Chain::External, 10, 5).unwrap();
-        
+        let keys = account
+            .derive_address_range(Chain::External, 10, 5)
+            .unwrap();
+
         assert_eq!(keys.len(), 5);
-        
+
         // Verify first key matches index 10
         let key10 = account.derive_address(Chain::External, 10).unwrap();
         assert_eq!(keys[0].private_key(), key10.private_key());
-        
+
         // Verify last key matches index 14
         let key14 = account.derive_address(Chain::External, 14).unwrap();
         assert_eq!(keys[4].private_key(), key14.private_key());
@@ -1085,36 +1049,36 @@ mod tests {
     #[test]
     fn test_derive_address_range_empty() {
         use crate::Chain;
-        
-        let account_key = create_test_account_key(Purpose::BIP44, CoinType::Bitcoin, 0, Network::BitcoinMainnet);
-        let account = Account::from_extended_key(
-            account_key,
+
+        let account_key = create_test_account_key(
             Purpose::BIP44,
             CoinType::Bitcoin,
             0,
+            Network::BitcoinMainnet,
         );
+        let account = Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 
         let keys = account.derive_address_range(Chain::External, 0, 0).unwrap();
-        
+
         assert_eq!(keys.len(), 0);
     }
 
     #[test]
     fn test_derive_address_range_single() {
         use crate::Chain;
-        
-        let account_key = create_test_account_key(Purpose::BIP44, CoinType::Bitcoin, 0, Network::BitcoinMainnet);
-        let account = Account::from_extended_key(
-            account_key,
+
+        let account_key = create_test_account_key(
             Purpose::BIP44,
             CoinType::Bitcoin,
             0,
+            Network::BitcoinMainnet,
         );
+        let account = Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 
         let keys = account.derive_address_range(Chain::External, 5, 1).unwrap();
-        
+
         assert_eq!(keys.len(), 1);
-        
+
         let key5 = account.derive_address(Chain::External, 5).unwrap();
         assert_eq!(keys[0].private_key(), key5.private_key());
     }
@@ -1122,24 +1086,26 @@ mod tests {
     #[test]
     fn test_derive_address_range_large_count() {
         use crate::Chain;
-        
-        let account_key = create_test_account_key(Purpose::BIP44, CoinType::Bitcoin, 0, Network::BitcoinMainnet);
-        let account = Account::from_extended_key(
-            account_key,
+
+        let account_key = create_test_account_key(
             Purpose::BIP44,
             CoinType::Bitcoin,
             0,
+            Network::BitcoinMainnet,
         );
+        let account = Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 
-        let keys = account.derive_address_range(Chain::External, 0, 100).unwrap();
-        
+        let keys = account
+            .derive_address_range(Chain::External, 0, 100)
+            .unwrap();
+
         assert_eq!(keys.len(), 100);
-        
+
         // Spot check a few keys
         let key0 = account.derive_address(Chain::External, 0).unwrap();
         let key50 = account.derive_address(Chain::External, 50).unwrap();
         let key99 = account.derive_address(Chain::External, 99).unwrap();
-        
+
         assert_eq!(keys[0].private_key(), key0.private_key());
         assert_eq!(keys[50].private_key(), key50.private_key());
         assert_eq!(keys[99].private_key(), key99.private_key());
@@ -1148,43 +1114,49 @@ mod tests {
     #[test]
     fn test_derive_address_range_gap_limit() {
         use crate::Chain;
-        
-        let account_key = create_test_account_key(Purpose::BIP44, CoinType::Bitcoin, 0, Network::BitcoinMainnet);
-        let account = Account::from_extended_key(
-            account_key,
+
+        let account_key = create_test_account_key(
             Purpose::BIP44,
             CoinType::Bitcoin,
             0,
+            Network::BitcoinMainnet,
         );
+        let account = Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 
         // Typical gap limit for BIP-44 is 20
-        let keys = account.derive_address_range(Chain::External, 0, 20).unwrap();
-        
+        let keys = account
+            .derive_address_range(Chain::External, 0, 20)
+            .unwrap();
+
         assert_eq!(keys.len(), 20);
     }
 
     #[test]
     fn test_derive_address_range_sequential_batches() {
         use crate::Chain;
-        
-        let account_key = create_test_account_key(Purpose::BIP44, CoinType::Bitcoin, 0, Network::BitcoinMainnet);
-        let account = Account::from_extended_key(
-            account_key,
+
+        let account_key = create_test_account_key(
             Purpose::BIP44,
             CoinType::Bitcoin,
             0,
+            Network::BitcoinMainnet,
         );
+        let account = Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 
-        let batch1 = account.derive_address_range(Chain::External, 0, 10).unwrap();
-        let batch2 = account.derive_address_range(Chain::External, 10, 10).unwrap();
-        
+        let batch1 = account
+            .derive_address_range(Chain::External, 0, 10)
+            .unwrap();
+        let batch2 = account
+            .derive_address_range(Chain::External, 10, 10)
+            .unwrap();
+
         // Last key of batch1 should be different from first key of batch2
         assert_ne!(batch1[9].private_key(), batch2[0].private_key());
-        
+
         // Verify continuity
         let key9 = account.derive_address(Chain::External, 9).unwrap();
         let key10 = account.derive_address(Chain::External, 10).unwrap();
-        
+
         assert_eq!(batch1[9].private_key(), key9.private_key());
         assert_eq!(batch2[0].private_key(), key10.private_key());
     }
@@ -1192,18 +1164,20 @@ mod tests {
     #[test]
     fn test_derive_address_range_overflow_protection() {
         use crate::Chain;
-        
-        let account_key = create_test_account_key(Purpose::BIP44, CoinType::Bitcoin, 0, Network::BitcoinMainnet);
-        let account = Account::from_extended_key(
-            account_key,
+
+        let account_key = create_test_account_key(
             Purpose::BIP44,
             CoinType::Bitcoin,
             0,
+            Network::BitcoinMainnet,
         );
+        let account = Account::from_extended_key(account_key, Purpose::BIP44, CoinType::Bitcoin, 0);
 
         // Start near the end of u32 range
-        let keys = account.derive_address_range(Chain::External, u32::MAX - 5, 10).unwrap();
-        
+        let keys = account
+            .derive_address_range(Chain::External, u32::MAX - 5, 10)
+            .unwrap();
+
         // Should saturate at u32::MAX
         assert_eq!(keys.len(), 10);
     }

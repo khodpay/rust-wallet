@@ -284,7 +284,7 @@ impl Bip44Path {
     ///
     /// let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
     /// let next = path.next_address();
-    /// 
+    ///
     /// assert_eq!(next.address_index(), 1);
     /// assert_eq!(next.chain(), Chain::External);
     /// assert_eq!(next.account(), 0);
@@ -308,7 +308,7 @@ impl Bip44Path {
     ///
     /// let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
     /// let addr_5 = path.with_address_index(5);
-    /// 
+    ///
     /// assert_eq!(addr_5.address_index(), 5);
     /// ```
     pub fn with_address_index(&self, address_index: u32) -> Self {
@@ -330,7 +330,7 @@ impl Bip44Path {
     ///
     /// let external = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
     /// let internal = external.with_chain(Chain::Internal);
-    /// 
+    ///
     /// assert_eq!(internal.chain(), Chain::Internal);
     /// assert_eq!(internal.address_index(), 0);
     /// ```
@@ -353,7 +353,7 @@ impl Bip44Path {
     ///
     /// let change = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::Internal, 5).unwrap();
     /// let receive = change.to_external();
-    /// 
+    ///
     /// assert_eq!(receive.chain(), Chain::External);
     /// assert_eq!(receive.address_index(), 5);
     /// ```
@@ -370,7 +370,7 @@ impl Bip44Path {
     ///
     /// let receive = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 5).unwrap();
     /// let change = receive.to_internal();
-    /// 
+    ///
     /// assert_eq!(change.chain(), Chain::Internal);
     /// assert_eq!(change.address_index(), 5);
     /// ```
@@ -391,7 +391,7 @@ impl Bip44Path {
     ///
     /// let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
     /// let account_1 = path.with_account(1).unwrap();
-    /// 
+    ///
     /// assert_eq!(account_1.account(), 1);
     /// ```
     pub fn with_account(&self, account: u32) -> Result<Self> {
@@ -426,17 +426,20 @@ impl Bip44Path {
     ///
     /// let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
     /// let next = path.next_account().unwrap();
-    /// 
+    ///
     /// assert_eq!(next.account(), 1);
     /// ```
     pub fn next_account(&self) -> Result<Self> {
-        let next_account = self.account.checked_add(1).ok_or_else(|| Error::InvalidAccount {
-            reason: format!(
-                "Cannot increment account beyond maximum value {}",
-                MAX_HARDENED_INDEX
-            ),
-        })?;
-        
+        let next_account = self
+            .account
+            .checked_add(1)
+            .ok_or_else(|| Error::InvalidAccount {
+                reason: format!(
+                    "Cannot increment account beyond maximum value {}",
+                    MAX_HARDENED_INDEX
+                ),
+            })?;
+
         self.with_account(next_account)
     }
 
@@ -449,7 +452,7 @@ impl Bip44Path {
     ///
     /// let bip44 = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
     /// let bip84 = bip44.with_purpose(Purpose::BIP84);
-    /// 
+    ///
     /// assert_eq!(bip84.purpose(), Purpose::BIP84);
     /// ```
     pub fn with_purpose(&self, purpose: Purpose) -> Self {
@@ -471,7 +474,7 @@ impl Bip44Path {
     ///
     /// let btc = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
     /// let eth = btc.with_coin_type(CoinType::Ethereum);
-    /// 
+    ///
     /// assert_eq!(eth.coin_type(), CoinType::Ethereum);
     /// ```
     pub fn with_coin_type(&self, coin_type: CoinType) -> Self {
@@ -813,7 +816,11 @@ impl FromStr for Bip44Path {
         // BIP-44 paths must have exactly 5 levels
         if parts.len() != 5 {
             return Err(Error::ParseError {
-                reason: format!("BIP-44 path must have 5 levels, found {}: {}", parts.len(), s),
+                reason: format!(
+                    "BIP-44 path must have 5 levels, found {}: {}",
+                    parts.len(),
+                    s
+                ),
             });
         }
 
@@ -824,11 +831,12 @@ impl FromStr for Bip44Path {
                 reason: format!("Purpose must be hardened (end with '): {}", s),
             });
         }
-        let purpose_value: u32 = purpose_str[..purpose_str.len() - 1]
-            .parse()
-            .map_err(|_| Error::ParseError {
-                reason: format!("Invalid purpose value '{}' in path: {}", purpose_str, s),
-            })?;
+        let purpose_value: u32 =
+            purpose_str[..purpose_str.len() - 1]
+                .parse()
+                .map_err(|_| Error::ParseError {
+                    reason: format!("Invalid purpose value '{}' in path: {}", purpose_str, s),
+                })?;
         let purpose = Purpose::try_from(purpose_value)?;
 
         // Parse coin_type (must be hardened)
@@ -838,11 +846,12 @@ impl FromStr for Bip44Path {
                 reason: format!("Coin type must be hardened (end with '): {}", s),
             });
         }
-        let coin_type_value: u32 = coin_type_str[..coin_type_str.len() - 1]
-            .parse()
-            .map_err(|_| Error::ParseError {
-                reason: format!("Invalid coin type value '{}' in path: {}", coin_type_str, s),
-            })?;
+        let coin_type_value: u32 =
+            coin_type_str[..coin_type_str.len() - 1]
+                .parse()
+                .map_err(|_| Error::ParseError {
+                    reason: format!("Invalid coin type value '{}' in path: {}", coin_type_str, s),
+                })?;
         let coin_type = CoinType::try_from(coin_type_value)?;
 
         // Parse account (must be hardened)
@@ -852,11 +861,12 @@ impl FromStr for Bip44Path {
                 reason: format!("Account must be hardened (end with '): {}", s),
             });
         }
-        let account: u32 = account_str[..account_str.len() - 1]
-            .parse()
-            .map_err(|_| Error::ParseError {
-                reason: format!("Invalid account value '{}' in path: {}", account_str, s),
-            })?;
+        let account: u32 =
+            account_str[..account_str.len() - 1]
+                .parse()
+                .map_err(|_| Error::ParseError {
+                    reason: format!("Invalid account value '{}' in path: {}", account_str, s),
+                })?;
 
         // Parse chain (must NOT be hardened)
         let chain_str = parts[3];
@@ -878,7 +888,10 @@ impl FromStr for Bip44Path {
             });
         }
         let address_index: u32 = address_str.parse().map_err(|_| Error::ParseError {
-            reason: format!("Invalid address index value '{}' in path: {}", address_str, s),
+            reason: format!(
+                "Invalid address index value '{}' in path: {}",
+                address_str, s
+            ),
         })?;
 
         // Create the path using the constructor (which validates account range)
@@ -1063,14 +1076,8 @@ mod tests {
 
     #[test]
     fn test_new_valid_path() {
-        let path = Bip44Path::new(
-            Purpose::BIP44,
-            CoinType::Bitcoin,
-            0,
-            Chain::External,
-            0,
-        )
-        .unwrap();
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
 
         assert_eq!(path.purpose(), Purpose::BIP44);
         assert_eq!(path.coin_type(), CoinType::Bitcoin);
@@ -1081,7 +1088,12 @@ mod tests {
 
     #[test]
     fn test_new_with_different_purposes() {
-        for purpose in [Purpose::BIP44, Purpose::BIP49, Purpose::BIP84, Purpose::BIP86] {
+        for purpose in [
+            Purpose::BIP44,
+            Purpose::BIP49,
+            Purpose::BIP84,
+            Purpose::BIP86,
+        ] {
             let path = Bip44Path::new(purpose, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
             assert_eq!(path.purpose(), purpose);
         }
@@ -1092,43 +1104,65 @@ mod tests {
         let btc = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
         assert_eq!(btc.coin_type(), CoinType::Bitcoin);
 
-        let eth = Bip44Path::new(Purpose::BIP44, CoinType::Ethereum, 0, Chain::External, 0).unwrap();
+        let eth =
+            Bip44Path::new(Purpose::BIP44, CoinType::Ethereum, 0, Chain::External, 0).unwrap();
         assert_eq!(eth.coin_type(), CoinType::Ethereum);
 
-        let custom = Bip44Path::new(Purpose::BIP44, CoinType::Custom(999), 0, Chain::External, 0).unwrap();
+        let custom =
+            Bip44Path::new(Purpose::BIP44, CoinType::Custom(999), 0, Chain::External, 0).unwrap();
         assert_eq!(custom.coin_type(), CoinType::Custom(999));
     }
 
     #[test]
     fn test_new_with_different_accounts() {
-        let acc0 = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let acc0 =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
         assert_eq!(acc0.account(), 0);
 
-        let acc1 = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 1, Chain::External, 0).unwrap();
+        let acc1 =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 1, Chain::External, 0).unwrap();
         assert_eq!(acc1.account(), 1);
 
-        let acc_max = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, MAX_HARDENED_INDEX, Chain::External, 0).unwrap();
+        let acc_max = Bip44Path::new(
+            Purpose::BIP44,
+            CoinType::Bitcoin,
+            MAX_HARDENED_INDEX,
+            Chain::External,
+            0,
+        )
+        .unwrap();
         assert_eq!(acc_max.account(), MAX_HARDENED_INDEX);
     }
 
     #[test]
     fn test_new_with_different_chains() {
-        let external = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let external =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
         assert_eq!(external.chain(), Chain::External);
 
-        let internal = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::Internal, 0).unwrap();
+        let internal =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::Internal, 0).unwrap();
         assert_eq!(internal.chain(), Chain::Internal);
     }
 
     #[test]
     fn test_new_with_different_address_indices() {
-        let addr0 = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let addr0 =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
         assert_eq!(addr0.address_index(), 0);
 
-        let addr100 = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 100).unwrap();
+        let addr100 =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 100).unwrap();
         assert_eq!(addr100.address_index(), 100);
 
-        let addr_max = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, u32::MAX).unwrap();
+        let addr_max = Bip44Path::new(
+            Purpose::BIP44,
+            CoinType::Bitcoin,
+            0,
+            Chain::External,
+            u32::MAX,
+        )
+        .unwrap();
         assert_eq!(addr_max.address_index(), u32::MAX);
     }
 
@@ -1142,7 +1176,7 @@ mod tests {
             0,
         );
         assert!(result.is_err());
-        
+
         let err = result.unwrap_err();
         assert!(matches!(err, Error::InvalidAccount { .. }));
     }
@@ -1172,9 +1206,12 @@ mod tests {
 
     #[test]
     fn test_path_equality() {
-        let path1 = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
-        let path2 = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
-        let path3 = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 1, Chain::External, 0).unwrap();
+        let path1 =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let path2 =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let path3 =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 1, Chain::External, 0).unwrap();
 
         assert_eq!(path1, path2);
         assert_ne!(path1, path3);
@@ -1182,14 +1219,16 @@ mod tests {
 
     #[test]
     fn test_path_clone() {
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
         let cloned = path;
         assert_eq!(path, cloned);
     }
 
     #[test]
     fn test_path_debug() {
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
         let debug = format!("{:?}", path);
         assert!(debug.contains("Bip44Path"));
     }
@@ -1197,18 +1236,21 @@ mod tests {
     #[test]
     fn test_realistic_paths() {
         // Bitcoin first receiving address: m/44'/0'/0'/0/0
-        let btc_first = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let btc_first =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
         assert_eq!(btc_first.purpose(), Purpose::BIP44);
         assert_eq!(btc_first.coin_type(), CoinType::Bitcoin);
 
         // Ethereum second account, fifth change address: m/44'/60'/1'/1/4
-        let eth_change = Bip44Path::new(Purpose::BIP44, CoinType::Ethereum, 1, Chain::Internal, 4).unwrap();
+        let eth_change =
+            Bip44Path::new(Purpose::BIP44, CoinType::Ethereum, 1, Chain::Internal, 4).unwrap();
         assert_eq!(eth_change.account(), 1);
         assert_eq!(eth_change.chain(), Chain::Internal);
         assert_eq!(eth_change.address_index(), 4);
 
         // Native SegWit Bitcoin: m/84'/0'/0'/0/0
-        let btc_segwit = Bip44Path::new(Purpose::BIP84, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let btc_segwit =
+            Bip44Path::new(Purpose::BIP84, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
         assert_eq!(btc_segwit.purpose(), Purpose::BIP84);
     }
 
@@ -1383,7 +1425,7 @@ mod tests {
             .coin_type(CoinType::Bitcoin);
 
         let builder2 = builder.clone();
-        
+
         let path1 = builder
             .account(0)
             .chain(Chain::External)
@@ -1432,7 +1474,8 @@ mod tests {
         use khodpay_bip32::DerivationPath;
         use std::str::FromStr;
 
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
         let derivation = path.to_derivation_path();
 
         // Should equal m/44'/0'/0'/0/0
@@ -1446,7 +1489,8 @@ mod tests {
         use khodpay_bip32::DerivationPath;
         use std::str::FromStr;
 
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Ethereum, 0, Chain::External, 0).unwrap();
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Ethereum, 0, Chain::External, 0).unwrap();
         let derivation = path.to_derivation_path();
 
         // Should equal m/44'/60'/0'/0/0
@@ -1459,7 +1503,8 @@ mod tests {
         use khodpay_bip32::DerivationPath;
         use std::str::FromStr;
 
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 5, Chain::External, 0).unwrap();
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 5, Chain::External, 0).unwrap();
         let derivation = path.to_derivation_path();
 
         let expected = DerivationPath::from_str("m/44'/0'/5'/0/0").unwrap();
@@ -1471,7 +1516,8 @@ mod tests {
         use khodpay_bip32::DerivationPath;
         use std::str::FromStr;
 
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::Internal, 0).unwrap();
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::Internal, 0).unwrap();
         let derivation = path.to_derivation_path();
 
         let expected = DerivationPath::from_str("m/44'/0'/0'/1/0").unwrap();
@@ -1483,7 +1529,8 @@ mod tests {
         use khodpay_bip32::DerivationPath;
         use std::str::FromStr;
 
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 42).unwrap();
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 42).unwrap();
         let derivation = path.to_derivation_path();
 
         let expected = DerivationPath::from_str("m/44'/0'/0'/0/42").unwrap();
@@ -1495,7 +1542,8 @@ mod tests {
         use khodpay_bip32::DerivationPath;
         use std::str::FromStr;
 
-        let path = Bip44Path::new(Purpose::BIP84, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let path =
+            Bip44Path::new(Purpose::BIP84, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
         let derivation = path.to_derivation_path();
 
         // Should equal m/84'/0'/0'/0/0
@@ -1508,7 +1556,8 @@ mod tests {
         use khodpay_bip32::DerivationPath;
         use std::str::FromStr;
 
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Custom(999), 0, Chain::External, 0).unwrap();
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Custom(999), 0, Chain::External, 0).unwrap();
         let derivation = path.to_derivation_path();
 
         let expected = DerivationPath::from_str("m/44'/999'/0'/0/0").unwrap();
@@ -1519,8 +1568,9 @@ mod tests {
     fn test_from_trait_conversion() {
         use khodpay_bip32::DerivationPath;
 
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
-        
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+
         // Test From<Bip44Path>
         let derivation: DerivationPath = path.into();
         assert_eq!(derivation.depth(), 5);
@@ -1530,8 +1580,9 @@ mod tests {
     fn test_from_ref_trait_conversion() {
         use khodpay_bip32::DerivationPath;
 
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
-        
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+
         // Test From<&Bip44Path>
         let derivation: DerivationPath = (&path).into();
         assert_eq!(derivation.depth(), 5);
@@ -1546,13 +1597,8 @@ mod tests {
         use std::str::FromStr;
 
         // Complex path: m/84'/60'/5'/1/100
-        let path = Bip44Path::new(
-            Purpose::BIP84,
-            CoinType::Ethereum,
-            5,
-            Chain::Internal,
-            100,
-        ).unwrap();
+        let path =
+            Bip44Path::new(Purpose::BIP84, CoinType::Ethereum, 5, Chain::Internal, 100).unwrap();
 
         let derivation = path.to_derivation_path();
         let expected = DerivationPath::from_str("m/84'/60'/5'/1/100").unwrap();
@@ -1563,16 +1609,17 @@ mod tests {
     fn test_conversion_preserves_hardening() {
         use khodpay_bip32::ChildNumber;
 
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
         let derivation = path.to_derivation_path();
 
         let children = derivation.as_slice();
-        
+
         // First 3 levels should be hardened
         assert!(matches!(children[0], ChildNumber::Hardened(44)));
         assert!(matches!(children[1], ChildNumber::Hardened(0)));
         assert!(matches!(children[2], ChildNumber::Hardened(0)));
-        
+
         // Last 2 levels should be normal
         assert!(matches!(children[3], ChildNumber::Normal(0)));
         assert!(matches!(children[4], ChildNumber::Normal(0)));
@@ -1580,7 +1627,12 @@ mod tests {
 
     #[test]
     fn test_conversion_all_purposes() {
-        for purpose in [Purpose::BIP44, Purpose::BIP49, Purpose::BIP84, Purpose::BIP86] {
+        for purpose in [
+            Purpose::BIP44,
+            Purpose::BIP49,
+            Purpose::BIP84,
+            Purpose::BIP86,
+        ] {
             let path = Bip44Path::new(purpose, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
             let derivation = path.to_derivation_path();
             assert_eq!(derivation.depth(), 5);
@@ -1589,9 +1641,10 @@ mod tests {
 
     #[test]
     fn test_conversion_display_format() {
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 5).unwrap();
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 5).unwrap();
         let derivation = path.to_derivation_path();
-        
+
         // Check string representation
         assert_eq!(derivation.to_string(), "m/44'/0'/0'/0/5");
     }
@@ -1599,49 +1652,57 @@ mod tests {
     // Display tests
     #[test]
     fn test_display_bitcoin() {
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
         assert_eq!(path.to_string(), "m/44'/0'/0'/0/0");
     }
 
     #[test]
     fn test_display_ethereum() {
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Ethereum, 0, Chain::External, 0).unwrap();
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Ethereum, 0, Chain::External, 0).unwrap();
         assert_eq!(path.to_string(), "m/44'/60'/0'/0/0");
     }
 
     #[test]
     fn test_display_with_account() {
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 5, Chain::External, 0).unwrap();
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 5, Chain::External, 0).unwrap();
         assert_eq!(path.to_string(), "m/44'/0'/5'/0/0");
     }
 
     #[test]
     fn test_display_internal_chain() {
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::Internal, 0).unwrap();
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::Internal, 0).unwrap();
         assert_eq!(path.to_string(), "m/44'/0'/0'/1/0");
     }
 
     #[test]
     fn test_display_with_address_index() {
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 42).unwrap();
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 42).unwrap();
         assert_eq!(path.to_string(), "m/44'/0'/0'/0/42");
     }
 
     #[test]
     fn test_display_bip84() {
-        let path = Bip44Path::new(Purpose::BIP84, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let path =
+            Bip44Path::new(Purpose::BIP84, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
         assert_eq!(path.to_string(), "m/84'/0'/0'/0/0");
     }
 
     #[test]
     fn test_display_complex_path() {
-        let path = Bip44Path::new(Purpose::BIP49, CoinType::Litecoin, 10, Chain::Internal, 999).unwrap();
+        let path =
+            Bip44Path::new(Purpose::BIP49, CoinType::Litecoin, 10, Chain::Internal, 999).unwrap();
         assert_eq!(path.to_string(), "m/49'/2'/10'/1/999");
     }
 
     #[test]
     fn test_display_custom_coin() {
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Custom(999), 0, Chain::External, 0).unwrap();
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Custom(999), 0, Chain::External, 0).unwrap();
         assert_eq!(path.to_string(), "m/44'/999'/0'/0/0");
     }
 
@@ -1783,7 +1844,8 @@ mod tests {
 
     #[test]
     fn test_round_trip_display_from_str() {
-        let original = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let original =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
         let string = original.to_string();
         let parsed = Bip44Path::from_str(&string).unwrap();
         assert_eq!(original, parsed);
@@ -1791,7 +1853,8 @@ mod tests {
 
     #[test]
     fn test_round_trip_complex_path() {
-        let original = Bip44Path::new(Purpose::BIP84, CoinType::Ethereum, 5, Chain::Internal, 100).unwrap();
+        let original =
+            Bip44Path::new(Purpose::BIP84, CoinType::Ethereum, 5, Chain::Internal, 100).unwrap();
         let string = original.to_string();
         let parsed = Bip44Path::from_str(&string).unwrap();
         assert_eq!(original, parsed);
@@ -1800,8 +1863,14 @@ mod tests {
 
     #[test]
     fn test_round_trip_all_purposes() {
-        for purpose in [Purpose::BIP44, Purpose::BIP49, Purpose::BIP84, Purpose::BIP86] {
-            let original = Bip44Path::new(purpose, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        for purpose in [
+            Purpose::BIP44,
+            Purpose::BIP49,
+            Purpose::BIP84,
+            Purpose::BIP86,
+        ] {
+            let original =
+                Bip44Path::new(purpose, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
             let string = original.to_string();
             let parsed = Bip44Path::from_str(&string).unwrap();
             assert_eq!(original, parsed);
@@ -1810,24 +1879,34 @@ mod tests {
 
     #[test]
     fn test_display_formatting() {
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
         assert_eq!(format!("{}", path), "m/44'/0'/0'/0/0");
-        assert_eq!(format!("{:?}", path).contains("Bip44Path"), true);
+        assert!(format!("{:?}", path).contains("Bip44Path"));
     }
 
     // Validation tests
     #[test]
     fn test_is_valid() {
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
         assert!(path.is_valid());
 
-        let path2 = Bip44Path::new(Purpose::BIP84, CoinType::Ethereum, 100, Chain::Internal, u32::MAX).unwrap();
+        let path2 = Bip44Path::new(
+            Purpose::BIP84,
+            CoinType::Ethereum,
+            100,
+            Chain::Internal,
+            u32::MAX,
+        )
+        .unwrap();
         assert!(path2.is_valid());
     }
 
     #[test]
     fn test_depth() {
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
         assert_eq!(path.depth(), 5);
     }
 
@@ -1838,7 +1917,7 @@ mod tests {
 
         let derivation = DerivationPath::from_str("m/44'/0'/0'/0/0").unwrap();
         let bip44 = Bip44Path::try_from(derivation).unwrap();
-        
+
         assert_eq!(bip44.purpose(), Purpose::BIP44);
         assert_eq!(bip44.coin_type(), CoinType::Bitcoin);
         assert_eq!(bip44.account(), 0);
@@ -1853,7 +1932,7 @@ mod tests {
 
         let derivation = DerivationPath::from_str("m/44'/60'/0'/0/0").unwrap();
         let bip44 = Bip44Path::try_from(derivation).unwrap();
-        
+
         assert_eq!(bip44.coin_type(), CoinType::Ethereum);
     }
 
@@ -1864,7 +1943,7 @@ mod tests {
 
         let derivation = DerivationPath::from_str("m/84'/0'/0'/0/0").unwrap();
         let bip44 = Bip44Path::try_from(derivation).unwrap();
-        
+
         assert_eq!(bip44.purpose(), Purpose::BIP84);
     }
 
@@ -1875,7 +1954,7 @@ mod tests {
 
         let derivation = DerivationPath::from_str("m/49'/2'/10'/1/999").unwrap();
         let bip44 = Bip44Path::try_from(derivation).unwrap();
-        
+
         assert_eq!(bip44.purpose(), Purpose::BIP49);
         assert_eq!(bip44.coin_type(), CoinType::Litecoin);
         assert_eq!(bip44.account(), 10);
@@ -1890,7 +1969,7 @@ mod tests {
 
         let derivation = DerivationPath::from_str("m/44'/0'/0'/0/0").unwrap();
         let bip44 = Bip44Path::try_from(&derivation).unwrap();
-        
+
         assert_eq!(bip44.purpose(), Purpose::BIP44);
         // Original should still be usable
         assert_eq!(derivation.depth(), 5);
@@ -1903,9 +1982,12 @@ mod tests {
 
         let derivation = DerivationPath::from_str("m/44'/0'/0'").unwrap();
         let result = Bip44Path::try_from(derivation);
-        
+
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), Error::InvalidDepth { depth: 3 }));
+        assert!(matches!(
+            result.unwrap_err(),
+            Error::InvalidDepth { depth: 3 }
+        ));
     }
 
     #[test]
@@ -1915,9 +1997,12 @@ mod tests {
 
         let derivation = DerivationPath::from_str("m/44'/0'/0'/0/0/1").unwrap();
         let result = Bip44Path::try_from(derivation);
-        
+
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), Error::InvalidDepth { depth: 6 }));
+        assert!(matches!(
+            result.unwrap_err(),
+            Error::InvalidDepth { depth: 6 }
+        ));
     }
 
     #[test]
@@ -1927,9 +2012,12 @@ mod tests {
 
         let derivation = DerivationPath::from_str("m/44/0'/0'/0/0").unwrap();
         let result = Bip44Path::try_from(derivation);
-        
+
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), Error::InvalidHardenedLevel { .. }));
+        assert!(matches!(
+            result.unwrap_err(),
+            Error::InvalidHardenedLevel { .. }
+        ));
     }
 
     #[test]
@@ -1939,9 +2027,12 @@ mod tests {
 
         let derivation = DerivationPath::from_str("m/44'/0/0'/0/0").unwrap();
         let result = Bip44Path::try_from(derivation);
-        
+
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), Error::InvalidHardenedLevel { .. }));
+        assert!(matches!(
+            result.unwrap_err(),
+            Error::InvalidHardenedLevel { .. }
+        ));
     }
 
     #[test]
@@ -1951,9 +2042,12 @@ mod tests {
 
         let derivation = DerivationPath::from_str("m/44'/0'/0/0/0").unwrap();
         let result = Bip44Path::try_from(derivation);
-        
+
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), Error::InvalidHardenedLevel { .. }));
+        assert!(matches!(
+            result.unwrap_err(),
+            Error::InvalidHardenedLevel { .. }
+        ));
     }
 
     #[test]
@@ -1963,9 +2057,12 @@ mod tests {
 
         let derivation = DerivationPath::from_str("m/44'/0'/0'/0'/0").unwrap();
         let result = Bip44Path::try_from(derivation);
-        
+
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), Error::InvalidHardenedLevel { .. }));
+        assert!(matches!(
+            result.unwrap_err(),
+            Error::InvalidHardenedLevel { .. }
+        ));
     }
 
     #[test]
@@ -1975,9 +2072,12 @@ mod tests {
 
         let derivation = DerivationPath::from_str("m/44'/0'/0'/0/0'").unwrap();
         let result = Bip44Path::try_from(derivation);
-        
+
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), Error::InvalidHardenedLevel { .. }));
+        assert!(matches!(
+            result.unwrap_err(),
+            Error::InvalidHardenedLevel { .. }
+        ));
     }
 
     #[test]
@@ -1987,9 +2087,12 @@ mod tests {
 
         let derivation = DerivationPath::from_str("m/99'/0'/0'/0/0").unwrap();
         let result = Bip44Path::try_from(derivation);
-        
+
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), Error::InvalidPurpose { value: 99 }));
+        assert!(matches!(
+            result.unwrap_err(),
+            Error::InvalidPurpose { value: 99 }
+        ));
     }
 
     #[test]
@@ -1999,14 +2102,17 @@ mod tests {
 
         let derivation = DerivationPath::from_str("m/44'/0'/0'/5/0").unwrap();
         let result = Bip44Path::try_from(derivation);
-        
+
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), Error::InvalidChain { value: 5 }));
+        assert!(matches!(
+            result.unwrap_err(),
+            Error::InvalidChain { value: 5 }
+        ));
     }
 
     #[test]
     fn test_try_from_derivation_path_invalid_account_too_large() {
-        use khodpay_bip32::{DerivationPath, ChildNumber};
+        use khodpay_bip32::{ChildNumber, DerivationPath};
 
         let derivation = DerivationPath::new(vec![
             ChildNumber::Hardened(44),
@@ -2015,7 +2121,7 @@ mod tests {
             ChildNumber::Normal(0),
             ChildNumber::Normal(0),
         ]);
-        
+
         let result = Bip44Path::try_from(derivation);
         assert!(result.is_err());
         assert!(matches!(result.unwrap_err(), Error::InvalidAccount { .. }));
@@ -2028,17 +2134,18 @@ mod tests {
 
         let derivation = DerivationPath::from_str("m/44'/999'/0'/0/0").unwrap();
         let bip44 = Bip44Path::try_from(derivation).unwrap();
-        
+
         assert_eq!(bip44.coin_type(), CoinType::Custom(999));
     }
 
     #[test]
     fn test_round_trip_bip44_to_derivation_to_bip44() {
-        let original = Bip44Path::new(Purpose::BIP84, CoinType::Ethereum, 5, Chain::Internal, 100).unwrap();
-        
+        let original =
+            Bip44Path::new(Purpose::BIP84, CoinType::Ethereum, 5, Chain::Internal, 100).unwrap();
+
         let derivation: DerivationPath = original.into();
         let converted = Bip44Path::try_from(derivation).unwrap();
-        
+
         assert_eq!(original, converted);
     }
 
@@ -2047,7 +2154,12 @@ mod tests {
         use khodpay_bip32::DerivationPath;
         use std::str::FromStr;
 
-        for (purpose_val, expected) in [(44, Purpose::BIP44), (49, Purpose::BIP49), (84, Purpose::BIP84), (86, Purpose::BIP86)] {
+        for (purpose_val, expected) in [
+            (44, Purpose::BIP44),
+            (49, Purpose::BIP49),
+            (84, Purpose::BIP84),
+            (86, Purpose::BIP86),
+        ] {
             let path_str = format!("m/{}'/0'/0'/0/0", purpose_val);
             let derivation = DerivationPath::from_str(&path_str).unwrap();
             let bip44 = Bip44Path::try_from(derivation).unwrap();
@@ -2062,7 +2174,7 @@ mod tests {
 
         let derivation = DerivationPath::from_str("m/49'/2'/10'/1/999").unwrap();
         let bip44 = Bip44Path::try_from(derivation).unwrap();
-        
+
         assert_eq!(bip44.purpose().value(), 49);
         assert_eq!(bip44.coin_type().index(), 2);
         assert_eq!(bip44.account(), 10);
@@ -2073,9 +2185,10 @@ mod tests {
     // Path manipulation tests
     #[test]
     fn test_next_address() {
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
         let next = path.next_address();
-        
+
         assert_eq!(next.address_index(), 1);
         assert_eq!(next.chain(), Chain::External);
         assert_eq!(next.account(), 0);
@@ -2085,8 +2198,9 @@ mod tests {
 
     #[test]
     fn test_next_address_sequence() {
-        let mut path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
-        
+        let mut path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+
         for i in 1..=10 {
             path = path.next_address();
             assert_eq!(path.address_index(), i);
@@ -2095,17 +2209,25 @@ mod tests {
 
     #[test]
     fn test_next_address_wrapping() {
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, u32::MAX).unwrap();
+        let path = Bip44Path::new(
+            Purpose::BIP44,
+            CoinType::Bitcoin,
+            0,
+            Chain::External,
+            u32::MAX,
+        )
+        .unwrap();
         let next = path.next_address();
-        
+
         assert_eq!(next.address_index(), 0); // Wraps around
     }
 
     #[test]
     fn test_with_address_index() {
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
         let new_path = path.with_address_index(100);
-        
+
         assert_eq!(new_path.address_index(), 100);
         assert_eq!(new_path.chain(), path.chain());
         assert_eq!(new_path.account(), path.account());
@@ -2113,9 +2235,10 @@ mod tests {
 
     #[test]
     fn test_with_chain() {
-        let external = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 5).unwrap();
+        let external =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 5).unwrap();
         let internal = external.with_chain(Chain::Internal);
-        
+
         assert_eq!(internal.chain(), Chain::Internal);
         assert_eq!(internal.address_index(), 5);
         assert_eq!(internal.account(), 0);
@@ -2123,37 +2246,41 @@ mod tests {
 
     #[test]
     fn test_to_external() {
-        let change = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::Internal, 5).unwrap();
+        let change =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::Internal, 5).unwrap();
         let receive = change.to_external();
-        
+
         assert_eq!(receive.chain(), Chain::External);
         assert_eq!(receive.address_index(), 5);
     }
 
     #[test]
     fn test_to_internal() {
-        let receive = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 5).unwrap();
+        let receive =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 5).unwrap();
         let change = receive.to_internal();
-        
+
         assert_eq!(change.chain(), Chain::Internal);
         assert_eq!(change.address_index(), 5);
     }
 
     #[test]
     fn test_chain_switching() {
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 10).unwrap();
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 10).unwrap();
         let internal = path.to_internal();
         let external_again = internal.to_external();
-        
+
         assert_eq!(external_again.chain(), Chain::External);
         assert_eq!(external_again.address_index(), 10);
     }
 
     #[test]
     fn test_with_account() {
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
         let new_path = path.with_account(5).unwrap();
-        
+
         assert_eq!(new_path.account(), 5);
         assert_eq!(new_path.purpose(), path.purpose());
         assert_eq!(new_path.coin_type(), path.coin_type());
@@ -2161,18 +2288,20 @@ mod tests {
 
     #[test]
     fn test_with_account_invalid() {
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
         let result = path.with_account(MAX_HARDENED_INDEX + 1);
-        
+
         assert!(result.is_err());
         assert!(matches!(result.unwrap_err(), Error::InvalidAccount { .. }));
     }
 
     #[test]
     fn test_next_account() {
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
         let next = path.next_account().unwrap();
-        
+
         assert_eq!(next.account(), 1);
         assert_eq!(next.purpose(), path.purpose());
         assert_eq!(next.coin_type(), path.coin_type());
@@ -2180,8 +2309,9 @@ mod tests {
 
     #[test]
     fn test_next_account_sequence() {
-        let mut path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
-        
+        let mut path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+
         for i in 1..=5 {
             path = path.next_account().unwrap();
             assert_eq!(path.account(), i);
@@ -2190,18 +2320,26 @@ mod tests {
 
     #[test]
     fn test_next_account_overflow() {
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, MAX_HARDENED_INDEX, Chain::External, 0).unwrap();
+        let path = Bip44Path::new(
+            Purpose::BIP44,
+            CoinType::Bitcoin,
+            MAX_HARDENED_INDEX,
+            Chain::External,
+            0,
+        )
+        .unwrap();
         let result = path.next_account();
-        
+
         assert!(result.is_err());
         assert!(matches!(result.unwrap_err(), Error::InvalidAccount { .. }));
     }
 
     #[test]
     fn test_with_purpose() {
-        let bip44 = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let bip44 =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
         let bip84 = bip44.with_purpose(Purpose::BIP84);
-        
+
         assert_eq!(bip84.purpose(), Purpose::BIP84);
         assert_eq!(bip84.coin_type(), bip44.coin_type());
         assert_eq!(bip84.account(), bip44.account());
@@ -2209,9 +2347,15 @@ mod tests {
 
     #[test]
     fn test_purpose_switching() {
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
-        
-        for purpose in [Purpose::BIP44, Purpose::BIP49, Purpose::BIP84, Purpose::BIP86] {
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+
+        for purpose in [
+            Purpose::BIP44,
+            Purpose::BIP49,
+            Purpose::BIP84,
+            Purpose::BIP86,
+        ] {
             let new_path = path.with_purpose(purpose);
             assert_eq!(new_path.purpose(), purpose);
         }
@@ -2221,7 +2365,7 @@ mod tests {
     fn test_with_coin_type() {
         let btc = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
         let eth = btc.with_coin_type(CoinType::Ethereum);
-        
+
         assert_eq!(eth.coin_type(), CoinType::Ethereum);
         assert_eq!(eth.purpose(), btc.purpose());
         assert_eq!(eth.account(), btc.account());
@@ -2229,27 +2373,30 @@ mod tests {
 
     #[test]
     fn test_coin_type_switching() {
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
-        
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+
         let eth = path.with_coin_type(CoinType::Ethereum);
         let ltc = eth.with_coin_type(CoinType::Litecoin);
         let custom = ltc.with_coin_type(CoinType::Custom(999));
-        
+
         assert_eq!(custom.coin_type(), CoinType::Custom(999));
     }
 
     #[test]
     fn test_complex_path_manipulation() {
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
-        
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+
         let result = path
             .next_address()
             .next_address()
             .to_internal()
             .with_address_index(5)
-            .next_account().unwrap()
+            .next_account()
+            .unwrap()
             .with_purpose(Purpose::BIP84);
-        
+
         assert_eq!(result.purpose(), Purpose::BIP84);
         assert_eq!(result.account(), 1);
         assert_eq!(result.chain(), Chain::Internal);
@@ -2258,22 +2405,24 @@ mod tests {
 
     #[test]
     fn test_path_immutability() {
-        let original = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let original =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
         let _modified = original.next_address();
-        
+
         // Original should be unchanged
         assert_eq!(original.address_index(), 0);
     }
 
     #[test]
     fn test_generate_address_range() {
-        let base = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let base =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
         let mut paths = vec![base];
-        
+
         for _ in 0..9 {
             paths.push(paths.last().unwrap().next_address());
         }
-        
+
         assert_eq!(paths.len(), 10);
         for (i, path) in paths.iter().enumerate() {
             assert_eq!(path.address_index(), i as u32);
@@ -2282,11 +2431,12 @@ mod tests {
 
     #[test]
     fn test_account_and_chain_combination() {
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
-        
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+
         // Switch to account 1, internal chain
         let modified = path.with_account(1).unwrap().to_internal();
-        
+
         assert_eq!(modified.account(), 1);
         assert_eq!(modified.chain(), Chain::Internal);
         assert_eq!(modified.address_index(), 0);
@@ -2294,15 +2444,17 @@ mod tests {
 
     #[test]
     fn test_all_fields_independence() {
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
-        
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+
         let modified = path
             .with_purpose(Purpose::BIP84)
             .with_coin_type(CoinType::Ethereum)
-            .with_account(5).unwrap()
+            .with_account(5)
+            .unwrap()
             .with_chain(Chain::Internal)
             .with_address_index(100);
-        
+
         assert_eq!(modified.purpose(), Purpose::BIP84);
         assert_eq!(modified.coin_type(), CoinType::Ethereum);
         assert_eq!(modified.account(), 5);
@@ -2313,19 +2465,21 @@ mod tests {
     #[cfg(feature = "serde")]
     #[test]
     fn test_serialize_deserialize() {
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 5).unwrap();
-        
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 5).unwrap();
+
         let json = serde_json::to_string(&path).unwrap();
         let deserialized: Bip44Path = serde_json::from_str(&json).unwrap();
-        
+
         assert_eq!(path, deserialized);
     }
 
     #[cfg(feature = "serde")]
     #[test]
     fn test_serialize_format() {
-        let path = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
-        
+        let path =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+
         let json = serde_json::to_string(&path).unwrap();
         assert!(json.contains("\"purpose\""));
         assert!(json.contains("\"coin_type\""));
@@ -2339,7 +2493,7 @@ mod tests {
     fn test_deserialize_from_json() {
         let json = r#"{"purpose":"BIP44","coin_type":"Bitcoin","account":0,"chain":"External","address_index":5}"#;
         let path: Bip44Path = serde_json::from_str(json).unwrap();
-        
+
         assert_eq!(path.purpose(), Purpose::BIP44);
         assert_eq!(path.coin_type(), CoinType::Bitcoin);
         assert_eq!(path.account(), 0);
@@ -2350,14 +2504,17 @@ mod tests {
     #[cfg(feature = "serde")]
     #[test]
     fn test_serialize_different_purposes() {
-        let bip44 = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
-        let bip49 = Bip44Path::new(Purpose::BIP49, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
-        let bip84 = Bip44Path::new(Purpose::BIP84, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
-        
+        let bip44 =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let bip49 =
+            Bip44Path::new(Purpose::BIP49, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let bip84 =
+            Bip44Path::new(Purpose::BIP84, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+
         let json44 = serde_json::to_string(&bip44).unwrap();
         let json49 = serde_json::to_string(&bip49).unwrap();
         let json84 = serde_json::to_string(&bip84).unwrap();
-        
+
         assert!(json44.contains("BIP44"));
         assert!(json49.contains("BIP49"));
         assert!(json84.contains("BIP84"));
@@ -2367,11 +2524,12 @@ mod tests {
     #[test]
     fn test_serialize_different_coins() {
         let btc = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
-        let eth = Bip44Path::new(Purpose::BIP44, CoinType::Ethereum, 0, Chain::External, 0).unwrap();
-        
+        let eth =
+            Bip44Path::new(Purpose::BIP44, CoinType::Ethereum, 0, Chain::External, 0).unwrap();
+
         let json_btc = serde_json::to_string(&btc).unwrap();
         let json_eth = serde_json::to_string(&eth).unwrap();
-        
+
         assert!(json_btc.contains("Bitcoin"));
         assert!(json_eth.contains("Ethereum"));
     }
@@ -2379,12 +2537,14 @@ mod tests {
     #[cfg(feature = "serde")]
     #[test]
     fn test_serialize_both_chains() {
-        let external = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
-        let internal = Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::Internal, 0).unwrap();
-        
+        let external =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::External, 0).unwrap();
+        let internal =
+            Bip44Path::new(Purpose::BIP44, CoinType::Bitcoin, 0, Chain::Internal, 0).unwrap();
+
         let json_ext = serde_json::to_string(&external).unwrap();
         let json_int = serde_json::to_string(&internal).unwrap();
-        
+
         assert!(json_ext.contains("External"));
         assert!(json_int.contains("Internal"));
     }
@@ -2392,11 +2552,12 @@ mod tests {
     #[cfg(feature = "serde")]
     #[test]
     fn test_serde_round_trip_complex() {
-        let path = Bip44Path::new(Purpose::BIP84, CoinType::Ethereum, 5, Chain::Internal, 1000).unwrap();
-        
+        let path =
+            Bip44Path::new(Purpose::BIP84, CoinType::Ethereum, 5, Chain::Internal, 1000).unwrap();
+
         let json = serde_json::to_string(&path).unwrap();
         let deserialized: Bip44Path = serde_json::from_str(&json).unwrap();
-        
+
         assert_eq!(path, deserialized);
         assert_eq!(deserialized.purpose(), Purpose::BIP84);
         assert_eq!(deserialized.coin_type(), CoinType::Ethereum);

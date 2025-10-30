@@ -15,21 +15,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Create a wallet from a mnemonic
     let mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
-    
-    let mut wallet = Wallet::from_mnemonic(
-        mnemonic,
-        "",
-        Language::English,
-        Network::BitcoinMainnet,
-    )?;
-    
+
+    let mut wallet =
+        Wallet::from_mnemonic(mnemonic, "", Language::English, Network::BitcoinMainnet)?;
+
     println!("Wallet created from mnemonic\n");
 
     // Bitcoin (Legacy BIP-44)
     println!("--- Bitcoin (BIP-44 Legacy) ---");
     let btc_account = wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 0)?;
     let btc_addr = btc_account.derive_external(0)?;
-    println!("  Coin: {} ({})", btc_account.coin_type().name(), btc_account.coin_type().symbol());
+    println!(
+        "  Coin: {} ({})",
+        btc_account.coin_type().name(),
+        btc_account.coin_type().symbol()
+    );
     println!("  Path: m/44'/0'/0'/0/0");
     println!("  Depth: {}", btc_addr.depth());
     println!("  Address type: Legacy (1...)");
@@ -39,7 +39,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("--- Bitcoin (BIP-84 Native SegWit) ---");
     let btc_segwit = wallet.get_account(Purpose::BIP84, CoinType::Bitcoin, 0)?;
     let btc_segwit_addr = btc_segwit.derive_external(0)?;
-    println!("  Coin: {} ({})", btc_segwit.coin_type().name(), btc_segwit.coin_type().symbol());
+    println!(
+        "  Coin: {} ({})",
+        btc_segwit.coin_type().name(),
+        btc_segwit.coin_type().symbol()
+    );
     println!("  Path: m/84'/0'/0'/0/0");
     println!("  Depth: {}", btc_segwit_addr.depth());
     println!("  Address type: Native SegWit (bc1q...)");
@@ -49,7 +53,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("--- Bitcoin (BIP-86 Taproot) ---");
     let btc_taproot = wallet.get_account(Purpose::BIP86, CoinType::Bitcoin, 0)?;
     let btc_taproot_addr = btc_taproot.derive_external(0)?;
-    println!("  Coin: {} ({})", btc_taproot.coin_type().name(), btc_taproot.coin_type().symbol());
+    println!(
+        "  Coin: {} ({})",
+        btc_taproot.coin_type().name(),
+        btc_taproot.coin_type().symbol()
+    );
     println!("  Path: m/86'/0'/0'/0/0");
     println!("  Depth: {}", btc_taproot_addr.depth());
     println!("  Address type: Taproot (bc1p...)");
@@ -59,7 +67,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("--- Ethereum ---");
     let eth_account = wallet.get_account(Purpose::BIP44, CoinType::Ethereum, 0)?;
     let eth_addr = eth_account.derive_external(0)?;
-    println!("  Coin: {} ({})", eth_account.coin_type().name(), eth_account.coin_type().symbol());
+    println!(
+        "  Coin: {} ({})",
+        eth_account.coin_type().name(),
+        eth_account.coin_type().symbol()
+    );
     println!("  Path: m/44'/60'/0'/0/0");
     println!("  Depth: {}", eth_addr.depth());
     println!("  Coin type: {}", eth_account.coin_type().index());
@@ -69,7 +81,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("--- Litecoin ---");
     let ltc_account = wallet.get_account(Purpose::BIP44, CoinType::Litecoin, 0)?;
     let ltc_addr = ltc_account.derive_external(0)?;
-    println!("  Coin: {} ({})", ltc_account.coin_type().name(), ltc_account.coin_type().symbol());
+    println!(
+        "  Coin: {} ({})",
+        ltc_account.coin_type().name(),
+        ltc_account.coin_type().symbol()
+    );
     println!("  Path: m/44'/2'/0'/0/0");
     println!("  Depth: {}", ltc_addr.depth());
     println!("  Coin type: {}", ltc_account.coin_type().index());
@@ -79,7 +95,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("--- Dogecoin ---");
     let doge_account = wallet.get_account(Purpose::BIP44, CoinType::Dogecoin, 0)?;
     let doge_addr = doge_account.derive_external(0)?;
-    println!("  Coin: {} ({})", doge_account.coin_type().name(), doge_account.coin_type().symbol());
+    println!(
+        "  Coin: {} ({})",
+        doge_account.coin_type().name(),
+        doge_account.coin_type().symbol()
+    );
     println!("  Path: m/44'/3'/0'/0/0");
     println!("  Depth: {}", doge_addr.depth());
     println!("  Coin type: {}", doge_account.coin_type().index());
@@ -104,6 +124,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!();
 
     println!("=== Example Complete ===");
-    
+
     Ok(())
 }
