@@ -113,7 +113,7 @@ Test boundary conditions, max values, and use proptest for property-based testin
 ### ✅ Task 30: Add comprehensive API documentation with usage examples
 Document all public APIs with doc comments. Include code examples for common operations.
 
-### 🔲 Task 31: Create README.md with quick start, path structure, and security considerations
+### ✅ Task 31: Create README.md with quick start, path structure, and security considerations
 Write README with installation, usage examples, BIP44 path explanation, and security best practices.
 
 ### 🔲 Task 32: Create examples directory with common use cases (basic, multi-account, discovery, multi-coin)
