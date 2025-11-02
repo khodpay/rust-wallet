@@ -10,6 +10,13 @@ use khodpay_bip32::{
     Network, DerivationPath, ChildNumber,
 };
 use khodpay_bip39::{Mnemonic as RustMnemonic, WordCount, Language};
+use khodpay_bip44::{
+    Wallet as RustWallet,
+    Purpose as RustPurpose,
+    CoinType as RustCoinType,
+    Chain as RustChain,
+    Bip44Path as RustBip44Path,
+};
 use std::str::FromStr;
 
 // =============================================================================
@@ -38,6 +45,103 @@ impl From<Network> for NetworkType {
         match n {
             Network::BitcoinMainnet => NetworkType::BitcoinMainnet,
             Network::BitcoinTestnet => NetworkType::BitcoinTestnet,
+        }
+    }
+}
+
+/// BIP44 Purpose types (derivation standards)
+#[frb]
+#[derive(Debug, Clone, Copy)]
+pub enum PurposeType {
+    BIP44,
+    BIP49,
+    BIP84,
+    BIP86,
+}
+
+impl From<PurposeType> for RustPurpose {
+    fn from(pt: PurposeType) -> Self {
+        match pt {
+            PurposeType::BIP44 => RustPurpose::BIP44,
+            PurposeType::BIP49 => RustPurpose::BIP49,
+            PurposeType::BIP84 => RustPurpose::BIP84,
+            PurposeType::BIP86 => RustPurpose::BIP86,
+        }
+    }
+}
+
+impl From<RustPurpose> for PurposeType {
+    fn from(p: RustPurpose) -> Self {
+        match p {
+            RustPurpose::BIP44 => PurposeType::BIP44,
+            RustPurpose::BIP49 => PurposeType::BIP49,
+            RustPurpose::BIP84 => PurposeType::BIP84,
+            RustPurpose::BIP86 => PurposeType::BIP86,
+        }
+    }
+}
+
+/// BIP44 Coin types (cryptocurrencies)
+#[frb]
+#[derive(Debug, Clone, Copy)]
+pub enum CoinType {
+    Bitcoin,
+    BitcoinTestnet,
+    Litecoin,
+    Dogecoin,
+    Ethereum,
+    Custom(u32),
+}
+
+impl From<CoinType> for RustCoinType {
+    fn from(ct: CoinType) -> Self {
+        match ct {
+            CoinType::Bitcoin => RustCoinType::Bitcoin,
+            CoinType::BitcoinTestnet => RustCoinType::BitcoinTestnet,
+            CoinType::Litecoin => RustCoinType::Litecoin,
+            CoinType::Dogecoin => RustCoinType::Dogecoin,
+            CoinType::Ethereum => RustCoinType::Ethereum,
+            CoinType::Custom(index) => RustCoinType::Custom(index),
+        }
+    }
+}
+
+impl From<RustCoinType> for CoinType {
+    fn from(ct: RustCoinType) -> Self {
+        match ct {
+            RustCoinType::Bitcoin => CoinType::Bitcoin,
+            RustCoinType::BitcoinTestnet => CoinType::BitcoinTestnet,
+            RustCoinType::Litecoin => CoinType::Litecoin,
+            RustCoinType::Dogecoin => CoinType::Dogecoin,
+            RustCoinType::Ethereum => CoinType::Ethereum,
+            RustCoinType::Custom(index) => CoinType::Custom(index),
+            _ => CoinType::Custom(ct.index()),
+        }
+    }
+}
+
+/// BIP44 Chain type (external/internal)
+#[frb]
+#[derive(Debug, Clone, Copy)]
+pub enum ChainType {
+    External,
+    Internal,
+}
+
+impl From<ChainType> for RustChain {
+    fn from(ct: ChainType) -> Self {
+        match ct {
+            ChainType::External => RustChain::External,
+            ChainType::Internal => RustChain::Internal,
+        }
+    }
+}
+
+impl From<RustChain> for ChainType {
+    fn from(c: RustChain) -> Self {
+        match c {
+            RustChain::External => ChainType::External,
+            RustChain::Internal => ChainType::Internal,
         }
     }
 }
@@ -309,6 +413,140 @@ impl ExtendedPublicKey {
     }
 }
 
+/// Flutter wrapper for BIP44 Wallet - provides OOP interface
+#[frb]
+pub struct Bip44Wallet {
+    inner: RustWallet,
+}
+
+#[frb]
+impl Bip44Wallet {
+    /// Create a new BIP44 wallet from mnemonic
+    #[frb]
+    pub fn from_mnemonic(
+        mnemonic: String,
+        passphrase: Option<String>,
+        network: NetworkType,
+    ) -> Result<Self, String> {
+        let wallet = RustWallet::from_english_mnemonic(
+            &mnemonic,
+            passphrase.as_deref().unwrap_or(""),
+            network.into(),
+        )
+        .map_err(|e| format!("Failed to create wallet: {}", e))?;
+        
+        Ok(Self { inner: wallet })
+    }
+
+    /// Create a new BIP44 wallet from seed
+    #[frb]
+    pub fn from_seed(seed: Vec<u8>, network: NetworkType) -> Result<Self, String> {
+        let wallet = RustWallet::from_seed(&seed, network.into())
+            .map_err(|e| format!("Failed to create wallet: {}", e))?;
+        
+        Ok(Self { inner: wallet })
+    }
+
+    /// Get the network this wallet operates on
+    #[frb]
+    pub fn network(&self) -> NetworkType {
+        self.inner.network().into()
+    }
+
+    /// Get an account for a specific coin type
+    #[frb]
+    pub fn get_account(
+        &mut self,
+        purpose: PurposeType,
+        coin_type: CoinType,
+        account_index: u32,
+    ) -> Result<Bip44Account, String> {
+        let network = self.inner.network();
+        let account = self.inner
+            .get_account(purpose.into(), coin_type.into(), account_index)
+            .map_err(|e| format!("Failed to get account: {}", e))?;
+        
+        Ok(Bip44Account {
+            purpose: purpose,
+            coin_type: coin_type,
+            account_index,
+            network: network.into(),
+            account_key: account.extended_key().to_string(),
+        })
+    }
+}
+
+/// Flutter wrapper for BIP44 Account
+#[frb]
+#[derive(Debug, Clone)]
+pub struct Bip44Account {
+    pub purpose: PurposeType,
+    pub coin_type: CoinType,
+    pub account_index: u32,
+    pub network: NetworkType,
+    pub account_key: String,
+}
+
+#[frb]
+impl Bip44Account {
+    /// Derive an external (receiving) address at the given index
+    #[frb]
+    pub fn derive_external(&self, index: u32) -> Result<String, String> {
+        let account_key = RustExtendedPrivateKey::from_str(&self.account_key)
+            .map_err(|e| format!("Invalid account key: {}", e))?;
+        
+        // Derive m/0/index (external chain)
+        let chain_key = account_key
+            .derive_child(ChildNumber::Normal(0))
+            .map_err(|e| format!("Failed to derive chain: {}", e))?;
+        
+        let address_key = chain_key
+            .derive_child(ChildNumber::Normal(index))
+            .map_err(|e| format!("Failed to derive address: {}", e))?;
+        
+        Ok(address_key.to_string())
+    }
+
+    /// Derive an internal (change) address at the given index
+    #[frb]
+    pub fn derive_internal(&self, index: u32) -> Result<String, String> {
+        let account_key = RustExtendedPrivateKey::from_str(&self.account_key)
+            .map_err(|e| format!("Invalid account key: {}", e))?;
+        
+        // Derive m/1/index (internal chain)
+        let chain_key = account_key
+            .derive_child(ChildNumber::Normal(1))
+            .map_err(|e| format!("Failed to derive chain: {}", e))?;
+        
+        let address_key = chain_key
+            .derive_child(ChildNumber::Normal(index))
+            .map_err(|e| format!("Failed to derive address: {}", e))?;
+        
+        Ok(address_key.to_string())
+    }
+
+    /// Derive a range of addresses
+    #[frb]
+    pub fn derive_address_range(
+        &self,
+        chain: ChainType,
+        start: u32,
+        count: u32,
+    ) -> Result<Vec<String>, String> {
+        let mut addresses = Vec::new();
+        
+        for i in start..(start + count) {
+            let address = match chain {
+                ChainType::External => self.derive_external(i)?,
+                ChainType::Internal => self.derive_internal(i)?,
+            };
+            addresses.push(address);
+        }
+        
+        Ok(addresses)
+    }
+}
+
 // =============================================================================
 // PART 3: UTILITY FUNCTIONS (Convenience API)
 // =============================================================================
@@ -446,6 +684,120 @@ pub fn create_bip44_wallet(
         message: format!("Wallet created with path: {}", path_str),
         data: Some(account_key.to_string()),
     })
+}
+
+/// Create a BIP44 wallet from mnemonic and derive an account (utility function)
+#[frb]
+pub fn create_bip44_account(
+    mnemonic: String,
+    passphrase: Option<String>,
+    purpose: PurposeType,
+    coin_type: CoinType,
+    account_index: u32,
+    network: NetworkType,
+) -> Result<String, String> {
+    let mut wallet = RustWallet::from_english_mnemonic(
+        &mnemonic,
+        passphrase.as_deref().unwrap_or(""),
+        network.into(),
+    )
+    .map_err(|e| format!("Failed to create wallet: {}", e))?;
+
+    let account = wallet
+        .get_account(purpose.into(), coin_type.into(), account_index)
+        .map_err(|e| format!("Failed to get account: {}", e))?;
+
+    Ok(account.extended_key().to_string())
+}
+
+/// Derive a BIP44 address from account key
+#[frb]
+pub fn derive_bip44_address(
+    account_key: String,
+    chain: ChainType,
+    address_index: u32,
+) -> Result<String, String> {
+    let account = RustExtendedPrivateKey::from_str(&account_key)
+        .map_err(|e| format!("Invalid account key: {}", e))?;
+
+    let chain_value = match chain {
+        ChainType::External => 0,
+        ChainType::Internal => 1,
+    };
+
+    let chain_key = account
+        .derive_child(ChildNumber::Normal(chain_value))
+        .map_err(|e| format!("Failed to derive chain: {}", e))?;
+
+    let address_key = chain_key
+        .derive_child(ChildNumber::Normal(address_index))
+        .map_err(|e| format!("Failed to derive address: {}", e))?;
+
+    Ok(address_key.to_string())
+}
+
+/// Parse a BIP44 path string (e.g., "m/44'/0'/0'/0/0")
+#[frb]
+pub fn parse_bip44_path(path: String) -> Result<WalletResult, String> {
+    let bip44_path = RustBip44Path::from_str(&path)
+        .map_err(|e| format!("Invalid BIP44 path: {}", e))?;
+
+    let purpose: PurposeType = bip44_path.purpose().into();
+    let coin_type: CoinType = bip44_path.coin_type().into();
+    let chain: ChainType = bip44_path.chain().into();
+
+    let info = format!(
+        "Purpose: {:?}, Coin: {:?}, Account: {}, Chain: {:?}, Index: {}",
+        purpose,
+        coin_type,
+        bip44_path.account(),
+        chain,
+        bip44_path.address_index()
+    );
+
+    Ok(WalletResult {
+        success: true,
+        message: "Path parsed successfully".to_string(),
+        data: Some(info),
+    })
+}
+
+/// Get coin type information
+#[frb]
+pub fn get_coin_info(coin_type: CoinType) -> WalletResult {
+    let rust_coin: RustCoinType = coin_type.into();
+    
+    let info = format!(
+        "Name: {}, Symbol: {}, Index: {}",
+        rust_coin.name(),
+        rust_coin.symbol(),
+        rust_coin.index()
+    );
+
+    WalletResult {
+        success: true,
+        message: "Coin info retrieved".to_string(),
+        data: Some(info),
+    }
+}
+
+/// Get purpose information
+#[frb]
+pub fn get_purpose_info(purpose: PurposeType) -> WalletResult {
+    let rust_purpose: RustPurpose = purpose.into();
+    
+    let info = format!(
+        "Name: {}, Value: {}, Description: {}",
+        rust_purpose.name(),
+        rust_purpose.value(),
+        rust_purpose.description()
+    );
+
+    WalletResult {
+        success: true,
+        message: "Purpose info retrieved".to_string(),
+        data: Some(info),
+    }
 }
 
 // =============================================================================

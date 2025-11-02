@@ -19,6 +19,7 @@ flutter_rust_bridge = "=2.11.1"
 # Local crates - your wallet functionality
 khodpay-bip32 = { version = "0.2.0", path = "../bip32" }
 khodpay-bip39 = { version = "0.2.0", path = "../bip39" }
+khodpay-bip44 = { version = "0.1.0", path = "../bip44" }
 
 # Optional: For serializable structs
 serde = { version = "1", features = ["derive"] }

@@ -5,206 +5,318 @@
 
 import 'frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
+import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
+part 'bridge.freezed.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `fmt`, `fmt`, `from`, `from`
+            // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 
-/// Generate a new BIP39 mnemonic phrase (returns string)
-Future<String> generateMnemonic({required int wordCount}) =>
-    RustLib.instance.api.crateBridgeGenerateMnemonic(wordCount: wordCount);
+
+            /// Generate a new BIP39 mnemonic phrase (returns string)
+Future<String>  generateMnemonic({required int wordCount }) => RustLib.instance.api.crateBridgeGenerateMnemonic(wordCount: wordCount);
 
 /// Validate a mnemonic phrase
-Future<bool> validateMnemonic({required String phrase}) =>
-    RustLib.instance.api.crateBridgeValidateMnemonic(phrase: phrase);
+Future<bool>  validateMnemonic({required String phrase }) => RustLib.instance.api.crateBridgeValidateMnemonic(phrase: phrase);
 
 /// Create a master extended private key from a mnemonic string
-Future<String> createMasterKey({
-  required String mnemonic,
-  String? passphrase,
-  required NetworkType network,
-}) => RustLib.instance.api.crateBridgeCreateMasterKey(
-  mnemonic: mnemonic,
-  passphrase: passphrase,
-  network: network,
-);
+Future<String>  createMasterKey({required String mnemonic , String? passphrase , required NetworkType network }) => RustLib.instance.api.crateBridgeCreateMasterKey(mnemonic: mnemonic, passphrase: passphrase, network: network);
 
 /// Derive a child key from an extended private key using a derivation path
-Future<String> deriveKey({
-  required String extendedKey,
-  required String derivationPath,
-}) => RustLib.instance.api.crateBridgeDeriveKey(
-  extendedKey: extendedKey,
-  derivationPath: derivationPath,
-);
+Future<String>  deriveKey({required String extendedKey , required String derivationPath }) => RustLib.instance.api.crateBridgeDeriveKey(extendedKey: extendedKey, derivationPath: derivationPath);
 
 /// Get the public key from an extended private key string
-Future<String> getPublicKey({required String extendedPrivateKey}) => RustLib
-    .instance
-    .api
-    .crateBridgeGetPublicKey(extendedPrivateKey: extendedPrivateKey);
+Future<String>  getPublicKey({required String extendedPrivateKey }) => RustLib.instance.api.crateBridgeGetPublicKey(extendedPrivateKey: extendedPrivateKey);
 
 /// Get address from an extended private key at specific index
-Future<String> getAddress({
-  required String extendedPrivateKey,
-  required int addressIndex,
-}) => RustLib.instance.api.crateBridgeGetAddress(
-  extendedPrivateKey: extendedPrivateKey,
-  addressIndex: addressIndex,
-);
+Future<String>  getAddress({required String extendedPrivateKey , required int addressIndex }) => RustLib.instance.api.crateBridgeGetAddress(extendedPrivateKey: extendedPrivateKey, addressIndex: addressIndex);
 
 /// Create a complete BIP44 wallet and return the account key
-Future<WalletResult> createBip44Wallet({
-  required String mnemonic,
-  String? passphrase,
-  required int accountIndex,
-  required NetworkType network,
-}) => RustLib.instance.api.crateBridgeCreateBip44Wallet(
-  mnemonic: mnemonic,
-  passphrase: passphrase,
-  accountIndex: accountIndex,
-  network: network,
-);
+Future<WalletResult>  createBip44Wallet({required String mnemonic , String? passphrase , required int accountIndex , required NetworkType network }) => RustLib.instance.api.crateBridgeCreateBip44Wallet(mnemonic: mnemonic, passphrase: passphrase, accountIndex: accountIndex, network: network);
+
+/// Create a BIP44 wallet from mnemonic and derive an account (utility function)
+Future<String>  createBip44Account({required String mnemonic , String? passphrase , required PurposeType purpose , required CoinType coinType , required int accountIndex , required NetworkType network }) => RustLib.instance.api.crateBridgeCreateBip44Account(mnemonic: mnemonic, passphrase: passphrase, purpose: purpose, coinType: coinType, accountIndex: accountIndex, network: network);
+
+/// Derive a BIP44 address from account key
+Future<String>  deriveBip44Address({required String accountKey , required ChainType chain , required int addressIndex }) => RustLib.instance.api.crateBridgeDeriveBip44Address(accountKey: accountKey, chain: chain, addressIndex: addressIndex);
+
+/// Parse a BIP44 path string (e.g., "m/44'/0'/0'/0/0")
+Future<WalletResult>  parseBip44Path({required String path }) => RustLib.instance.api.crateBridgeParseBip44Path(path: path);
+
+/// Get coin type information
+Future<WalletResult>  getCoinInfo({required CoinType coinType }) => RustLib.instance.api.crateBridgeGetCoinInfo(coinType: coinType);
+
+/// Get purpose information
+Future<WalletResult>  getPurposeInfo({required PurposeType purpose }) => RustLib.instance.api.crateBridgeGetPurposeInfo(purpose: purpose);
 
 /// Simple health check function
-Future<String> healthCheck() => RustLib.instance.api.crateBridgeHealthCheck();
+Future<String>  healthCheck() => RustLib.instance.api.crateBridgeHealthCheck();
 
 /// Add two numbers (example from the article)
-Future<int> add({required int a, required int b}) =>
-    RustLib.instance.api.crateBridgeAdd(a: a, b: b);
+Future<int>  add({required int a , required int b }) => RustLib.instance.api.crateBridgeAdd(a: a, b: b);
 
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ExtendedPrivateKey>>
-abstract class ExtendedPrivateKey implements RustOpaqueInterface {
-  /// Get the child number index
-  Future<int> childNumberIndex();
+            
+                // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Bip44Wallet>>
+                abstract class Bip44Wallet implements RustOpaqueInterface {
+                    /// Create a new BIP44 wallet from mnemonic
+static Future<Bip44Wallet>  fromMnemonic({required String mnemonic , String? passphrase , required NetworkType network })=>RustLib.instance.api.crateBridgeBip44WalletFromMnemonic(mnemonic: mnemonic, passphrase: passphrase, network: network);
 
-  /// Get the depth in derivation tree (0 = master, 1 = level-1 child, etc.)
-  Future<int> depth();
 
-  /// Derive a single child key
-  Future<ExtendedPrivateKey> deriveChild({
-    required int index,
-    required bool hardened,
-  });
+/// Create a new BIP44 wallet from seed
+static Future<Bip44Wallet>  fromSeed({required List<int> seed , required NetworkType network })=>RustLib.instance.api.crateBridgeBip44WalletFromSeed(seed: seed, network: network);
 
-  /// Derive using a path string (e.g., "m/44'/0'/0'/0/0")
-  Future<ExtendedPrivateKey> derivePath({required String path});
 
-  /// Get this key's fingerprint (4 bytes)
-  Future<Uint8List> fingerprint();
+/// Get an account for a specific coin type
+ Future<Bip44Account>  getAccount({required PurposeType purpose , required CoinType coinType , required int accountIndex });
 
-  /// Create master key from mnemonic
-  static Future<ExtendedPrivateKey> fromMnemonic({
-    required Mnemonic mnemonic,
-    String? passphrase,
-    required NetworkType network,
-  }) => RustLib.instance.api.crateBridgeExtendedPrivateKeyFromMnemonic(
-    mnemonic: mnemonic,
-    passphrase: passphrase,
-    network: network,
-  );
 
-  /// Create master key from seed bytes
-  static Future<ExtendedPrivateKey> fromSeed({
-    required List<int> seed,
-    required NetworkType network,
-  }) => RustLib.instance.api.crateBridgeExtendedPrivateKeyFromSeed(
-    seed: seed,
-    network: network,
-  );
+/// Get the network this wallet operates on
+ Future<NetworkType>  network();
 
-  /// Parse from string (xprv... format)
-  static Future<ExtendedPrivateKey> fromString({required String s}) =>
-      RustLib.instance.api.crateBridgeExtendedPrivateKeyFromString(s: s);
 
-  /// Check if this is a hardened key
-  Future<bool> isHardened();
 
-  /// Get the network this key belongs to
-  Future<NetworkType> network();
+                    
+                }
+                
 
-  /// Get the parent fingerprint (4 bytes)
-  Future<Uint8List> parentFingerprint();
 
-  /// Convert to extended public key
-  Future<ExtendedPublicKey> toExtendedPublicKey();
+                // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ExtendedPrivateKey>>
+                abstract class ExtendedPrivateKey implements RustOpaqueInterface {
+                    /// Get the child number index
+ Future<int>  childNumberIndex();
 
-  /// Serialize to extended key string (xprv... format)
-  Future<String> toExtendedString();
-}
 
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ExtendedPublicKey>>
-abstract class ExtendedPublicKey implements RustOpaqueInterface {
-  /// Get the child number index
-  Future<int> childNumberIndex();
+/// Get the depth in derivation tree (0 = master, 1 = level-1 child, etc.)
+ Future<int>  depth();
 
-  /// Get the depth in derivation tree
-  Future<int> depth();
 
-  /// Derive a child public key (non-hardened only)
-  Future<ExtendedPublicKey> deriveChild({required int index});
+/// Derive a single child key
+ Future<ExtendedPrivateKey>  deriveChild({required int index , required bool hardened });
 
-  /// Derive using a path string (only non-hardened paths allowed)
-  Future<ExtendedPublicKey> derivePath({required String path});
 
-  /// Get this key's fingerprint (4 bytes)
-  Future<Uint8List> fingerprint();
+/// Derive using a path string (e.g., "m/44'/0'/0'/0/0")
+ Future<ExtendedPrivateKey>  derivePath({required String path });
 
-  /// Parse from string (xpub... format)
-  static Future<ExtendedPublicKey> fromString({required String s}) =>
-      RustLib.instance.api.crateBridgeExtendedPublicKeyFromString(s: s);
 
-  /// Check if this is a hardened key (public keys can only have non-hardened children)
-  Future<bool> isHardened();
+/// Get this key's fingerprint (4 bytes)
+ Future<Uint8List>  fingerprint();
 
-  /// Get the network this key belongs to
-  Future<NetworkType> network();
 
-  /// Get the parent fingerprint (4 bytes)
-  Future<Uint8List> parentFingerprint();
+/// Create master key from mnemonic
+static Future<ExtendedPrivateKey>  fromMnemonic({required Mnemonic mnemonic , String? passphrase , required NetworkType network })=>RustLib.instance.api.crateBridgeExtendedPrivateKeyFromMnemonic(mnemonic: mnemonic, passphrase: passphrase, network: network);
 
-  /// Serialize to extended key string (xpub... format)
-  Future<String> toExtendedString();
-}
 
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Mnemonic>>
-abstract class Mnemonic implements RustOpaqueInterface {
-  /// Parse mnemonic from phrase string
-  static Future<Mnemonic> fromPhrase({required String phrase}) =>
-      RustLib.instance.api.crateBridgeMnemonicFromPhrase(phrase: phrase);
+/// Create master key from seed bytes
+static Future<ExtendedPrivateKey>  fromSeed({required List<int> seed , required NetworkType network })=>RustLib.instance.api.crateBridgeExtendedPrivateKeyFromSeed(seed: seed, network: network);
 
-  /// Generate a new mnemonic with specified word count
-  static Future<Mnemonic> generate({required int wordCount}) =>
-      RustLib.instance.api.crateBridgeMnemonicGenerate(wordCount: wordCount);
 
-  /// Validate that this mnemonic is valid (always true for constructed mnemonics)
-  Future<bool> isValid();
+/// Parse from string (xprv... format)
+static Future<ExtendedPrivateKey>  fromString({required String s })=>RustLib.instance.api.crateBridgeExtendedPrivateKeyFromString(s: s);
 
-  /// Convert mnemonic to string phrase
-  Future<String> toPhrase();
 
-  /// Get the word count
-  Future<int> wordCount();
-}
+/// Check if this is a hardened key
+ Future<bool>  isHardened();
+
+
+/// Get the network this key belongs to
+ Future<NetworkType>  network();
+
+
+/// Get the parent fingerprint (4 bytes)
+ Future<Uint8List>  parentFingerprint();
+
+
+/// Convert to extended public key
+ Future<ExtendedPublicKey>  toExtendedPublicKey();
+
+
+/// Serialize to extended key string (xprv... format)
+ Future<String>  toExtendedString();
+
+
+
+                    
+                }
+                
+
+
+                // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ExtendedPublicKey>>
+                abstract class ExtendedPublicKey implements RustOpaqueInterface {
+                    /// Get the child number index
+ Future<int>  childNumberIndex();
+
+
+/// Get the depth in derivation tree
+ Future<int>  depth();
+
+
+/// Derive a child public key (non-hardened only)
+ Future<ExtendedPublicKey>  deriveChild({required int index });
+
+
+/// Derive using a path string (only non-hardened paths allowed)
+ Future<ExtendedPublicKey>  derivePath({required String path });
+
+
+/// Get this key's fingerprint (4 bytes)
+ Future<Uint8List>  fingerprint();
+
+
+/// Parse from string (xpub... format)
+static Future<ExtendedPublicKey>  fromString({required String s })=>RustLib.instance.api.crateBridgeExtendedPublicKeyFromString(s: s);
+
+
+/// Check if this is a hardened key (public keys can only have non-hardened children)
+ Future<bool>  isHardened();
+
+
+/// Get the network this key belongs to
+ Future<NetworkType>  network();
+
+
+/// Get the parent fingerprint (4 bytes)
+ Future<Uint8List>  parentFingerprint();
+
+
+/// Serialize to extended key string (xpub... format)
+ Future<String>  toExtendedString();
+
+
+
+                    
+                }
+                
+
+
+                // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Mnemonic>>
+                abstract class Mnemonic implements RustOpaqueInterface {
+                    /// Parse mnemonic from phrase string
+static Future<Mnemonic>  fromPhrase({required String phrase })=>RustLib.instance.api.crateBridgeMnemonicFromPhrase(phrase: phrase);
+
+
+/// Generate a new mnemonic with specified word count
+static Future<Mnemonic>  generate({required int wordCount })=>RustLib.instance.api.crateBridgeMnemonicGenerate(wordCount: wordCount);
+
+
+/// Validate that this mnemonic is valid (always true for constructed mnemonics)
+ Future<bool>  isValid();
+
+
+/// Convert mnemonic to string phrase
+ Future<String>  toPhrase();
+
+
+/// Get the word count
+ Future<int>  wordCount();
+
+
+
+                    
+                }
+                
+
+/// Flutter wrapper for BIP44 Account
+class Bip44Account  {
+                final PurposeType purpose;
+final CoinType coinType;
+final int accountIndex;
+final NetworkType network;
+final String accountKey;
+
+                const Bip44Account({required this.purpose ,required this.coinType ,required this.accountIndex ,required this.network ,required this.accountKey ,});
+
+                /// Derive a range of addresses
+ Future<List<String>>  deriveAddressRange({required ChainType chain , required int start , required int count })=>RustLib.instance.api.crateBridgeBip44AccountDeriveAddressRange(that: this, chain: chain, start: start, count: count);
+
+
+/// Derive an external (receiving) address at the given index
+ Future<String>  deriveExternal({required int index })=>RustLib.instance.api.crateBridgeBip44AccountDeriveExternal(that: this, index: index);
+
+
+/// Derive an internal (change) address at the given index
+ Future<String>  deriveInternal({required int index })=>RustLib.instance.api.crateBridgeBip44AccountDeriveInternal(that: this, index: index);
+
+
+                
+
+                
+        @override
+        int get hashCode => purpose.hashCode^coinType.hashCode^accountIndex.hashCode^network.hashCode^accountKey.hashCode;
+        
+
+                
+        @override
+        bool operator ==(Object other) =>
+            identical(this, other) ||
+            other is Bip44Account &&
+                runtimeType == other.runtimeType
+                && purpose == other.purpose&& coinType == other.coinType&& accountIndex == other.accountIndex&& network == other.network&& accountKey == other.accountKey;
+        
+            }
+
+/// BIP44 Chain type (external/internal)
+enum ChainType {
+                    external_,
+internal,
+                    ;
+                    
+                }
+
+@freezed
+                sealed class CoinType with _$CoinType  {
+                    const CoinType._();
+
+                     const factory CoinType.bitcoin() = CoinType_Bitcoin;
+ const factory CoinType.bitcoinTestnet() = CoinType_BitcoinTestnet;
+ const factory CoinType.litecoin() = CoinType_Litecoin;
+ const factory CoinType.dogecoin() = CoinType_Dogecoin;
+ const factory CoinType.ethereum() = CoinType_Ethereum;
+ const factory CoinType.custom(  int field0,) = CoinType_Custom;
+
+                    
+
+                    
+                }
 
 /// Network type for the wallet
-enum NetworkType { bitcoinMainnet, bitcoinTestnet }
+enum NetworkType {
+                    bitcoinMainnet,
+bitcoinTestnet,
+                    ;
+                    
+                }
+
+/// BIP44 Purpose types (derivation standards)
+enum PurposeType {
+                    bip44,
+bip49,
+bip84,
+bip86,
+                    ;
+                    
+                }
 
 /// Result type for wallet operations (used by utility functions)
-class WalletResult {
-  final bool success;
-  final String message;
-  final String? data;
+class WalletResult  {
+                final bool success;
+final String message;
+final String? data;
 
-  const WalletResult({required this.success, required this.message, this.data});
+                const WalletResult({required this.success ,required this.message ,this.data ,});
 
-  @override
-  int get hashCode => success.hashCode ^ message.hashCode ^ data.hashCode;
+                
+                
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is WalletResult &&
-          runtimeType == other.runtimeType &&
-          success == other.success &&
-          message == other.message &&
-          data == other.data;
-}
+                
+        @override
+        int get hashCode => success.hashCode^message.hashCode^data.hashCode;
+        
+
+                
+        @override
+        bool operator ==(Object other) =>
+            identical(this, other) ||
+            other is WalletResult &&
+                runtimeType == other.runtimeType
+                && success == other.success&& message == other.message&& data == other.data;
+        
+            }
+            

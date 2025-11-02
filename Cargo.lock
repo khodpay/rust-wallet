@@ -676,23 +676,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "khodpay-flutter-bridge"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "flutter_rust_bridge",
- "khodpay-bip32",
- "khodpay-bip39",
- "serde",
-]
-
-[[package]]
-name = "lazy_static"
-version = "1.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
-
-[[package]]
 name = "khodpay-bip44"
 version = "0.1.0"
 dependencies = [
@@ -704,6 +687,24 @@ dependencies = [
  "serde_json",
  "thiserror",
 ]
+
+[[package]]
+name = "khodpay-flutter-bridge"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "flutter_rust_bridge",
+ "khodpay-bip32",
+ "khodpay-bip39",
+ "khodpay-bip44",
+ "serde",
+]
+
+[[package]]
+name = "lazy_static"
+version = "1.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
 
 [[package]]
 name = "libc"
