@@ -2,11 +2,14 @@
 
 [![Crates.io - bip39](https://img.shields.io/crates/v/khodpay-bip39)](https://crates.io/crates/khodpay-bip39)
 [![Crates.io - bip32](https://img.shields.io/crates/v/khodpay-bip32)](https://crates.io/crates/khodpay-bip32)
+[![Crates.io - bip44](https://img.shields.io/crates/v/khodpay-bip44)](https://crates.io/crates/khodpay-bip44)
 [![Documentation](https://docs.rs/khodpay-bip39/badge.svg)](https://docs.rs/khodpay-bip39)
+[![Documentation](https://docs.rs/khodpay-bip32/badge.svg)](https://docs.rs/khodpay-bip32)
+[![Documentation](https://docs.rs/khodpay-bip44/badge.svg)](https://docs.rs/khodpay-bip44)
 [![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](LICENSE-MIT)
 [![Build Status](https://img.shields.io/github/workflow/status/khodpay/rust-wallet/CI)](https://github.com/khodpay/rust-wallet/actions)
 
-A production-ready, type-safe Rust implementation of BIP39 and BIP32 standards for cryptocurrency wallet development.
+A production-ready, type-safe Rust implementation of BIP39, BIP32, and BIP44 standards for cryptocurrency wallet development.
 
 ## 🚀 Features
 
@@ -29,6 +32,17 @@ A production-ready, type-safe Rust implementation of BIP39 and BIP32 standards f
 - ✅ **Memory Safety** - Secure memory handling with zeroization
 - ✅ **Production Ready** - Validated against official test vectors
 
+### BIP44 - Multi-Account Hierarchy
+- ✅ **Multi-Account Support** - Manage multiple accounts per cryptocurrency
+- ✅ **Multi-Coin Support** - Bitcoin, Ethereum, Litecoin, Dogecoin, and more
+- ✅ **BIP Standards** - Support for BIP-44, BIP-49, BIP-84, and BIP-86
+- ✅ **Account Caching** - Efficient account derivation with built-in caching
+- ✅ **Builder Pattern** - Fluent API for wallet construction
+- ✅ **Type Safety** - Strong typing for paths, chains, and coin types
+- ✅ **Gap Limit** - BIP-44 compliant account discovery
+- ✅ **Serialization** - Optional serde support for persistence
+- ✅ **400+ Tests** - Comprehensive test coverage including edge cases
+
 ## 📦 Installation
 
 Add the following to your `Cargo.toml`:
@@ -37,6 +51,7 @@ Add the following to your `Cargo.toml`:
 [dependencies]
 khodpay-bip39 = "0.2.0"
 khodpay-bip32 = "0.2.0"
+khodpay-bip44 = "0.1.0"
 ```
 
 Or install via cargo:
@@ -44,11 +59,43 @@ Or install via cargo:
 ```bash
 cargo add khodpay-bip39
 cargo add khodpay-bip32
+cargo add khodpay-bip44
 ```
 
 ## 🔧 Quick Start
 
-### Generate a New Wallet
+### Generate a BIP44 Multi-Coin Wallet (Recommended)
+
+```rust
+use khodpay_bip44::{Wallet, Purpose, CoinType, Language};
+use khodpay_bip32::Network;
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Generate a new wallet with a random mnemonic
+    let mut wallet = Wallet::generate(
+        12,  // 12-word mnemonic
+        "",  // optional passphrase
+        Language::English,
+        Network::BitcoinMainnet,
+    )?;
+    
+    println!("Recovery phrase: {}", wallet.mnemonic());
+    
+    // Get Bitcoin account (m/44'/0'/0')
+    let btc_account = wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 0)?;
+    let btc_addr = btc_account.derive_external(0)?;  // m/44'/0'/0'/0/0
+    println!("Bitcoin address: {}", btc_addr.public_key());
+    
+    // Get Ethereum account (m/44'/60'/0')
+    let eth_account = wallet.get_account(Purpose::BIP44, CoinType::Ethereum, 0)?;
+    let eth_addr = eth_account.derive_external(0)?;  // m/44'/60'/0'/0/0
+    println!("Ethereum address: {}", eth_addr.public_key());
+    
+    Ok(())
+}
+```
+
+### Generate a Wallet with BIP32 (Lower Level)
 
 ```rust
 use khodpay_bip39::{Mnemonic, WordCount, Language};
@@ -98,6 +145,28 @@ fn recover_wallet(phrase: &str) -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
+### Multi-Account and SegWit Support
+
+```rust
+use khodpay_bip44::{Wallet, Purpose, CoinType};
+
+fn multi_account_example(wallet: &mut Wallet) -> Result<(), Box<dyn std::error::Error>> {
+    // Multiple Bitcoin accounts
+    let account0 = wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 0)?;
+    let account1 = wallet.get_account(Purpose::BIP44, CoinType::Bitcoin, 1)?;
+    
+    // Native SegWit (BIP-84)
+    let segwit = wallet.get_account(Purpose::BIP84, CoinType::Bitcoin, 0)?;
+    let segwit_addr = segwit.derive_external(0)?;
+    
+    // Taproot (BIP-86)
+    let taproot = wallet.get_account(Purpose::BIP86, CoinType::Bitcoin, 0)?;
+    let taproot_addr = taproot.derive_external(0)?;
+    
+    Ok(())
+}
+```
+
 ### Watch-Only Wallet
 
 ```rust
@@ -128,6 +197,7 @@ fn create_watch_only() -> Result<(), Box<dyn std::error::Error>> {
 
 - [BIP39 API Documentation](https://docs.rs/khodpay-bip39)
 - [BIP32 API Documentation](https://docs.rs/khodpay-bip32)
+- [BIP44 API Documentation](https://docs.rs/khodpay-bip44)
 - [Full Crate Documentation](https://docs.rs/khodpay-bip39)
 - [Integration Guide](INTEGRATION_GUIDE.md)
 - [Examples](examples/)
@@ -141,7 +211,11 @@ khodpay-wallet/
 │   │   ├── src/
 │   │   ├── tests/
 │   │   └── benches/
-│   └── bip32/          # BIP32 HD wallet implementation
+│   ├── bip32/          # BIP32 HD wallet implementation
+│   │   ├── src/
+│   │   ├── tests/
+│   │   └── benches/
+│   └── bip44/          # BIP44 multi-account hierarchy
 │       ├── src/
 │       ├── tests/
 │       └── benches/
@@ -195,7 +269,8 @@ cargo bench
 
 - **BIP39**: 184+ tests (unit, doc, and integration)
 - **BIP32**: Comprehensive test vectors from official BIP32 specification
-- All test vectors from official BIP39 and BIP32 specifications
+- **BIP44**: 400+ tests including integration, edge cases, and compatibility tests
+- All test vectors from official BIP39, BIP32, and BIP44 specifications
 
 ## 📊 Performance
 
@@ -218,14 +293,19 @@ cargo bench
 
 - [x] BIP39 implementation
 - [x] BIP32 implementation
+- [x] BIP44 multi-account hierarchy
+- [x] BIP49 SegWit support (via BIP44 Purpose)
+- [x] BIP84 Native SegWit support (via BIP44 Purpose)
+- [x] BIP86 Taproot support (via BIP44 Purpose)
+- [x] Multi-coin support (Bitcoin, Ethereum, Litecoin, etc.)
+- [x] Account caching and discovery
 - [x] Comprehensive test coverage
 - [x] Documentation and examples
-- [ ] BIP44 multi-coin support
-- [ ] BIP49 SegWit support
-- [ ] BIP84 Native SegWit support
 - [ ] Hardware wallet integration examples
 - [ ] Additional language support
 - [ ] WASM compilation support
+- [ ] Address generation utilities
+- [ ] Transaction signing support
 
 ## 🤝 Contributing
 
@@ -273,6 +353,10 @@ You may choose either license for your use.
 - [Bitcoin BIP39 Specification](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki)
 - [Bitcoin BIP32 Specification](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki)
 - [Bitcoin BIP44 Specification](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki)
+- [Bitcoin BIP49 Specification](https://github.com/bitcoin/bips/blob/master/bip-0049.mediawiki)
+- [Bitcoin BIP84 Specification](https://github.com/bitcoin/bips/blob/master/bip-0084.mediawiki)
+- [Bitcoin BIP86 Specification](https://github.com/bitcoin/bips/blob/master/bip-0086.mediawiki)
+- [SLIP-44 Coin Types](https://github.com/satoshilabs/slips/blob/master/slip-0044.md)
 
 ## 📞 Support
 

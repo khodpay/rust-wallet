@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/bip39", "crates/bip32", "crates/flutter_bridge"]
+members = ["crates/bip39", "crates/bip32", "crates/bip44", "crates/flutter_bridge"]
 resolver = "2"
 
 [workspace.package]

@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2024-11-02
+
+### Added
+
+#### BIP44 (New Crate)
+- ✨ **Full BIP-44 specification implementation** - Multi-account hierarchy for deterministic wallets
+- ✨ **Multi-coin support** - Bitcoin, Ethereum, Litecoin, Dogecoin, and all SLIP-44 registered coins
+- ✨ **Multi-account support** - Manage multiple accounts per cryptocurrency
+- ✨ **BIP standards support** - BIP-44, BIP-49, BIP-84, and BIP-86 via Purpose enum
+- ✨ **Account caching** - Efficient account derivation with built-in caching mechanism
+- ✨ **Builder pattern** - Fluent API for wallet construction with `WalletBuilder`
+- ✨ **Type-safe paths** - Strong typing for derivation paths, chains, and coin types
+- ✨ **Path parsing** - Parse and validate BIP-44 path strings (e.g., "m/44'/0'/0'/0/0")
+- ✨ **Account discovery** - BIP-44 compliant gap limit checking for wallet recovery
+- ✨ **Address iteration** - Iterator pattern for efficient address generation
+- ✨ **Batch derivation** - Generate multiple addresses efficiently with `derive_address_range`
+- ✨ **Serialization support** - Optional serde feature for persistence
+- ✨ **Comprehensive testing** - 400+ tests including unit, integration, edge cases, and compatibility tests
+- ✨ **Performance benchmarks** - Benchmark suite for account and address derivation
+- ✨ **Complete documentation** - Full API docs with examples and usage guides
+
+#### Features
+- 🎯 **Wallet types**: Generate new wallets or recover from mnemonic phrases
+- 🎯 **Chain support**: External (receiving) and internal (change) address chains
+- 🎯 **Network support**: Bitcoin mainnet and testnet via BIP32 integration
+- 🎯 **Memory safety**: Secure handling of sensitive key material
+- 🎯 **Zero unsafe code**: 100% safe Rust implementation
+
+#### Compatibility
+- ✅ Compatible with Electrum, Ledger, Trezor, MetaMask, Trust Wallet, and Exodus
+- ✅ Follows official BIP-44 specification
+- ✅ Validated against standard test vectors
+
 ## [0.2.0] - 2024-10-16
 
 ### Changed
@@ -79,6 +112,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ⚡ Minimal allocations
 - ⚡ Zero-copy operations where possible
 
-[Unreleased]: https://github.com/khodpay/rust-wallet/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/khodpay/rust-wallet/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/khodpay/rust-wallet/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/khodpay/rust-wallet/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/khodpay/rust-wallet/releases/tag/v0.1.0
