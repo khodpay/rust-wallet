@@ -10,7 +10,7 @@ repository = "https://github.com/khodpay/rust-wallet"
 documentation = "https://docs.rs/khodpay-bip44"
 homepage = "https://github.com/khodpay/rust-wallet"
 readme = "README.md"
-keywords = ["bitcoin", "cryptocurrency", "bip44", "wallet", "hierarchical"]
+keywords = ["bitcoin", "cryptocurrency", "bip44", "bip49", "bip84", "bip86", "wallet", "hierarchical"]
 categories = ["cryptography", "no-std"]
 
 [dependencies]
