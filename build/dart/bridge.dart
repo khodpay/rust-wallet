@@ -14,6 +14,13 @@ part 'bridge.freezed.dart';
 Future<String> generateMnemonic({required int wordCount}) =>
     RustLib.instance.api.crateBridgeGenerateMnemonic(wordCount: wordCount);
 
+/// Create mnemonic from entropy bytes
+///
+/// Entropy must be 16, 20, 24, 28, or 32 bytes for 12, 15, 18, 21, or 24 words respectively.
+Future<String> generateMnemonicFromEntropy({required List<int> entropy}) =>
+    RustLib.instance.api
+        .crateBridgeGenerateMnemonicFromEntropy(entropy: entropy);
+
 /// Validate a mnemonic phrase
 Future<bool> validateMnemonic({required String phrase}) =>
     RustLib.instance.api.crateBridgeValidateMnemonic(phrase: phrase);

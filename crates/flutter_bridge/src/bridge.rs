@@ -569,6 +569,16 @@ pub fn generate_mnemonic(word_count: u32) -> Result<String, String> {
     Ok(mnemonic.phrase().to_string())
 }
 
+/// Create mnemonic from entropy bytes
+/// 
+/// Entropy must be 16, 20, 24, 28, or 32 bytes for 12, 15, 18, 21, or 24 words respectively.
+#[frb]
+pub fn generate_mnemonic_from_entropy(entropy: Vec<u8>) -> Result<String, String> {
+    let mnemonic = RustMnemonic::new(&entropy, Language::English)
+        .map_err(|e| format!("Failed to create mnemonic from entropy: {}", e))?;
+    Ok(mnemonic.phrase().to_string())
+}
+
 /// Validate a mnemonic phrase
 #[frb]
 pub fn validate_mnemonic(phrase: String) -> bool {

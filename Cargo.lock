@@ -670,6 +670,7 @@ version = "0.2.0"
 dependencies = [
  "bip39",
  "criterion",
+ "getrandom",
  "hex",
  "rand",
  "thiserror",
@@ -694,6 +695,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "flutter_rust_bridge",
+ "getrandom",
  "khodpay-bip32",
  "khodpay-bip39",
  "khodpay-bip44",

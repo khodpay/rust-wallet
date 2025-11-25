@@ -27,6 +27,9 @@ serde = { version = "1", features = ["derive"] }
 # Error handling
 anyhow = "1.0"
 
+# Ensure proper entropy on mobile platforms
+getrandom = "0.2"
+
 [profile.release]
 opt-level = 3          # Maximum optimizations
 lto = true             # Link-time optimization
