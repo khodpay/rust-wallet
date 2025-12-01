@@ -14,7 +14,7 @@ keywords = ["bitcoin", "cryptocurrency", "bip32", "hd-wallet", "wallet"]
 categories = ["cryptography", "no-std"]
 
 [dependencies]
-khodpay-bip39 = { version = "0.2.0", path = "../bip39" }
+khodpay-bip39 = { version = "0.4.0", path = "../bip39" }
 hmac = "0.12"
 sha2 = "0.10"
 ripemd = "0.1"
