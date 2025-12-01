@@ -352,7 +352,7 @@ impl Mnemonic {
     /// # Security Note
     ///
     /// This function uses the system's cryptographically secure random number generator
-    /// (`rand::thread_rng()`). The generated mnemonic should be stored securely and
+    /// (`rand::rngs::OsRng`). The generated mnemonic should be stored securely and
     /// backed up properly. Loss of the mnemonic means permanent loss of wallet access.
     ///
     /// # Examples
@@ -369,16 +369,16 @@ impl Mnemonic {
     /// assert_eq!(mnemonic_24.word_count(), WordCount::TwentyFour);
     /// ```
     pub fn generate(word_count: WordCount, language: Language) -> crate::Result<Self> {
+        use rand::rngs::OsRng;
         use rand::RngCore;
 
         // Step 1: Calculate the required entropy length
         let entropy_length = word_count.entropy_length();
 
         // Step 2: Generate cryptographically secure random entropy
-        // Uses the system's secure random number generator
+        // Uses OsRng for reliable entropy on mobile/static library targets
         let mut entropy = vec![0u8; entropy_length];
-        let mut rng = rand::thread_rng();
-        rng.fill_bytes(&mut entropy);
+        OsRng.fill_bytes(&mut entropy);
 
         // Step 3: Use the `new()` constructor to create the Mnemonic
         // This handles entropy validation, checksum calculation, and phrase generation

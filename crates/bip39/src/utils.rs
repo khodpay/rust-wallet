@@ -351,16 +351,16 @@ pub fn generate_mnemonic(word_count: WordCount) -> Result<String> {
 /// assert_eq!(mnemonic_ja.split_whitespace().count(), 24);
 /// ```
 pub fn generate_mnemonic_in_language(word_count: WordCount, language: Language) -> Result<String> {
+    use rand::rngs::OsRng;
     use rand::RngCore;
 
     // Step 1: Calculate the required entropy length based on word count
     let entropy_length = word_count.entropy_length();
 
     // Step 2: Generate cryptographically secure random entropy
-    // Uses the system's secure random number generator
+    // Uses OsRng for reliable entropy on mobile/static library targets
     let mut entropy = vec![0u8; entropy_length];
-    let mut rng = rand::thread_rng();
-    rng.fill_bytes(&mut entropy);
+    OsRng.fill_bytes(&mut entropy);
 
     // Step 3: Convert language to upstream format
     let upstream_language = language.to_upstream();
