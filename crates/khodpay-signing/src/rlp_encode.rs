@@ -3,7 +3,7 @@
 //! This module implements RLP (Recursive Length Prefix) encoding for
 //! EIP-1559 transactions as specified in EIP-2718.
 
-use crate::{AccessListItem, Address, ChainId, Eip1559Transaction, Wei};
+use crate::{AccessListItem, Address, Eip1559Transaction};
 use primitive_types::U256;
 use rlp::RlpStream;
 use sha3::{Digest, Keccak256};
@@ -141,7 +141,7 @@ impl Address {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::AccessListItem;
+    use crate::{AccessListItem, ChainId, Wei};
 
     fn test_address() -> Address {
         "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"

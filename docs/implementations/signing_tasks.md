@@ -52,7 +52,7 @@ This crate provides EVM transaction signing for BSC (BNB Smart Chain) using EIP-
 
 ## ✍️ PHASE 3: Signing (HIGH Priority)
 
-- [ ] **Task 06**: Define Signature struct and Bip44Signer (TDD)
+- [x] **Task 06**: Define Signature struct and Bip44Signer (TDD)
   - `Signature { r, s, v }` for ECDSA signature
   - `Bip44Signer` wrapping `khodpay_bip44::Account`
   - Implement `sign()` and `address()` methods

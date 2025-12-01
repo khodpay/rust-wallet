@@ -52,6 +52,8 @@ mod address;
 mod chain_id;
 mod error;
 mod rlp_encode;
+mod signature;
+mod signer;
 mod transaction;
 mod wei;
 
@@ -59,6 +61,8 @@ pub use access_list::{AccessList, AccessListItem};
 pub use address::Address;
 pub use chain_id::ChainId;
 pub use error::Error;
+pub use signature::Signature;
+pub use signer::{recover_signer, Bip44Signer};
 pub use transaction::{Eip1559Transaction, Eip1559TransactionBuilder, TOKEN_TRANSFER_GAS, TRANSFER_GAS};
 pub use wei::{Wei, ETHER, GWEI};
 
