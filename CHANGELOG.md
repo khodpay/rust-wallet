@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2024-12-01
+
+### Changed
+
+#### BIP39
+- 🔄 **Switched to `OsRng` for entropy generation** - Replaced `rand::thread_rng()` with `rand::rngs::OsRng` for reliable random number generation on mobile devices and static library builds
+
+### Fixed
+- 🐛 Fixed potential issues with thread-local RNG on iOS/Android static library targets
+
 ## [0.3.0] - 2024-11-02
 
 ### Added
@@ -112,7 +122,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ⚡ Minimal allocations
 - ⚡ Zero-copy operations where possible
 
-[Unreleased]: https://github.com/khodpay/rust-wallet/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/khodpay/rust-wallet/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/khodpay/rust-wallet/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/khodpay/rust-wallet/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/khodpay/rust-wallet/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/khodpay/rust-wallet/releases/tag/v0.1.0
