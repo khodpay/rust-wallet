@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/bip39", "crates/bip32", "crates/bip44"]
+members = ["crates/bip39", "crates/bip32", "crates/bip44", "crates/khodpay-signing"]
 resolver = "2"
 
 [workspace.package]
