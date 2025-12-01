@@ -47,8 +47,10 @@
 #![warn(rustdoc::broken_intra_doc_links)]
 #![deny(unsafe_code)]
 
+mod chain_id;
 mod error;
 
+pub use chain_id::ChainId;
 pub use error::Error;
 
 /// Result type alias for signing operations.

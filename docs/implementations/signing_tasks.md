@@ -11,7 +11,7 @@ This crate provides EVM transaction signing for BSC (BNB Smart Chain) using EIP-
   - Add dependencies: `khodpay-bip32`, `khodpay-bip44`, `thiserror`, `rlp`, `k256`, `sha3`, `primitive-types`
   - Define `Error` enum: `InvalidChainId`, `InvalidAddress`, `InvalidGas`, `SigningError`, `RlpEncodingError`, `Bip44Error`
 
-- [ ] **Task 02**: Define ChainId enum with BSC support (TDD)
+- [x] **Task 02**: Define ChainId enum with BSC support (TDD)
   ```rust
   pub enum ChainId {
       BscMainnet,      // 56
