@@ -21,7 +21,7 @@ This crate provides EVM transaction signing for BSC (BNB Smart Chain) using EIP-
   ```
   > **Note**: `ChainId` ≠ `CoinType`. CoinType (60) → derivation path. ChainId (56) → transaction.
 
-- [ ] **Task 03**: Define Address and Wei types (TDD)
+- [x] **Task 03**: Define Address and Wei types (TDD)
   - `Address`: 20-byte EVM address with hex parsing, EIP-55 checksum, derivation from public key
   - `Wei`: U256 wrapper with `from_gwei()`, `from_ether()` helpers
 

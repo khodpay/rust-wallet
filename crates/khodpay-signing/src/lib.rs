@@ -47,11 +47,15 @@
 #![warn(rustdoc::broken_intra_doc_links)]
 #![deny(unsafe_code)]
 
+mod address;
 mod chain_id;
 mod error;
+mod wei;
 
+pub use address::Address;
 pub use chain_id::ChainId;
 pub use error::Error;
+pub use wei::{Wei, ETHER, GWEI};
 
 /// Result type alias for signing operations.
 pub type Result<T> = std::result::Result<T, Error>;

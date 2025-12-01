@@ -27,6 +27,9 @@ sha3 = "0.10"
 # U256 for Wei
 primitive-types = { version = "0.12", features = ["rlp"] }
 
+# Hex encoding
+hex = "0.4"
+
 # Security
 zeroize = { version = "1.7", features = ["derive"] }
 
@@ -38,4 +41,3 @@ default = []
 serde = ["dep:serde"]
 
 [dev-dependencies]
-hex = "0.4"
