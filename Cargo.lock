@@ -649,6 +649,7 @@ dependencies = [
  "hex",
  "k256",
  "khodpay-bip32",
+ "khodpay-bip39",
  "khodpay-bip44",
  "primitive-types",
  "rlp",

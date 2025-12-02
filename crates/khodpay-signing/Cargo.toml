@@ -41,3 +41,4 @@ default = []
 serde = ["dep:serde"]
 
 [dev-dependencies]
+khodpay-bip39 = { path = "../bip39" }
