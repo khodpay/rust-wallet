@@ -3,13 +3,15 @@
 [![Crates.io - bip39](https://img.shields.io/crates/v/khodpay-bip39)](https://crates.io/crates/khodpay-bip39)
 [![Crates.io - bip32](https://img.shields.io/crates/v/khodpay-bip32)](https://crates.io/crates/khodpay-bip32)
 [![Crates.io - bip44](https://img.shields.io/crates/v/khodpay-bip44)](https://crates.io/crates/khodpay-bip44)
+[![Crates.io - signing](https://img.shields.io/crates/v/khodpay-signing)](https://crates.io/crates/khodpay-signing)
 [![Documentation](https://docs.rs/khodpay-bip39/badge.svg)](https://docs.rs/khodpay-bip39)
 [![Documentation](https://docs.rs/khodpay-bip32/badge.svg)](https://docs.rs/khodpay-bip32)
 [![Documentation](https://docs.rs/khodpay-bip44/badge.svg)](https://docs.rs/khodpay-bip44)
+[![Documentation](https://docs.rs/khodpay-signing/badge.svg)](https://docs.rs/khodpay-signing)
 [![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](LICENSE-MIT)
 [![Build Status](https://img.shields.io/github/workflow/status/khodpay/rust-wallet/CI)](https://github.com/khodpay/rust-wallet/actions)
 
-A production-ready, type-safe Rust implementation of BIP39, BIP32, and BIP44 standards for cryptocurrency wallet development.
+A production-ready, type-safe Rust implementation of BIP39, BIP32, BIP44, and EVM transaction signing for cryptocurrency wallet development.
 
 ## 🚀 Features
 
@@ -43,15 +45,26 @@ A production-ready, type-safe Rust implementation of BIP39, BIP32, and BIP44 sta
 - ✅ **Serialization** - Optional serde support for persistence
 - ✅ **400+ Tests** - Comprehensive test coverage including edge cases
 
+### EVM Signing - Transaction Signing for BSC & EVM Chains
+- ✅ **EIP-1559 Transactions** - Full Type 2 transaction support with priority fees
+- ✅ **BIP-44 Integration** - Sign transactions using HD wallet derived keys
+- ✅ **BSC Support** - Built-in chain IDs for BSC Mainnet (56) and Testnet (97)
+- ✅ **Type Safety** - Strong types for Address, Wei, ChainId, and Signature
+- ✅ **RLP Encoding** - Complete transaction encoding for broadcast
+- ✅ **Signature Recovery** - Recover signer address from signature
+- ✅ **Security** - Automatic zeroization of sensitive key material
+- ✅ **187 Tests** - Comprehensive unit and integration tests
+
 ## 📦 Installation
 
 Add the following to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-khodpay-bip39 = "0.2.0"
+khodpay-bip39 = "0.4.0"
 khodpay-bip32 = "0.2.0"
 khodpay-bip44 = "0.1.0"
+khodpay-signing = "0.1.0"
 ```
 
 Or install via cargo:
@@ -60,6 +73,7 @@ Or install via cargo:
 cargo add khodpay-bip39
 cargo add khodpay-bip32
 cargo add khodpay-bip44
+cargo add khodpay-signing
 ```
 
 ## 🔧 Quick Start
@@ -167,6 +181,52 @@ fn multi_account_example(wallet: &mut Wallet) -> Result<(), Box<dyn std::error::
 }
 ```
 
+### Sign EVM Transactions (BSC)
+
+```rust
+use khodpay_bip32::Network;
+use khodpay_bip44::{CoinType, Purpose, Wallet};
+use khodpay_signing::{
+    Address, Bip44Signer, ChainId, Eip1559Transaction,
+    SignedTransaction, Wei, TRANSFER_GAS,
+};
+
+fn sign_bsc_transaction() -> Result<(), Box<dyn std::error::Error>> {
+    // Create wallet from mnemonic
+    let mut wallet = Wallet::from_english_mnemonic(
+        "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+        "",
+        Network::BitcoinMainnet,
+    )?;
+    
+    // Get Ethereum account and create signer
+    let account = wallet.get_account(Purpose::BIP44, CoinType::Ethereum, 0)?;
+    let signer = Bip44Signer::new(&account, 0)?;
+    println!("Sender: {}", signer.address());
+    
+    // Build EIP-1559 transaction
+    let recipient: Address = "0x742d35Cc6634C0532925a3b844Bc454e4438f44e".parse()?;
+    let tx = Eip1559Transaction::builder()
+        .chain_id(ChainId::BscMainnet)
+        .nonce(0)
+        .max_priority_fee_per_gas(Wei::from_gwei(1))
+        .max_fee_per_gas(Wei::from_gwei(5))
+        .gas_limit(TRANSFER_GAS)
+        .to(recipient)
+        .value(Wei::from_ether(1))
+        .build()?;
+    
+    // Sign and get raw transaction
+    let signature = signer.sign_transaction(&tx)?;
+    let signed_tx = SignedTransaction::new(tx, signature);
+    
+    println!("Raw TX: {}", signed_tx.to_raw_transaction());
+    println!("TX Hash: {}", signed_tx.tx_hash_hex());
+    
+    Ok(())
+}
+```
+
 ### Watch-Only Wallet
 
 ```rust
@@ -198,6 +258,7 @@ fn create_watch_only() -> Result<(), Box<dyn std::error::Error>> {
 - [BIP39 API Documentation](https://docs.rs/khodpay-bip39)
 - [BIP32 API Documentation](https://docs.rs/khodpay-bip32)
 - [BIP44 API Documentation](https://docs.rs/khodpay-bip44)
+- [Signing API Documentation](https://docs.rs/khodpay-signing)
 - [Full Crate Documentation](https://docs.rs/khodpay-bip39)
 - [Integration Guide](INTEGRATION_GUIDE.md)
 - [Examples](examples/)
@@ -215,10 +276,13 @@ khodpay-wallet/
 │   │   ├── src/
 │   │   ├── tests/
 │   │   └── benches/
-│   └── bip44/          # BIP44 multi-account hierarchy
+│   ├── bip44/          # BIP44 multi-account hierarchy
+│   │   ├── src/
+│   │   ├── tests/
+│   │   └── benches/
+│   └── khodpay-signing/ # EVM transaction signing
 │       ├── src/
-│       ├── tests/
-│       └── benches/
+│       └── tests/
 ├── examples/           # Usage examples
 ├── docs/               # Additional documentation
 └── README.md
@@ -260,6 +324,8 @@ cargo test -- --nocapture
 # Run specific crate tests
 cargo test -p khodpay-bip39
 cargo test -p khodpay-bip32
+cargo test -p khodpay-bip44
+cargo test -p khodpay-signing
 
 # Run benchmarks
 cargo bench
@@ -270,6 +336,7 @@ cargo bench
 - **BIP39**: 184+ tests (unit, doc, and integration)
 - **BIP32**: Comprehensive test vectors from official BIP32 specification
 - **BIP44**: 400+ tests including integration, edge cases, and compatibility tests
+- **Signing**: 187 tests including integration tests for full signing workflow
 - All test vectors from official BIP39, BIP32, and BIP44 specifications
 
 ## 📊 Performance
@@ -301,11 +368,13 @@ cargo bench
 - [x] Account caching and discovery
 - [x] Comprehensive test coverage
 - [x] Documentation and examples
+- [x] EVM transaction signing (EIP-1559)
+- [x] BSC mainnet/testnet support
 - [ ] Hardware wallet integration examples
 - [ ] Additional language support
 - [ ] WASM compilation support
 - [ ] Address generation utilities
-- [ ] Transaction signing support
+- [ ] Other EVM chains (Ethereum, Polygon, etc.)
 
 ## 🤝 Contributing
 
@@ -357,6 +426,8 @@ You may choose either license for your use.
 - [Bitcoin BIP84 Specification](https://github.com/bitcoin/bips/blob/master/bip-0084.mediawiki)
 - [Bitcoin BIP86 Specification](https://github.com/bitcoin/bips/blob/master/bip-0086.mediawiki)
 - [SLIP-44 Coin Types](https://github.com/satoshilabs/slips/blob/master/slip-0044.md)
+- [EIP-1559 Specification](https://eips.ethereum.org/EIPS/eip-1559)
+- [EIP-2718 Typed Transactions](https://eips.ethereum.org/EIPS/eip-2718)
 
 ## 📞 Support
 
