@@ -57,7 +57,7 @@ This crate provides EVM transaction signing for BSC (BNB Smart Chain) using EIP-
   - `Bip44Signer` wrapping `khodpay_bip44::Account`
   - Implement `sign()` and `address()` methods
 
-- [ ] **Task 07**: Implement SignedTransaction and raw output (TDD)
+- [x] **Task 07**: Implement SignedTransaction and raw output (TDD)
   - RLP encode signed tx with signature
   - `to_raw_transaction()` → hex string
   - `tx_hash()` → `keccak256(raw_bytes)`
