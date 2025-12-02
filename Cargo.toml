@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/bip39", "crates/bip32", "crates/bip44"]
+members = ["crates/bip39", "crates/bip32", "crates/bip44", "crates/khodpay-signing"]
 resolver = "2"
 
 [workspace.package]
@@ -11,3 +11,8 @@ documentation = "https://docs.rs/khodpay-wallet"
 homepage = "https://github.com/khodpay/rust-wallet"
 edition = "2021"
 rust-version = "1.81"
+
+# Pin dependencies that require edition 2024 to older versions
+# until CI runners are updated to Rust 1.85+
+[workspace.dependencies]
+base64ct = "=1.7.3"

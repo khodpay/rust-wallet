@@ -1,6 +1,6 @@
 # KhodPay Wallet Libraries - Integration Guide
 
-This guide explains how to integrate the BIP39 and BIP32 libraries into your Rust projects.
+This guide explains how to integrate the KhodPay wallet libraries into your Rust projects.
 
 ## 📦 Available Libraries
 
@@ -19,6 +19,20 @@ This guide explains how to integrate the BIP39 and BIP32 libraries into your Rus
 - ✅ Memory-safe (zeroization of sensitive data)
 - ✅ Full secp256k1 support
 
+### 3. **khodpay-bip44** - Multi-Account Hierarchy
+- ✅ BIP44/49/84/86 compliant account derivation
+- ✅ Multi-coin support (Bitcoin, Ethereum, etc.)
+- ✅ Account caching for performance
+- ✅ External/internal chain derivation
+
+### 4. **khodpay-signing** - EVM Transaction Signing
+- ✅ EIP-1559 (Type 2) transaction support
+- ✅ BSC Mainnet (56) and Testnet (97) chain IDs
+- ✅ BIP-44 integration for key derivation
+- ✅ RLP encoding for transaction broadcast
+- ✅ Signature recovery for address verification
+- ✅ Automatic zeroization of sensitive data
+
 ## 🚀 Integration Methods
 
 ### Method 1: Local Path Dependency (Development)
@@ -29,6 +43,8 @@ Add to your project's `Cargo.toml`:
 [dependencies]
 khodpay-bip39 = { path = "../khodpay-wallet/crates/bip39" }
 khodpay-bip32 = { path = "../khodpay-wallet/crates/bip32" }
+khodpay-bip44 = { path = "../khodpay-wallet/crates/bip44" }
+khodpay-signing = { path = "../khodpay-wallet/crates/khodpay-signing" }
 ```
 
 ### Method 2: Git Dependency (Recommended for Projects)
@@ -37,6 +53,8 @@ khodpay-bip32 = { path = "../khodpay-wallet/crates/bip32" }
 [dependencies]
 khodpay-bip39 = { git = "https://github.com/khodpay/rust-wallet" }
 khodpay-bip32 = { git = "https://github.com/khodpay/rust-wallet" }
+khodpay-bip44 = { git = "https://github.com/khodpay/rust-wallet" }
+khodpay-signing = { git = "https://github.com/khodpay/rust-wallet" }
 ```
 
 ### Method 3: Workspace Dependency (Monorepo)
@@ -47,6 +65,8 @@ If your project is in the same workspace:
 [dependencies]
 khodpay-bip39 = { workspace = true }
 khodpay-bip32 = { workspace = true }
+khodpay-bip44 = { workspace = true }
+khodpay-signing = { workspace = true }
 ```
 
 ## 📖 Usage Examples
@@ -156,6 +176,79 @@ fn create_watch_only_wallet() -> Result<ExtendedPublicKey, Box<dyn std::error::E
 }
 ```
 
+### Example 5: Sign BSC Transaction
+
+```rust
+use khodpay_bip32::Network;
+use khodpay_bip44::{CoinType, Purpose, Wallet};
+use khodpay_signing::{
+    Address, Bip44Signer, ChainId, Eip1559Transaction,
+    SignedTransaction, Wei, TRANSFER_GAS,
+};
+
+fn sign_bsc_transaction() -> Result<(), Box<dyn std::error::Error>> {
+    // Create wallet from mnemonic
+    let mut wallet = Wallet::from_english_mnemonic(
+        "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+        "",
+        Network::BitcoinMainnet,
+    )?;
+    
+    // Get Ethereum account (CoinType 60 for EVM chains)
+    let account = wallet.get_account(Purpose::BIP44, CoinType::Ethereum, 0)?;
+    
+    // Create signer from first address
+    let signer = Bip44Signer::new(&account, 0)?;
+    println!("Sender address: {}", signer.address());
+    
+    // Build EIP-1559 transaction
+    let recipient: Address = "0x742d35Cc6634C0532925a3b844Bc454e4438f44e".parse()?;
+    
+    let tx = Eip1559Transaction::builder()
+        .chain_id(ChainId::BscMainnet)  // BSC Mainnet = 56
+        .nonce(0)
+        .max_priority_fee_per_gas(Wei::from_gwei(1))  // Tip
+        .max_fee_per_gas(Wei::from_gwei(5))           // Max total fee
+        .gas_limit(TRANSFER_GAS)                       // 21,000 for transfers
+        .to(recipient)
+        .value(Wei::from_ether(1))
+        .build()?;
+    
+    // Sign the transaction
+    let signature = signer.sign_transaction(&tx)?;
+    let signed_tx = SignedTransaction::new(tx, signature);
+    
+    // Get raw transaction for eth_sendRawTransaction
+    let raw_tx = signed_tx.to_raw_transaction();
+    println!("Raw TX: {}", raw_tx);
+    
+    // Get transaction hash
+    let tx_hash = signed_tx.tx_hash_hex();
+    println!("TX Hash: {}", tx_hash);
+    
+    Ok(())
+}
+```
+
+### Example 6: BSC Testnet Transaction
+
+```rust
+use khodpay_signing::{ChainId, Eip1559Transaction, Wei, TRANSFER_GAS};
+
+fn build_testnet_transaction() -> Result<Eip1559Transaction, Box<dyn std::error::Error>> {
+    let tx = Eip1559Transaction::builder()
+        .chain_id(ChainId::BscTestnet)  // BSC Testnet = 97
+        .nonce(0)
+        .max_priority_fee_per_gas(Wei::from_gwei(1))
+        .max_fee_per_gas(Wei::from_gwei(5))
+        .gas_limit(TRANSFER_GAS)
+        .value(Wei::ZERO)
+        .build()?;
+    
+    Ok(tx)
+}
+```
+
 ## 🔐 Security Features
 
 Both libraries implement security best practices:
@@ -232,6 +325,8 @@ cargo test --workspace
 # Test specific library
 cargo test -p khodpay-bip39
 cargo test -p khodpay-bip32
+cargo test -p khodpay-bip44
+cargo test -p khodpay-signing
 
 # Run with output
 cargo test --workspace -- --nocapture
@@ -243,6 +338,8 @@ cargo test -p khodpay-bip32 fingerprint
 Current test status:
 - **khodpay-bip39**: All tests passing ✅
 - **khodpay-bip32**: 145 unit tests + 50 doc tests passing ✅
+- **khodpay-bip44**: 400+ tests passing ✅
+- **khodpay-signing**: 187 tests passing ✅
 
 ## 📚 Documentation
 
@@ -288,6 +385,14 @@ bip32 = "0.1.0"
 - `thiserror` - Error handling
 - `zeroize` - Memory zeroization
 
+### Signing Dependencies
+- `k256` - secp256k1 ECDSA signing
+- `sha3` - Keccak-256 hashing
+- `rlp` - RLP encoding for transactions
+- `primitive-types` - U256 for Wei amounts
+- `hex` - Hex encoding/decoding
+- `zeroize` - Memory zeroization
+
 ## 🐛 Error Handling
 
 Both libraries use custom error types:
@@ -324,8 +429,11 @@ Check the main project LICENSE file for licensing information.
 
 - [BIP39 Specification](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki)
 - [BIP32 Specification](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki)
-- [Project Repository](https://github.com/your-org/khodpay-wallet)
+- [BIP44 Specification](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki)
+- [EIP-1559 Specification](https://eips.ethereum.org/EIPS/eip-1559)
+- [EIP-2718 Typed Transactions](https://eips.ethereum.org/EIPS/eip-2718)
+- [Project Repository](https://github.com/khodpay/rust-wallet)
 
 ---
 
-**Built with ❤️ for the Bitcoin ecosystem**
+**Built with ❤️ for the cryptocurrency ecosystem**
