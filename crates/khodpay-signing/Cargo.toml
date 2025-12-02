@@ -7,7 +7,7 @@ description = "EVM transaction signing for BSC and other EVM chains"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/khodpay/khodpay-wallet"
 keywords = ["bsc", "ethereum", "evm", "signing", "transaction"]
-categories = ["cryptography", "cryptocurrency"]
+categories = ["cryptography", "no-std"]
 
 [dependencies]
 # Internal dependencies
