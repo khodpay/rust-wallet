@@ -11,8 +11,8 @@ categories = ["cryptography", "cryptocurrency"]
 
 [dependencies]
 # Internal dependencies
-khodpay-bip32 = { path = "../bip32" }
-khodpay-bip44 = { path = "../bip44" }
+khodpay-bip32 = { version = "0.2.0", path = "../bip32" }
+khodpay-bip44 = { version = "0.1.0", path = "../bip44" }
 
 # Error handling
 thiserror = "1.0"
@@ -41,4 +41,4 @@ default = []
 serde = ["dep:serde"]
 
 [dev-dependencies]
-khodpay-bip39 = { path = "../bip39" }
+khodpay-bip39 = { version = "0.4.0", path = "../bip39" }
