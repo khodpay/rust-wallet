@@ -224,11 +224,11 @@ mod tests {
     }
 
     #[test]
-    fn test_clone() {
+    fn test_copy() {
         let sig = test_signature();
-        let cloned = sig.clone();
+        let copied = sig; // Copy trait
 
-        assert_eq!(sig, cloned);
+        assert_eq!(sig, copied);
     }
 
     // ==================== Recovery ID Tests ====================

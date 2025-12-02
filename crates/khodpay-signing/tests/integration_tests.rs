@@ -27,7 +27,7 @@ fn test_full_workflow_mnemonic_to_signed_transaction() {
         .unwrap();
 
     // Step 3: Create signer from account
-    let signer = Bip44Signer::new(&account, 0).unwrap();
+    let signer = Bip44Signer::new(account, 0).unwrap();
     let sender_address = signer.address();
 
     // Step 4: Create transaction
@@ -73,7 +73,7 @@ fn test_workflow_bsc_testnet() {
     let account = wallet
         .get_account(Purpose::BIP44, CoinType::Ethereum, 0)
         .unwrap();
-    let signer = Bip44Signer::new(&account, 0).unwrap();
+    let signer = Bip44Signer::new(account, 0).unwrap();
 
     let tx = Eip1559Transaction::builder()
         .chain_id(ChainId::BscTestnet) // Testnet
@@ -101,9 +101,9 @@ fn test_workflow_multiple_addresses() {
         .unwrap();
 
     // Derive multiple addresses
-    let signer0 = Bip44Signer::new(&account, 0).unwrap();
-    let signer1 = Bip44Signer::new(&account, 1).unwrap();
-    let signer2 = Bip44Signer::new(&account, 2).unwrap();
+    let signer0 = Bip44Signer::new(account, 0).unwrap();
+    let signer1 = Bip44Signer::new(account, 1).unwrap();
+    let signer2 = Bip44Signer::new(account, 2).unwrap();
 
     // All addresses should be different
     assert_ne!(signer0.address(), signer1.address());
@@ -226,7 +226,7 @@ fn test_signature_not_valid_on_different_chain() {
     let account = wallet
         .get_account(Purpose::BIP44, CoinType::Ethereum, 0)
         .unwrap();
-    let signer = Bip44Signer::new(&account, 0).unwrap();
+    let signer = Bip44Signer::new(account, 0).unwrap();
 
     // Sign on mainnet
     let tx_mainnet = Eip1559Transaction::builder()
@@ -265,7 +265,7 @@ fn test_known_address_derivation() {
     let account = wallet
         .get_account(Purpose::BIP44, CoinType::Ethereum, 0)
         .unwrap();
-    let signer = Bip44Signer::new(&account, 0).unwrap();
+    let signer = Bip44Signer::new(account, 0).unwrap();
 
     // This is the known first address for the test mnemonic on m/44'/60'/0'/0/0
     let expected = "0x9858EfFD232B4033E47d90003D41EC34EcaEda94";
@@ -346,7 +346,7 @@ fn test_signing_is_deterministic() {
     let account = wallet
         .get_account(Purpose::BIP44, CoinType::Ethereum, 0)
         .unwrap();
-    let signer = Bip44Signer::new(&account, 0).unwrap();
+    let signer = Bip44Signer::new(account, 0).unwrap();
 
     let tx = Eip1559Transaction::builder()
         .chain_id(ChainId::BscMainnet)
@@ -376,7 +376,7 @@ fn test_raw_transaction_is_deterministic() {
     let account = wallet
         .get_account(Purpose::BIP44, CoinType::Ethereum, 0)
         .unwrap();
-    let signer = Bip44Signer::new(&account, 0).unwrap();
+    let signer = Bip44Signer::new(account, 0).unwrap();
 
     let tx = Eip1559Transaction::builder()
         .chain_id(ChainId::BscMainnet)
