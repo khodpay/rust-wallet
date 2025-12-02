@@ -2,9 +2,16 @@
 //!
 //! This module provides the `Bip44Signer` which wraps a `khodpay_bip44::Account`
 //! and provides transaction signing capabilities.
+//!
+//! # Security
+//!
+//! The `Bip44Signer` holds a private signing key in memory. The key is automatically
+//! zeroized when the signer is dropped, preventing sensitive data from lingering
+//! in memory. The underlying `k256::SigningKey` implements `Zeroize`.
 
 use crate::{Address, Eip1559Transaction, Error, Result, Signature};
 use k256::ecdsa::{RecoveryId, SigningKey, VerifyingKey};
+use zeroize::Zeroizing;
 
 /// A transaction signer using BIP-44 derived keys.
 ///
@@ -50,11 +57,13 @@ impl Bip44Signer {
         // Derive the external address at the given index
         let extended_key = account.derive_external(address_index)?;
         
-        // Get the private key bytes from the extended key
-        let private_key_bytes = extended_key.private_key().to_bytes();
+        // Get the private key bytes from the extended key, wrapped in Zeroizing
+        // to ensure the bytes are zeroed when dropped
+        let private_key_bytes: Zeroizing<[u8; 32]> = 
+            Zeroizing::new(extended_key.private_key().to_bytes());
         
-        // Create the signing key
-        let signing_key = SigningKey::from_bytes((&private_key_bytes).into())
+        // Create the signing key (k256::SigningKey implements Zeroize internally)
+        let signing_key = SigningKey::from_bytes(private_key_bytes.as_ref().into())
             .map_err(|e| Error::SigningError(format!("Invalid private key: {}", e)))?;
         
         // Derive the address from the public key

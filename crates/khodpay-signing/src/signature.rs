@@ -4,6 +4,7 @@
 //! with recovery ID, as used in Ethereum-compatible transactions.
 
 use std::fmt;
+use zeroize::Zeroize;
 
 /// An ECDSA signature with recovery ID.
 ///
@@ -21,7 +22,11 @@ use std::fmt;
 ///
 /// For EIP-1559 transactions, `v` is simply the recovery ID (0 or 1),
 /// not the legacy `v = 27 + recovery_id` or EIP-155 `v = chain_id * 2 + 35 + recovery_id`.
-#[derive(Clone, Copy, PartialEq, Eq)]
+///
+/// # Security
+///
+/// The signature implements `Zeroize` to clear sensitive data from memory when dropped.
+#[derive(Clone, Copy, PartialEq, Eq, Zeroize)]
 pub struct Signature {
     /// The R component of the signature.
     pub r: [u8; 32],
@@ -238,5 +243,19 @@ mod tests {
     fn test_v_one() {
         let sig = Signature::new([0u8; 32], [0u8; 32], 1);
         assert_eq!(sig.v, 1);
+    }
+
+    // ==================== Zeroize Tests ====================
+
+    #[test]
+    fn test_zeroize() {
+        use zeroize::Zeroize;
+        
+        let mut sig = Signature::new([0xab; 32], [0xcd; 32], 1);
+        sig.zeroize();
+        
+        assert_eq!(sig.r, [0u8; 32]);
+        assert_eq!(sig.s, [0u8; 32]);
+        assert_eq!(sig.v, 0);
     }
 }

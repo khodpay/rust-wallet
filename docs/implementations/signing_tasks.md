@@ -78,7 +78,7 @@ This crate provides EVM transaction signing for BSC (BNB Smart Chain) using EIP-
   - Full workflow: mnemonic → bip44 → sign BSC transaction
   - Validation: `max_fee >= max_priority_fee`, `gas_limit >= 21000`
 
-- [ ] **Task 10**: Security: zeroize sensitive data
+- [x] **Task 10**: Security: zeroize sensitive data
 
 ---
 
