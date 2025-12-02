@@ -66,15 +66,15 @@ This crate provides EVM transaction signing for BSC (BNB Smart Chain) using EIP-
 
 ## 🔗 PHASE 4: BSC Helpers & BEP-20 (MEDIUM Priority)
 
-- [ ] **Task 08**: Add BSC defaults and BEP-20 transfer encoding (TDD)
-  - Gas constants: `TRANSFER_GAS`, `BEP20_TRANSFER_GAS`
-  - `bep20_transfer_data(recipient, amount)` → encoded calldata
+- [~] **Task 08**: ~~Add BSC defaults and BEP-20 transfer encoding~~ (SKIPPED)
+  - Gas constants already in Task 04
+  - BEP-20 encoding can be added later or in separate crate
 
 ---
 
 ## 🧪 PHASE 5: Integration & Validation (MEDIUM Priority)
 
-- [ ] **Task 09**: Integration tests and validation rules
+- [x] **Task 09**: Integration tests and validation rules
   - Full workflow: mnemonic → bip44 → sign BSC transaction
   - Validation: `max_fee >= max_priority_fee`, `gas_limit >= 21000`
 
