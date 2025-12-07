@@ -15,7 +15,7 @@ categories = ["cryptography", "no-std"]
 
 [dependencies]
 khodpay-bip32 = { version = "0.2.0", path = "../bip32" }
-khodpay-bip39 = { version = "0.2.0", path = "../bip39" }
+khodpay-bip39 = { version = "0.4.0", path = "../bip39" }
 thiserror = "1.0"
 
 [dependencies.serde]
