@@ -17,6 +17,7 @@ categories = ["cryptography", "no-std"]
 bip39-upstream = { package = "bip39", version = "2.0", features = ["all-languages"] }
 thiserror = "1.0"
 rand = "0.8"
+getrandom = "0.2"
 
 [dev-dependencies]
 hex = "0.4"

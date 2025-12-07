@@ -1,0 +1,41 @@
+[package]
+name = "khodpay-flutter-bridge"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.81"
+authors = ["KhodPay Team"]
+license = "MIT OR Apache-2.0"
+description = "Flutter Rust Bridge for KhodPay Wallet"
+repository = "https://github.com/khodpay/rust-wallet"
+
+[lib]
+crate-type = ["cdylib", "staticlib"]  # For Flutter FFI
+name = "khodpay_flutter_bridge"
+
+[dependencies]
+# Flutter Rust Bridge
+flutter_rust_bridge = "=2.11.1"
+
+# Local crates - your wallet functionality
+khodpay-bip32 = { version = "0.2.0", path = "../bip32" }
+khodpay-bip39 = { version = "0.2.0", path = "../bip39" }
+khodpay-bip44 = { version = "0.1.0", path = "../bip44" }
+
+# Optional: For serializable structs
+serde = { version = "1", features = ["derive"] }
+
+# Error handling
+anyhow = "1.0"
+
+# Ensure proper entropy on mobile platforms
+getrandom = "0.2"
+
+# Hex encoding
+hex = "0.4"
+
+[profile.release]
+opt-level = 3          # Maximum optimizations
+lto = true             # Link-time optimization
+codegen-units = 1      # Better optimization
+strip = true           # Strip symbols for smaller binary
+panic = "abort"        # Smaller binary size
