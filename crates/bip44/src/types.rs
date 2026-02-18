@@ -908,10 +908,7 @@ impl CoinType {
     pub const fn is_evm_compatible(&self) -> bool {
         matches!(
             self,
-            CoinType::Ethereum 
-            | CoinType::EthereumClassic 
-            | CoinType::BinanceCoin
-            | CoinType::Tron
+            CoinType::Ethereum | CoinType::EthereumClassic | CoinType::BinanceCoin | CoinType::Tron
         )
     }
 
