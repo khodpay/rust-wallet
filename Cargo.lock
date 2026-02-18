@@ -922,6 +922,7 @@ dependencies = [
  "hex",
  "khodpay-bip32",
  "khodpay-bip39",
+ "khodpay-signing",
  "serde",
  "serde_json",
  "thiserror",

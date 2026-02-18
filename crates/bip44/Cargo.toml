@@ -27,6 +27,7 @@ optional = true
 hex = "0.4"
 serde_json = "1.0"
 criterion = "0.5"
+khodpay-signing = { path = "../khodpay-signing" }
 
 [[bench]]
 name = "bip44_benchmarks"

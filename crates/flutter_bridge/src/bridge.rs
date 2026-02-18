@@ -635,7 +635,21 @@ impl Bip44Account {
     pub fn derive_external(&self, index: u32) -> Result<String, String> {
         let key = self.inner.derive_external(index)
             .map_err(|e| format!("Failed to derive external address: {}", e))?;
-        Ok(key.to_string())
+        
+        // For EVM chains (Ethereum, BSC, Polygon, etc.), derive the address from public key
+        if self.inner.coin_type().is_evm_compatible() {
+            // Get the uncompressed public key (65 bytes with 0x04 prefix)
+            let public_key = key.private_key().public_key();
+            let pubkey_uncompressed = public_key.serialize_uncompressed();
+            
+            // Skip the 0x04 prefix and derive EVM address from 64-byte public key
+            let address = RustAddress::from_public_key_bytes(&pubkey_uncompressed[1..])
+                .map_err(|e| format!("Failed to derive EVM address: {}", e))?;
+            Ok(address.to_checksum_string())
+        } else {
+            // For non-EVM chains, return the extended key string
+            Ok(key.to_string())
+        }
     }
 
     /// Derive an internal (change) address at the given index
@@ -643,7 +657,21 @@ impl Bip44Account {
     pub fn derive_internal(&self, index: u32) -> Result<String, String> {
         let key = self.inner.derive_internal(index)
             .map_err(|e| format!("Failed to derive internal address: {}", e))?;
-        Ok(key.to_string())
+        
+        // For EVM chains (Ethereum, BSC, Polygon, etc.), derive the address from public key
+        if self.inner.coin_type().is_evm_compatible() {
+            // Get the uncompressed public key (65 bytes with 0x04 prefix)
+            let public_key = key.private_key().public_key();
+            let pubkey_uncompressed = public_key.serialize_uncompressed();
+            
+            // Skip the 0x04 prefix and derive EVM address from 64-byte public key
+            let address = RustAddress::from_public_key_bytes(&pubkey_uncompressed[1..])
+                .map_err(|e| format!("Failed to derive EVM address: {}", e))?;
+            Ok(address.to_checksum_string())
+        } else {
+            // For non-EVM chains, return the extended key string
+            Ok(key.to_string())
+        }
     }
 
     /// Derive an address for the specified chain and index
@@ -651,7 +679,21 @@ impl Bip44Account {
     pub fn derive_address(&self, chain: Chain, index: u32) -> Result<String, String> {
         let key = self.inner.derive_address(chain.into(), index)
             .map_err(|e| format!("Failed to derive address: {}", e))?;
-        Ok(key.to_string())
+        
+        // For EVM chains (Ethereum, BSC, Polygon, etc.), derive the address from public key
+        if self.inner.coin_type().is_evm_compatible() {
+            // Get the uncompressed public key (65 bytes with 0x04 prefix)
+            let public_key = key.private_key().public_key();
+            let pubkey_uncompressed = public_key.serialize_uncompressed();
+            
+            // Skip the 0x04 prefix and derive EVM address from 64-byte public key
+            let address = RustAddress::from_public_key_bytes(&pubkey_uncompressed[1..])
+                .map_err(|e| format!("Failed to derive EVM address: {}", e))?;
+            Ok(address.to_checksum_string())
+        } else {
+            // For non-EVM chains, return the extended key string
+            Ok(key.to_string())
+        }
     }
 
     /// Derive a range of addresses
@@ -664,7 +706,25 @@ impl Bip44Account {
     ) -> Result<Vec<String>, String> {
         let keys = self.inner.derive_address_range(chain.into(), start, count)
             .map_err(|e| format!("Failed to derive address range: {}", e))?;
-        Ok(keys.iter().map(|k| k.to_string()).collect())
+        
+        // For EVM chains (Ethereum, BSC, Polygon, etc.), derive addresses from public keys
+        if self.inner.coin_type().is_evm_compatible() {
+            keys.iter()
+                .map(|key| {
+                    // Get the uncompressed public key (65 bytes with 0x04 prefix)
+                    let public_key = key.private_key().public_key();
+                    let pubkey_uncompressed = public_key.serialize_uncompressed();
+                    
+                    // Skip the 0x04 prefix and derive EVM address from 64-byte public key
+                    let address = RustAddress::from_public_key_bytes(&pubkey_uncompressed[1..])
+                        .map_err(|e| format!("Failed to derive EVM address: {}", e))?;
+                    Ok(address.to_checksum_string())
+                })
+                .collect()
+        } else {
+            // For non-EVM chains, return the extended key strings
+            Ok(keys.iter().map(|k| k.to_string()).collect())
+        }
     }
 }
 
