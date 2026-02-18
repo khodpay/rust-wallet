@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-02-18
+
+### Added
+
+#### khodpay-signing (v0.2.0)
+
+- ✨ **EIP-712 typed data signing** (`eip712` module) — generic, protocol-agnostic implementation
+  - `Eip712Type` trait: implement for any struct to get `type_hash()` and `hash_struct()` for free
+  - `Eip712Domain` + `Eip712DomainBuilder`: flexible domain with all 5 optional EIP-712 fields (`name`, `version`, `chainId`, `verifyingContract`, `salt`); `type_string()` auto-generates from only the fields set
+  - `hash_typed_data(domain, message)`: produces the `\x19\x01 || domainSep || structHash` envelope
+  - `sign_typed_data(signer, domain, message)`: signs with any `Bip44Signer`
+  - `verify_typed_data(domain, message, sig, expected)`: recovers and compares signer address
+  - ABI encoding helpers exported for use in `encode_data()` implementations: `encode_address`, `encode_uint64`, `encode_u256_bytes`, `encode_bool`, `encode_bytes32`, `encode_bytes_dynamic`
+
+- ✨ **ERC-4337 v0.7 Account Abstraction** (`erc4337` module) — generic, protocol-agnostic implementation
+  - `PackedUserOperation` struct with all v0.7 fields including packed `bytes32` gas fields
+  - `PackedUserOperationBuilder`: fluent builder with validation for all required fields
+  - `pack_gas_limits(verificationGas, callGas)` / `pack_gas_fees(maxPriorityFee, maxFee)`: v0.7 packing helpers with matching unpack accessors
+  - `hash_user_operation(op, entry_point, chain_id)`: correct v0.7 hash formula
+  - `sign_user_operation(signer, op, entry_point, chain_id)`: returns a `Signature`
+  - `verify_user_operation(op, entry_point, chain_id, sig, expected)`: recover and compare
+  - `ENTRY_POINT_V07` constant: canonical `0x0000000071727De22E5E9d8BAf0edAc6f37da032`
+
+- ✨ **Integration tests** (`tests/eip712_erc4337_integration_tests.rs`) — 21 tests covering:
+  - Full WPGP smart wallet flow: business signs `PaymentIntent` (EIP-712) → user signs `PackedUserOperation` (ERC-4337)
+  - Full WPGP EOA wallet flow: business signs `PaymentIntent` → user submits EIP-1559 transaction
+  - Replay protection: cross-chain, cross-entry-point, and cross-nonce hash uniqueness
+  - Forgery resistance: attacker cannot forge business or user signatures
+  - Tamper resistance: modified intent invalidates original signature
+  - Domain flexibility: optional `verifyingContract`, multi-version domains
+
+### Changed
+
+#### khodpay-signing
+- Updated `description` and `keywords` in `Cargo.toml` to reflect new EIP-712 and ERC-4337 capabilities
+- Expanded crate-level documentation with module overview table and quick-start examples for all three signing paths
+
 ## [0.4.0] - 2024-12-01
 
 ### Changed
