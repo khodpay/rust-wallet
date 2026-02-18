@@ -13,8 +13,8 @@ use khodpay_bip32::Network;
 use khodpay_bip44::{CoinType, Purpose, Wallet};
 use khodpay_signing::{
     eip712::{
-        encode_address, encode_bytes32, encode_uint64,
-        hash_typed_data, sign_typed_data, verify_typed_data, Eip712Domain, Eip712Type,
+        encode_address, encode_bytes32, encode_uint64, hash_typed_data, sign_typed_data,
+        verify_typed_data, Eip712Domain, Eip712Type,
     },
     erc4337::{
         hash_user_operation, sign_user_operation, verify_user_operation, PackedUserOperation,
@@ -83,19 +83,27 @@ fn make_signer(account_index: u32, address_index: u32) -> Bip44Signer {
 }
 
 fn gateway_address() -> Address {
-    "0x1111111111111111111111111111111111111111".parse().unwrap()
+    "0x1111111111111111111111111111111111111111"
+        .parse()
+        .unwrap()
 }
 
 fn paymaster_address() -> Address {
-    "0x2222222222222222222222222222222222222222".parse().unwrap()
+    "0x2222222222222222222222222222222222222222"
+        .parse()
+        .unwrap()
 }
 
 fn smart_account_address() -> Address {
-    "0x3333333333333333333333333333333333333333".parse().unwrap()
+    "0x3333333333333333333333333333333333333333"
+        .parse()
+        .unwrap()
 }
 
 fn recipient_address() -> Address {
-    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e".parse().unwrap()
+    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+        .parse()
+        .unwrap()
 }
 
 fn make_domain() -> Eip712Domain {
@@ -176,7 +184,10 @@ fn test_payment_intent_hash_differs_by_amount() {
         invoice_id: base.invoice_id,
         nonce: base.nonce,
     };
-    assert_ne!(hash_typed_data(&domain, &base), hash_typed_data(&domain, &modified));
+    assert_ne!(
+        hash_typed_data(&domain, &base),
+        hash_typed_data(&domain, &modified)
+    );
 }
 
 #[test]
@@ -201,7 +212,10 @@ fn test_payment_intent_hash_differs_by_nonce() {
         invoice_id: make_invoice_id(1),
         nonce: 1,
     };
-    assert_ne!(hash_typed_data(&domain, &intent0), hash_typed_data(&domain, &intent1));
+    assert_ne!(
+        hash_typed_data(&domain, &intent0),
+        hash_typed_data(&domain, &intent1)
+    );
 }
 
 #[test]
@@ -226,7 +240,10 @@ fn test_payment_intent_hash_differs_by_invoice_id() {
         invoice_id: make_invoice_id(0xBB),
         nonce: 0,
     };
-    assert_ne!(hash_typed_data(&domain, &intent_a), hash_typed_data(&domain, &intent_b));
+    assert_ne!(
+        hash_typed_data(&domain, &intent_a),
+        hash_typed_data(&domain, &intent_b)
+    );
 }
 
 // ─── Business Signing Tests ───────────────────────────────────────────────────
@@ -247,7 +264,10 @@ fn test_business_signs_payment_intent() {
 
     let sig = sign_typed_data(&business_signer, &domain, &intent).unwrap();
     let valid = verify_typed_data(&domain, &intent, &sig, business_signer.address()).unwrap();
-    assert!(valid, "Business signature must verify against business address");
+    assert!(
+        valid,
+        "Business signature must verify against business address"
+    );
 }
 
 #[test]
@@ -338,7 +358,10 @@ fn test_tampered_intent_signature_rejected() {
         nonce: original.nonce,
     };
     let valid = verify_typed_data(&domain, &tampered, &sig, business_signer.address()).unwrap();
-    assert!(!valid, "Signature over original must not verify tampered intent");
+    assert!(
+        !valid,
+        "Signature over original must not verify tampered intent"
+    );
 }
 
 // ─── ERC-4337 Smart Wallet Path ───────────────────────────────────────────────
@@ -447,14 +470,19 @@ fn test_user_op_signature_is_chain_bound() {
     let sig = sign_user_operation(&user_signer, &user_op, entry_point, 56).unwrap();
     let valid =
         verify_user_operation(&user_op, entry_point, 97, &sig, user_signer.address()).unwrap();
-    assert!(!valid, "Mainnet UserOp signature must not be valid on testnet");
+    assert!(
+        !valid,
+        "Mainnet UserOp signature must not be valid on testnet"
+    );
 }
 
 #[test]
 fn test_user_op_signature_is_entry_point_bound() {
     let user_signer = make_signer(0, 1);
     let ep_v07: Address = ENTRY_POINT_V07.parse().unwrap();
-    let ep_v06: Address = "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789".parse().unwrap();
+    let ep_v06: Address = "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789"
+        .parse()
+        .unwrap();
     let user_op = PackedUserOperation::builder()
         .sender(smart_account_address())
         .nonce(0)
@@ -467,9 +495,11 @@ fn test_user_op_signature_is_entry_point_bound() {
 
     let sig = sign_user_operation(&user_signer, &user_op, ep_v07, BSC_CHAIN_ID).unwrap();
     let valid =
-        verify_user_operation(&user_op, ep_v06, BSC_CHAIN_ID, &sig, user_signer.address())
-            .unwrap();
-    assert!(!valid, "Signature for v0.7 EntryPoint must not verify against v0.6");
+        verify_user_operation(&user_op, ep_v06, BSC_CHAIN_ID, &sig, user_signer.address()).unwrap();
+    assert!(
+        !valid,
+        "Signature for v0.7 EntryPoint must not verify against v0.6"
+    );
 }
 
 #[test]
@@ -487,8 +517,7 @@ fn test_attacker_cannot_sign_user_op_as_real_user() {
         .build()
         .unwrap();
 
-    let attacker_sig =
-        sign_user_operation(&attacker, &user_op, entry_point, BSC_CHAIN_ID).unwrap();
+    let attacker_sig = sign_user_operation(&attacker, &user_op, entry_point, BSC_CHAIN_ID).unwrap();
     let valid = verify_user_operation(
         &user_op,
         entry_point,
@@ -497,7 +526,10 @@ fn test_attacker_cannot_sign_user_op_as_real_user() {
         real_user.address(),
     )
     .unwrap();
-    assert!(!valid, "Attacker's signature must not verify as the real user");
+    assert!(
+        !valid,
+        "Attacker's signature must not verify as the real user"
+    );
 }
 
 // ─── EOA Wallet Path ──────────────────────────────────────────────────────────
@@ -577,7 +609,11 @@ fn test_sequential_nonces_produce_different_hashes() {
     // All hashes must be unique
     for i in 0..hashes.len() {
         for j in (i + 1)..hashes.len() {
-            assert_ne!(hashes[i], hashes[j], "Nonce {} and {} produced same hash", i, j);
+            assert_ne!(
+                hashes[i], hashes[j],
+                "Nonce {} and {} produced same hash",
+                i, j
+            );
         }
     }
 }
@@ -603,7 +639,11 @@ fn test_sequential_user_op_nonces_produce_different_hashes() {
 
     for i in 0..hashes.len() {
         for j in (i + 1)..hashes.len() {
-            assert_ne!(hashes[i], hashes[j], "Nonce {} and {} produced same hash", i, j);
+            assert_ne!(
+                hashes[i], hashes[j],
+                "Nonce {} and {} produced same hash",
+                i, j
+            );
         }
     }
 }

@@ -788,17 +788,11 @@ mod tests {
         let result = PublicKey::from_bytes(&bytes);
         // This may or may not be on the curve - secp256k1 library handles validation
         // We're testing that invalid points are rejected
-        if result.is_ok() {
-            // If this pattern happens to be valid, that's fine - secp256k1 accepted it
-            // The important thing is we don't crash or behave incorrectly
-            // Test passes - no assertion needed
-        } else {
+        if let Err(e) = result {
             // If it's invalid, verify we get the right error
-            assert!(matches!(
-                result.unwrap_err(),
-                Error::InvalidPublicKey { .. }
-            ));
+            assert!(matches!(e, Error::InvalidPublicKey { .. }));
         }
+        // If this pattern happens to be valid, that's fine - secp256k1 accepted it
     }
 
     #[test]

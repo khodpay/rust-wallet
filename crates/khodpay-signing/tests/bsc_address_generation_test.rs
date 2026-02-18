@@ -92,8 +92,8 @@ fn test_bsc_mainnet_vs_testnet_correct_usage() {
         .unwrap();
 
     // Sign both transactions with the same signer
-    let sig_mainnet = signer.sign_transaction(&tx_mainnet).unwrap();
-    let sig_testnet = signer.sign_transaction(&tx_testnet).unwrap();
+    let _sig_mainnet = signer.sign_transaction(&tx_mainnet).unwrap();
+    let _sig_testnet = signer.sign_transaction(&tx_testnet).unwrap();
 
     // Signatures are different because ChainId is part of the signing hash
     assert_ne!(

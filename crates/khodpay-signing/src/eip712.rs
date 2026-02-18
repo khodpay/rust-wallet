@@ -465,7 +465,10 @@ mod tests {
 
     #[test]
     fn test_domain_separator_deterministic() {
-        assert_eq!(test_domain().domain_separator(), test_domain().domain_separator());
+        assert_eq!(
+            test_domain().domain_separator(),
+            test_domain().domain_separator()
+        );
     }
 
     #[test]
@@ -484,7 +487,9 @@ mod tests {
 
     #[test]
     fn test_domain_separator_differs_by_contract() {
-        let addr2: Address = "0x1111111111111111111111111111111111111111".parse().unwrap();
+        let addr2: Address = "0x1111111111111111111111111111111111111111"
+            .parse()
+            .unwrap();
         let d1 = Eip712Domain::new("App", "1", 56, test_address());
         let d2 = Eip712Domain::new("App", "1", 56, addr2);
         assert_ne!(d1.domain_separator(), d2.domain_separator());
@@ -497,31 +502,52 @@ mod tests {
 
     #[test]
     fn test_hash_struct_differs_by_field() {
-        let t1 = SimpleTransfer { to: test_address(), amount: 1000 };
-        let t2 = SimpleTransfer { to: test_address(), amount: 2000 };
+        let t1 = SimpleTransfer {
+            to: test_address(),
+            amount: 1000,
+        };
+        let t2 = SimpleTransfer {
+            to: test_address(),
+            amount: 2000,
+        };
         assert_ne!(t1.hash_struct(), t2.hash_struct());
     }
 
     #[test]
     fn test_hash_typed_data_deterministic() {
         let domain = test_domain();
-        let msg = SimpleTransfer { to: test_address(), amount: 500 };
-        assert_eq!(hash_typed_data(&domain, &msg), hash_typed_data(&domain, &msg));
+        let msg = SimpleTransfer {
+            to: test_address(),
+            amount: 500,
+        };
+        assert_eq!(
+            hash_typed_data(&domain, &msg),
+            hash_typed_data(&domain, &msg)
+        );
     }
 
     #[test]
     fn test_hash_typed_data_differs_by_domain() {
         let d1 = Eip712Domain::new("App", "1", 56, test_address());
         let d2 = Eip712Domain::new("App", "1", 97, test_address());
-        let msg = SimpleTransfer { to: test_address(), amount: 500 };
+        let msg = SimpleTransfer {
+            to: test_address(),
+            amount: 500,
+        };
         assert_ne!(hash_typed_data(&d1, &msg), hash_typed_data(&d2, &msg));
     }
 
     #[test]
     fn test_hash_typed_data_differs_by_message() {
         let domain = test_domain();
-        let m1 = SimpleTransfer { to: test_address(), amount: 100 };
-        let m2 = SimpleTransfer { to: test_address(), amount: 200 };
+        let m1 = SimpleTransfer {
+            to: test_address(),
+            amount: 100,
+        };
+        let m2 = SimpleTransfer {
+            to: test_address(),
+            amount: 200,
+        };
         assert_ne!(hash_typed_data(&domain, &m1), hash_typed_data(&domain, &m2));
     }
 
@@ -529,7 +555,10 @@ mod tests {
     fn test_sign_and_verify() {
         let signer = Bip44Signer::from_private_key(&[1u8; 32]).unwrap();
         let domain = test_domain();
-        let msg = SimpleTransfer { to: test_address(), amount: 1_000_000 };
+        let msg = SimpleTransfer {
+            to: test_address(),
+            amount: 1_000_000,
+        };
 
         let sig = sign_typed_data(&signer, &domain, &msg).unwrap();
         let valid = verify_typed_data(&domain, &msg, &sig, signer.address()).unwrap();
@@ -544,7 +573,10 @@ mod tests {
         let signer2 = Bip44Signer::from_private_key(&key2).unwrap();
 
         let domain = test_domain();
-        let msg = SimpleTransfer { to: test_address(), amount: 42 };
+        let msg = SimpleTransfer {
+            to: test_address(),
+            amount: 42,
+        };
 
         let sig = sign_typed_data(&signer1, &domain, &msg).unwrap();
         let valid = verify_typed_data(&domain, &msg, &sig, signer2.address()).unwrap();
@@ -555,7 +587,10 @@ mod tests {
     fn test_sign_deterministic() {
         let signer = Bip44Signer::from_private_key(&[1u8; 32]).unwrap();
         let domain = test_domain();
-        let msg = SimpleTransfer { to: test_address(), amount: 99 };
+        let msg = SimpleTransfer {
+            to: test_address(),
+            amount: 99,
+        };
 
         let sig1 = sign_typed_data(&signer, &domain, &msg).unwrap();
         let sig2 = sign_typed_data(&signer, &domain, &msg).unwrap();
@@ -569,11 +604,17 @@ mod tests {
         let signer = Bip44Signer::from_private_key(&[1u8; 32]).unwrap();
         let d1 = Eip712Domain::new("App", "1", 56, test_address());
         let d2 = Eip712Domain::new("App", "1", 97, test_address());
-        let msg = SimpleTransfer { to: test_address(), amount: 1 };
+        let msg = SimpleTransfer {
+            to: test_address(),
+            amount: 1,
+        };
 
         let sig = sign_typed_data(&signer, &d1, &msg).unwrap();
         let valid = verify_typed_data(&d2, &msg, &sig, signer.address()).unwrap();
-        assert!(!valid, "Signature from chain 56 must not be valid on chain 97");
+        assert!(
+            !valid,
+            "Signature from chain 56 must not be valid on chain 97"
+        );
     }
 
     #[test]
@@ -658,8 +699,14 @@ mod tests {
             }
         }
 
-        let o1 = Outer { inner: Inner { value: 1 }, label: b"foo".to_vec() };
-        let o2 = Outer { inner: Inner { value: 2 }, label: b"foo".to_vec() };
+        let o1 = Outer {
+            inner: Inner { value: 1 },
+            label: b"foo".to_vec(),
+        };
+        let o2 = Outer {
+            inner: Inner { value: 2 },
+            label: b"foo".to_vec(),
+        };
         assert_ne!(o1.hash_struct(), o2.hash_struct());
     }
 }

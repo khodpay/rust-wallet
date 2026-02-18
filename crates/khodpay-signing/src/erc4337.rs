@@ -68,8 +68,8 @@
 //! The canonical ERC-4337 v0.7 EntryPoint address is available as [`ENTRY_POINT_V07`]:
 //! `0x0000000071727De22E5E9d8BAf0edAc6f37da032`
 
-use crate::{Address, Error, Result, Signature};
 use crate::eip712::keccak256;
+use crate::{Address, Error, Result, Signature};
 
 /// The canonical ERC-4337 v0.7 EntryPoint contract address.
 pub const ENTRY_POINT_V07: &str = "0x0000000071727De22E5E9d8BAf0edAc6f37da032";
@@ -224,9 +224,15 @@ impl PackedUserOperationBuilder {
     ///
     /// - `verification_gas_limit`: Gas for `validateUserOp` (typically 100k–200k).
     /// - `call_gas_limit`: Gas for the actual execution (depends on target contract).
-    pub fn account_gas_limits(mut self, verification_gas_limit: u128, call_gas_limit: u128) -> Self {
-        self.account_gas_limits =
-            Some(PackedUserOperation::pack_gas_limits(verification_gas_limit, call_gas_limit));
+    pub fn account_gas_limits(
+        mut self,
+        verification_gas_limit: u128,
+        call_gas_limit: u128,
+    ) -> Self {
+        self.account_gas_limits = Some(PackedUserOperation::pack_gas_limits(
+            verification_gas_limit,
+            call_gas_limit,
+        ));
         self
     }
 
@@ -427,7 +433,9 @@ mod tests {
     use crate::Bip44Signer;
 
     fn test_sender() -> Address {
-        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e".parse().unwrap()
+        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+            .parse()
+            .unwrap()
     }
 
     fn test_entry_point() -> Address {
@@ -435,7 +443,9 @@ mod tests {
     }
 
     fn test_paymaster() -> Address {
-        "0x1111111111111111111111111111111111111111".parse().unwrap()
+        "0x1111111111111111111111111111111111111111"
+            .parse()
+            .unwrap()
     }
 
     fn minimal_user_op() -> PackedUserOperation {
@@ -516,7 +526,10 @@ mod tests {
             .gas_fees(1_000_000_000, 3_000_000_000)
             .build();
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("account_gas_limits"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("account_gas_limits"));
     }
 
     #[test]
@@ -576,7 +589,9 @@ mod tests {
     #[test]
     fn test_hash_differs_by_entry_point() {
         let op = minimal_user_op();
-        let ep2: Address = "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789".parse().unwrap();
+        let ep2: Address = "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789"
+            .parse()
+            .unwrap();
         assert_ne!(
             hash_user_operation(&op, test_entry_point(), 56),
             hash_user_operation(&op, ep2, 56)
@@ -624,7 +639,8 @@ mod tests {
         let signer = Bip44Signer::from_private_key(&[1u8; 32]).unwrap();
         let op = minimal_user_op();
         let sig = sign_user_operation(&signer, &op, test_entry_point(), 56).unwrap();
-        let valid = verify_user_operation(&op, test_entry_point(), 56, &sig, signer.address()).unwrap();
+        let valid =
+            verify_user_operation(&op, test_entry_point(), 56, &sig, signer.address()).unwrap();
         assert!(valid);
     }
 
@@ -636,7 +652,8 @@ mod tests {
         let signer2 = Bip44Signer::from_private_key(&key2).unwrap();
         let op = minimal_user_op();
         let sig = sign_user_operation(&signer1, &op, test_entry_point(), 56).unwrap();
-        let valid = verify_user_operation(&op, test_entry_point(), 56, &sig, signer2.address()).unwrap();
+        let valid =
+            verify_user_operation(&op, test_entry_point(), 56, &sig, signer2.address()).unwrap();
         assert!(!valid);
     }
 
@@ -656,8 +673,12 @@ mod tests {
         let signer = Bip44Signer::from_private_key(&[1u8; 32]).unwrap();
         let op = minimal_user_op();
         let sig = sign_user_operation(&signer, &op, test_entry_point(), 56).unwrap();
-        let valid = verify_user_operation(&op, test_entry_point(), 97, &sig, signer.address()).unwrap();
-        assert!(!valid, "Signature from chain 56 must not be valid on chain 97");
+        let valid =
+            verify_user_operation(&op, test_entry_point(), 97, &sig, signer.address()).unwrap();
+        assert!(
+            !valid,
+            "Signature from chain 56 must not be valid on chain 97"
+        );
     }
 
     #[test]

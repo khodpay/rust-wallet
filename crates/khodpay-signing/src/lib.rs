@@ -103,6 +103,8 @@
 mod access_list;
 mod address;
 mod chain_id;
+pub mod eip712;
+pub mod erc4337;
 mod error;
 mod rlp_encode;
 mod signature;
@@ -110,8 +112,6 @@ mod signed_transaction;
 mod signer;
 mod transaction;
 mod wei;
-pub mod eip712;
-pub mod erc4337;
 
 pub use access_list::{AccessList, AccessListItem};
 pub use address::Address;
