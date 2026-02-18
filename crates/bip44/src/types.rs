@@ -881,6 +881,40 @@ impl CoinType {
         matches!(self, CoinType::BitcoinTestnet)
     }
 
+    /// Returns `true` if this coin type uses EVM-compatible address derivation.
+    ///
+    /// EVM-compatible chains derive addresses from the public key using Keccak-256
+    /// hashing. This includes:
+    /// - Ethereum and all Ethereum-based chains (Polygon, Arbitrum, Optimism, etc.)
+    /// - Ethereum Classic
+    /// - Binance Smart Chain (BSC)
+    /// - Tron (uses modified EVM)
+    ///
+    /// Note: Most EVM chains (Polygon, Avalanche C-Chain, Arbitrum, etc.) use
+    /// Ethereum's coin type (60), so they're covered by `CoinType::Ethereum`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use khodpay_bip44::CoinType;
+    ///
+    /// assert!(CoinType::Ethereum.is_evm_compatible());
+    /// assert!(CoinType::EthereumClassic.is_evm_compatible());
+    /// assert!(CoinType::BinanceCoin.is_evm_compatible());
+    /// assert!(CoinType::Tron.is_evm_compatible());
+    /// assert!(!CoinType::Bitcoin.is_evm_compatible());
+    /// assert!(!CoinType::Solana.is_evm_compatible());
+    /// ```
+    pub const fn is_evm_compatible(&self) -> bool {
+        matches!(
+            self,
+            CoinType::Ethereum
+            | CoinType::EthereumClassic
+            | CoinType::BinanceCoin
+            | CoinType::Tron
+        )
+    }
+
     /// Returns the default purpose for this coin type.
     ///
     /// Different cryptocurrencies may have different default address formats:
