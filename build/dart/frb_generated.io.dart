@@ -183,6 +183,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   BigInt dco_decode_box_autoadd_u_64(dynamic raw);
 
   @protected
+  WpgpPaymentIntent dco_decode_box_autoadd_wpgp_payment_intent(dynamic raw);
+
+  @protected
+  WpgpUserOperation dco_decode_box_autoadd_wpgp_user_operation(dynamic raw);
+
+  @protected
   Chain dco_decode_chain(dynamic raw);
 
   @protected
@@ -254,6 +260,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   WalletResult dco_decode_wallet_result(dynamic raw);
+
+  @protected
+  WpgpPaymentIntent dco_decode_wpgp_payment_intent(dynamic raw);
+
+  @protected
+  WpgpUserOperation dco_decode_wpgp_user_operation(dynamic raw);
 
   @protected
   Bip44Account
@@ -397,6 +409,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   BigInt sse_decode_box_autoadd_u_64(SseDeserializer deserializer);
 
   @protected
+  WpgpPaymentIntent sse_decode_box_autoadd_wpgp_payment_intent(
+      SseDeserializer deserializer);
+
+  @protected
+  WpgpUserOperation sse_decode_box_autoadd_wpgp_user_operation(
+      SseDeserializer deserializer);
+
+  @protected
   Chain sse_decode_chain(SseDeserializer deserializer);
 
   @protected
@@ -471,6 +491,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   WalletResult sse_decode_wallet_result(SseDeserializer deserializer);
+
+  @protected
+  WpgpPaymentIntent sse_decode_wpgp_payment_intent(
+      SseDeserializer deserializer);
+
+  @protected
+  WpgpUserOperation sse_decode_wpgp_user_operation(
+      SseDeserializer deserializer);
 
   @protected
   void
@@ -614,6 +642,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_box_autoadd_u_64(BigInt self, SseSerializer serializer);
 
   @protected
+  void sse_encode_box_autoadd_wpgp_payment_intent(
+      WpgpPaymentIntent self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_wpgp_user_operation(
+      WpgpUserOperation self, SseSerializer serializer);
+
+  @protected
   void sse_encode_chain(Chain self, SseSerializer serializer);
 
   @protected
@@ -690,6 +726,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_wallet_result(WalletResult self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_wpgp_payment_intent(
+      WpgpPaymentIntent self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_wpgp_user_operation(
+      WpgpUserOperation self, SseSerializer serializer);
 }
 
 // Section: wire_class

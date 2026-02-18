@@ -6,8 +6,9 @@
 import 'frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `to_rust_transaction`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `try_from`
+// These functions are ignored because they are not marked as `pub`: `build_packed_user_op`, `parse_eip712_domain`, `parse_payment_intent`, `to_rust_transaction`
+// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `WpgpPaymentIntentTyped`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `encode_data`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `try_from`, `type_string`
 
 /// Get the numeric chain ID value
 Future<BigInt> chainIdToU64({required ChainId chainId}) =>
@@ -220,6 +221,128 @@ Future<String> healthCheck() => RustLib.instance.api.crateBridgeHealthCheck();
 /// Add two numbers (example from the article)
 Future<int> add({required int a, required int b}) =>
     RustLib.instance.api.crateBridgeAdd(a: a, b: b);
+
+/// Business-side: sign a WPGP PaymentIntent with EIP-712.
+///
+/// Returns the 65-byte signature as a `0x`-prefixed hex string.
+///
+/// Parameters:
+/// - `private_key_hex`: 32-byte private key as hex (with or without `0x`)
+/// - `intent`: the payment intent fields
+/// - `domain_name`: EIP-712 domain name (e.g. `"WPGPPaymentGateway"`)
+/// - `domain_version`: EIP-712 domain version (e.g. `"1"`)
+/// - `chain_id`: numeric chain ID (e.g. `56` for BSC)
+/// - `verifying_contract`: optional gateway contract address for domain separation
+Future<String> wpgpSignPaymentIntent(
+        {required String privateKeyHex,
+        required WpgpPaymentIntent intent,
+        required String domainName,
+        required String domainVersion,
+        required BigInt chainId,
+        String? verifyingContract}) =>
+    RustLib.instance.api.crateBridgeWpgpSignPaymentIntent(
+        privateKeyHex: privateKeyHex,
+        intent: intent,
+        domainName: domainName,
+        domainVersion: domainVersion,
+        chainId: chainId,
+        verifyingContract: verifyingContract);
+
+/// Business-side: verify a WPGP PaymentIntent EIP-712 signature.
+///
+/// Returns `true` if the signature was produced by `expected_signer`.
+///
+/// - `signature_hex`: 65-byte signature as hex (with or without `0x`)
+/// - `expected_signer`: the address that should have signed
+Future<bool> wpgpVerifyPaymentSignature(
+        {required WpgpPaymentIntent intent,
+        required String domainName,
+        required String domainVersion,
+        required BigInt chainId,
+        String? verifyingContract,
+        required String signatureHex,
+        required String expectedSigner}) =>
+    RustLib.instance.api.crateBridgeWpgpVerifyPaymentSignature(
+        intent: intent,
+        domainName: domainName,
+        domainVersion: domainVersion,
+        chainId: chainId,
+        verifyingContract: verifyingContract,
+        signatureHex: signatureHex,
+        expectedSigner: expectedSigner);
+
+/// User-side: build and sign an ERC-4337 v0.7 PackedUserOperation.
+///
+/// Returns the 65-byte signature as a `0x`-prefixed hex string.
+///
+/// - `entry_point`: EntryPoint contract address (defaults to canonical v0.7 if empty)
+/// - `chain_id`: numeric chain ID
+Future<String> wpgpSignUserOperation(
+        {required String privateKeyHex,
+        required WpgpUserOperation userOp,
+        required String entryPoint,
+        required BigInt chainId}) =>
+    RustLib.instance.api.crateBridgeWpgpSignUserOperation(
+        privateKeyHex: privateKeyHex,
+        userOp: userOp,
+        entryPoint: entryPoint,
+        chainId: chainId);
+
+/// User-side: verify an ERC-4337 UserOperation signature.
+///
+/// Returns `true` if the signature was produced by `expected_signer`.
+Future<bool> wpgpVerifyUserOperation(
+        {required WpgpUserOperation userOp,
+        required String entryPoint,
+        required BigInt chainId,
+        required String signatureHex,
+        required String expectedSigner}) =>
+    RustLib.instance.api.crateBridgeWpgpVerifyUserOperation(
+        userOp: userOp,
+        entryPoint: entryPoint,
+        chainId: chainId,
+        signatureHex: signatureHex,
+        expectedSigner: expectedSigner);
+
+/// Compute the ERC-4337 userOpHash without signing (useful for debugging).
+///
+/// Returns the 32-byte hash as a `0x`-prefixed hex string.
+Future<String> wpgpUserOperationHash(
+        {required WpgpUserOperation userOp,
+        required String entryPoint,
+        required BigInt chainId}) =>
+    RustLib.instance.api.crateBridgeWpgpUserOperationHash(
+        userOp: userOp, entryPoint: entryPoint, chainId: chainId);
+
+/// EOA path: build a signed EIP-1559 transaction that calls the payment gateway directly.
+///
+/// Returns the raw transaction as a `0x`-prefixed hex string ready for `eth_sendRawTransaction`.
+///
+/// - `call_data_hex`: ABI-encoded `executePayment(...)` calldata
+/// - `gateway_address`: the PaymentGateway contract address
+/// - `gas_limit`: recommended ~300_000 for a payment gateway call
+Future<String> wpgpBuildEoaTransaction(
+        {required String privateKeyHex,
+        required ChainId chainId,
+        required BigInt nonce,
+        required String gatewayAddress,
+        required String callDataHex,
+        required BigInt gasLimit,
+        required BigInt maxPriorityFeeGwei,
+        required BigInt maxFeeGwei}) =>
+    RustLib.instance.api.crateBridgeWpgpBuildEoaTransaction(
+        privateKeyHex: privateKeyHex,
+        chainId: chainId,
+        nonce: nonce,
+        gatewayAddress: gatewayAddress,
+        callDataHex: callDataHex,
+        gasLimit: gasLimit,
+        maxPriorityFeeGwei: maxPriorityFeeGwei,
+        maxFeeGwei: maxFeeGwei);
+
+/// Returns the canonical ERC-4337 v0.7 EntryPoint address.
+Future<String> wpgpEntryPointV07() =>
+    RustLib.instance.api.crateBridgeWpgpEntryPointV07();
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Bip44Account>>
 abstract class Bip44Account implements RustOpaqueInterface {
@@ -934,4 +1057,140 @@ class WalletResult {
           success == other.success &&
           message == other.message &&
           data == other.data;
+}
+
+/// WPGP PaymentIntent — the structured data signed by the business via EIP-712.
+///
+/// All fields are passed as strings to avoid Dart integer overflow on u64/u128 values.
+class WpgpPaymentIntent {
+  /// Business wallet address (EIP-55 checksummed hex)
+  final String business;
+
+  /// Recipient wallet address (EIP-55 checksummed hex)
+  final String recipient;
+
+  /// ERC-20 token contract address (EIP-55 checksummed hex)
+  final String token;
+
+  /// Payment amount in token's smallest unit (decimal string)
+  final BigInt amount;
+
+  /// Unix timestamp after which the intent expires
+  final BigInt deadline;
+
+  /// Unique invoice identifier (32-byte hex, with or without 0x prefix)
+  final String invoiceId;
+
+  /// Replay-protection nonce for this business address
+  final BigInt nonce;
+
+  const WpgpPaymentIntent({
+    required this.business,
+    required this.recipient,
+    required this.token,
+    required this.amount,
+    required this.deadline,
+    required this.invoiceId,
+    required this.nonce,
+  });
+
+  @override
+  int get hashCode =>
+      business.hashCode ^
+      recipient.hashCode ^
+      token.hashCode ^
+      amount.hashCode ^
+      deadline.hashCode ^
+      invoiceId.hashCode ^
+      nonce.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is WpgpPaymentIntent &&
+          runtimeType == other.runtimeType &&
+          business == other.business &&
+          recipient == other.recipient &&
+          token == other.token &&
+          amount == other.amount &&
+          deadline == other.deadline &&
+          invoiceId == other.invoiceId &&
+          nonce == other.nonce;
+}
+
+/// ERC-4337 UserOperation fields for the Flutter layer.
+///
+/// All gas values are decimal strings to avoid Dart integer overflow.
+class WpgpUserOperation {
+  /// Smart account address (sender)
+  final String sender;
+
+  /// Anti-replay nonce
+  final BigInt nonce;
+
+  /// ABI-encoded contract call (hex, with or without `0x`)
+  final String callDataHex;
+
+  /// verificationGasLimit packed with callGasLimit (decimal string)
+  final BigInt verificationGasLimit;
+
+  /// callGasLimit (decimal string)
+  final BigInt callGasLimit;
+
+  /// Pre-verification gas
+  final BigInt preVerificationGas;
+
+  /// maxPriorityFeePerGas in wei (decimal string)
+  final String maxPriorityFeePerGas;
+
+  /// maxFeePerGas in wei (decimal string)
+  final String maxFeePerGas;
+
+  /// Optional paymaster address (empty string = no paymaster)
+  final String paymaster;
+
+  /// Optional paymaster data (hex, with or without `0x`)
+  final String paymasterDataHex;
+
+  const WpgpUserOperation({
+    required this.sender,
+    required this.nonce,
+    required this.callDataHex,
+    required this.verificationGasLimit,
+    required this.callGasLimit,
+    required this.preVerificationGas,
+    required this.maxPriorityFeePerGas,
+    required this.maxFeePerGas,
+    required this.paymaster,
+    required this.paymasterDataHex,
+  });
+
+  @override
+  int get hashCode =>
+      sender.hashCode ^
+      nonce.hashCode ^
+      callDataHex.hashCode ^
+      verificationGasLimit.hashCode ^
+      callGasLimit.hashCode ^
+      preVerificationGas.hashCode ^
+      maxPriorityFeePerGas.hashCode ^
+      maxFeePerGas.hashCode ^
+      paymaster.hashCode ^
+      paymasterDataHex.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is WpgpUserOperation &&
+          runtimeType == other.runtimeType &&
+          sender == other.sender &&
+          nonce == other.nonce &&
+          callDataHex == other.callDataHex &&
+          verificationGasLimit == other.verificationGasLimit &&
+          callGasLimit == other.callGasLimit &&
+          preVerificationGas == other.preVerificationGas &&
+          maxPriorityFeePerGas == other.maxPriorityFeePerGas &&
+          maxFeePerGas == other.maxFeePerGas &&
+          paymaster == other.paymaster &&
+          paymasterDataHex == other.paymasterDataHex;
 }

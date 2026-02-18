@@ -102,6 +102,10 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MnemonicPtr => wir
 
 @protected BigInt dco_decode_box_autoadd_u_64(dynamic raw);
 
+@protected WpgpPaymentIntent dco_decode_box_autoadd_wpgp_payment_intent(dynamic raw);
+
+@protected WpgpUserOperation dco_decode_box_autoadd_wpgp_user_operation(dynamic raw);
+
 @protected Chain dco_decode_chain(dynamic raw);
 
 @protected ChainId dco_decode_chain_id(dynamic raw);
@@ -149,6 +153,10 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MnemonicPtr => wir
 @protected BigInt dco_decode_usize(dynamic raw);
 
 @protected WalletResult dco_decode_wallet_result(dynamic raw);
+
+@protected WpgpPaymentIntent dco_decode_wpgp_payment_intent(dynamic raw);
+
+@protected WpgpUserOperation dco_decode_wpgp_user_operation(dynamic raw);
 
 @protected Bip44Account sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerBip44Account(SseDeserializer deserializer);
 
@@ -212,6 +220,10 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MnemonicPtr => wir
 
 @protected BigInt sse_decode_box_autoadd_u_64(SseDeserializer deserializer);
 
+@protected WpgpPaymentIntent sse_decode_box_autoadd_wpgp_payment_intent(SseDeserializer deserializer);
+
+@protected WpgpUserOperation sse_decode_box_autoadd_wpgp_user_operation(SseDeserializer deserializer);
+
 @protected Chain sse_decode_chain(SseDeserializer deserializer);
 
 @protected ChainId sse_decode_chain_id(SseDeserializer deserializer);
@@ -259,6 +271,10 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MnemonicPtr => wir
 @protected BigInt sse_decode_usize(SseDeserializer deserializer);
 
 @protected WalletResult sse_decode_wallet_result(SseDeserializer deserializer);
+
+@protected WpgpPaymentIntent sse_decode_wpgp_payment_intent(SseDeserializer deserializer);
+
+@protected WpgpUserOperation sse_decode_wpgp_user_operation(SseDeserializer deserializer);
 
 @protected void sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerBip44Account(Bip44Account self, SseSerializer serializer);
 
@@ -322,6 +338,10 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MnemonicPtr => wir
 
 @protected void sse_encode_box_autoadd_u_64(BigInt self, SseSerializer serializer);
 
+@protected void sse_encode_box_autoadd_wpgp_payment_intent(WpgpPaymentIntent self, SseSerializer serializer);
+
+@protected void sse_encode_box_autoadd_wpgp_user_operation(WpgpUserOperation self, SseSerializer serializer);
+
 @protected void sse_encode_chain(Chain self, SseSerializer serializer);
 
 @protected void sse_encode_chain_id(ChainId self, SseSerializer serializer);
@@ -369,6 +389,10 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MnemonicPtr => wir
 @protected void sse_encode_usize(BigInt self, SseSerializer serializer);
 
 @protected void sse_encode_wallet_result(WalletResult self, SseSerializer serializer);
+
+@protected void sse_encode_wpgp_payment_intent(WpgpPaymentIntent self, SseSerializer serializer);
+
+@protected void sse_encode_wpgp_user_operation(WpgpUserOperation self, SseSerializer serializer);
                 }
                 
 

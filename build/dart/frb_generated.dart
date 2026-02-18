@@ -68,7 +68,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.11.1';
 
   @override
-  int get rustContentHash => -1869164546;
+  int get rustContentHash => -75283639;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -433,6 +433,53 @@ abstract class RustLibApi extends BaseApi {
   Future<bool> crateBridgeValidateEvmAddressChecksum({required String address});
 
   Future<bool> crateBridgeValidateMnemonic({required String phrase});
+
+  Future<String> crateBridgeWpgpBuildEoaTransaction(
+      {required String privateKeyHex,
+      required ChainId chainId,
+      required BigInt nonce,
+      required String gatewayAddress,
+      required String callDataHex,
+      required BigInt gasLimit,
+      required BigInt maxPriorityFeeGwei,
+      required BigInt maxFeeGwei});
+
+  Future<String> crateBridgeWpgpEntryPointV07();
+
+  Future<String> crateBridgeWpgpSignPaymentIntent(
+      {required String privateKeyHex,
+      required WpgpPaymentIntent intent,
+      required String domainName,
+      required String domainVersion,
+      required BigInt chainId,
+      String? verifyingContract});
+
+  Future<String> crateBridgeWpgpSignUserOperation(
+      {required String privateKeyHex,
+      required WpgpUserOperation userOp,
+      required String entryPoint,
+      required BigInt chainId});
+
+  Future<String> crateBridgeWpgpUserOperationHash(
+      {required WpgpUserOperation userOp,
+      required String entryPoint,
+      required BigInt chainId});
+
+  Future<bool> crateBridgeWpgpVerifyPaymentSignature(
+      {required WpgpPaymentIntent intent,
+      required String domainName,
+      required String domainVersion,
+      required BigInt chainId,
+      String? verifyingContract,
+      required String signatureHex,
+      required String expectedSigner});
+
+  Future<bool> crateBridgeWpgpVerifyUserOperation(
+      {required WpgpUserOperation userOp,
+      required String entryPoint,
+      required BigInt chainId,
+      required String signatureHex,
+      required String expectedSigner});
 
   RustArcIncrementStrongCountFnType
       get rust_arc_increment_strong_count_Bip44Account;
@@ -3858,6 +3905,294 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         argNames: ["phrase"],
       );
 
+  @override
+  Future<String> crateBridgeWpgpBuildEoaTransaction(
+      {required String privateKeyHex,
+      required ChainId chainId,
+      required BigInt nonce,
+      required String gatewayAddress,
+      required String callDataHex,
+      required BigInt gasLimit,
+      required BigInt maxPriorityFeeGwei,
+      required BigInt maxFeeGwei}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(privateKeyHex, serializer);
+        sse_encode_chain_id(chainId, serializer);
+        sse_encode_u_64(nonce, serializer);
+        sse_encode_String(gatewayAddress, serializer);
+        sse_encode_String(callDataHex, serializer);
+        sse_encode_u_64(gasLimit, serializer);
+        sse_encode_u_64(maxPriorityFeeGwei, serializer);
+        sse_encode_u_64(maxFeeGwei, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 126, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_String,
+        decodeErrorData: sse_decode_String,
+      ),
+      constMeta: kCrateBridgeWpgpBuildEoaTransactionConstMeta,
+      argValues: [
+        privateKeyHex,
+        chainId,
+        nonce,
+        gatewayAddress,
+        callDataHex,
+        gasLimit,
+        maxPriorityFeeGwei,
+        maxFeeGwei
+      ],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateBridgeWpgpBuildEoaTransactionConstMeta =>
+      const TaskConstMeta(
+        debugName: "wpgp_build_eoa_transaction",
+        argNames: [
+          "privateKeyHex",
+          "chainId",
+          "nonce",
+          "gatewayAddress",
+          "callDataHex",
+          "gasLimit",
+          "maxPriorityFeeGwei",
+          "maxFeeGwei"
+        ],
+      );
+
+  @override
+  Future<String> crateBridgeWpgpEntryPointV07() {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 127, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_String,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateBridgeWpgpEntryPointV07ConstMeta,
+      argValues: [],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateBridgeWpgpEntryPointV07ConstMeta =>
+      const TaskConstMeta(
+        debugName: "wpgp_entry_point_v07",
+        argNames: [],
+      );
+
+  @override
+  Future<String> crateBridgeWpgpSignPaymentIntent(
+      {required String privateKeyHex,
+      required WpgpPaymentIntent intent,
+      required String domainName,
+      required String domainVersion,
+      required BigInt chainId,
+      String? verifyingContract}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(privateKeyHex, serializer);
+        sse_encode_box_autoadd_wpgp_payment_intent(intent, serializer);
+        sse_encode_String(domainName, serializer);
+        sse_encode_String(domainVersion, serializer);
+        sse_encode_u_64(chainId, serializer);
+        sse_encode_opt_String(verifyingContract, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 128, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_String,
+        decodeErrorData: sse_decode_String,
+      ),
+      constMeta: kCrateBridgeWpgpSignPaymentIntentConstMeta,
+      argValues: [
+        privateKeyHex,
+        intent,
+        domainName,
+        domainVersion,
+        chainId,
+        verifyingContract
+      ],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateBridgeWpgpSignPaymentIntentConstMeta =>
+      const TaskConstMeta(
+        debugName: "wpgp_sign_payment_intent",
+        argNames: [
+          "privateKeyHex",
+          "intent",
+          "domainName",
+          "domainVersion",
+          "chainId",
+          "verifyingContract"
+        ],
+      );
+
+  @override
+  Future<String> crateBridgeWpgpSignUserOperation(
+      {required String privateKeyHex,
+      required WpgpUserOperation userOp,
+      required String entryPoint,
+      required BigInt chainId}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(privateKeyHex, serializer);
+        sse_encode_box_autoadd_wpgp_user_operation(userOp, serializer);
+        sse_encode_String(entryPoint, serializer);
+        sse_encode_u_64(chainId, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 129, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_String,
+        decodeErrorData: sse_decode_String,
+      ),
+      constMeta: kCrateBridgeWpgpSignUserOperationConstMeta,
+      argValues: [privateKeyHex, userOp, entryPoint, chainId],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateBridgeWpgpSignUserOperationConstMeta =>
+      const TaskConstMeta(
+        debugName: "wpgp_sign_user_operation",
+        argNames: ["privateKeyHex", "userOp", "entryPoint", "chainId"],
+      );
+
+  @override
+  Future<String> crateBridgeWpgpUserOperationHash(
+      {required WpgpUserOperation userOp,
+      required String entryPoint,
+      required BigInt chainId}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_box_autoadd_wpgp_user_operation(userOp, serializer);
+        sse_encode_String(entryPoint, serializer);
+        sse_encode_u_64(chainId, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 130, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_String,
+        decodeErrorData: sse_decode_String,
+      ),
+      constMeta: kCrateBridgeWpgpUserOperationHashConstMeta,
+      argValues: [userOp, entryPoint, chainId],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateBridgeWpgpUserOperationHashConstMeta =>
+      const TaskConstMeta(
+        debugName: "wpgp_user_operation_hash",
+        argNames: ["userOp", "entryPoint", "chainId"],
+      );
+
+  @override
+  Future<bool> crateBridgeWpgpVerifyPaymentSignature(
+      {required WpgpPaymentIntent intent,
+      required String domainName,
+      required String domainVersion,
+      required BigInt chainId,
+      String? verifyingContract,
+      required String signatureHex,
+      required String expectedSigner}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_box_autoadd_wpgp_payment_intent(intent, serializer);
+        sse_encode_String(domainName, serializer);
+        sse_encode_String(domainVersion, serializer);
+        sse_encode_u_64(chainId, serializer);
+        sse_encode_opt_String(verifyingContract, serializer);
+        sse_encode_String(signatureHex, serializer);
+        sse_encode_String(expectedSigner, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 131, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_bool,
+        decodeErrorData: sse_decode_String,
+      ),
+      constMeta: kCrateBridgeWpgpVerifyPaymentSignatureConstMeta,
+      argValues: [
+        intent,
+        domainName,
+        domainVersion,
+        chainId,
+        verifyingContract,
+        signatureHex,
+        expectedSigner
+      ],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateBridgeWpgpVerifyPaymentSignatureConstMeta =>
+      const TaskConstMeta(
+        debugName: "wpgp_verify_payment_signature",
+        argNames: [
+          "intent",
+          "domainName",
+          "domainVersion",
+          "chainId",
+          "verifyingContract",
+          "signatureHex",
+          "expectedSigner"
+        ],
+      );
+
+  @override
+  Future<bool> crateBridgeWpgpVerifyUserOperation(
+      {required WpgpUserOperation userOp,
+      required String entryPoint,
+      required BigInt chainId,
+      required String signatureHex,
+      required String expectedSigner}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_box_autoadd_wpgp_user_operation(userOp, serializer);
+        sse_encode_String(entryPoint, serializer);
+        sse_encode_u_64(chainId, serializer);
+        sse_encode_String(signatureHex, serializer);
+        sse_encode_String(expectedSigner, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 132, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_bool,
+        decodeErrorData: sse_decode_String,
+      ),
+      constMeta: kCrateBridgeWpgpVerifyUserOperationConstMeta,
+      argValues: [userOp, entryPoint, chainId, signatureHex, expectedSigner],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateBridgeWpgpVerifyUserOperationConstMeta =>
+      const TaskConstMeta(
+        debugName: "wpgp_verify_user_operation",
+        argNames: [
+          "userOp",
+          "entryPoint",
+          "chainId",
+          "signatureHex",
+          "expectedSigner"
+        ],
+      );
+
   RustArcIncrementStrongCountFnType
       get rust_arc_increment_strong_count_Bip44Account => wire
           .rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerBip44Account;
@@ -4147,6 +4482,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  WpgpPaymentIntent dco_decode_box_autoadd_wpgp_payment_intent(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_wpgp_payment_intent(raw);
+  }
+
+  @protected
+  WpgpUserOperation dco_decode_box_autoadd_wpgp_user_operation(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_wpgp_user_operation(raw);
+  }
+
+  @protected
   Chain dco_decode_chain(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return Chain.values[raw as int];
@@ -4343,6 +4690,43 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       success: dco_decode_bool(arr[0]),
       message: dco_decode_String(arr[1]),
       data: dco_decode_opt_String(arr[2]),
+    );
+  }
+
+  @protected
+  WpgpPaymentIntent dco_decode_wpgp_payment_intent(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 7)
+      throw Exception('unexpected arr length: expect 7 but see ${arr.length}');
+    return WpgpPaymentIntent(
+      business: dco_decode_String(arr[0]),
+      recipient: dco_decode_String(arr[1]),
+      token: dco_decode_String(arr[2]),
+      amount: dco_decode_u_64(arr[3]),
+      deadline: dco_decode_u_64(arr[4]),
+      invoiceId: dco_decode_String(arr[5]),
+      nonce: dco_decode_u_64(arr[6]),
+    );
+  }
+
+  @protected
+  WpgpUserOperation dco_decode_wpgp_user_operation(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 10)
+      throw Exception('unexpected arr length: expect 10 but see ${arr.length}');
+    return WpgpUserOperation(
+      sender: dco_decode_String(arr[0]),
+      nonce: dco_decode_u_64(arr[1]),
+      callDataHex: dco_decode_String(arr[2]),
+      verificationGasLimit: dco_decode_u_64(arr[3]),
+      callGasLimit: dco_decode_u_64(arr[4]),
+      preVerificationGas: dco_decode_u_64(arr[5]),
+      maxPriorityFeePerGas: dco_decode_String(arr[6]),
+      maxFeePerGas: dco_decode_String(arr[7]),
+      paymaster: dco_decode_String(arr[8]),
+      paymasterDataHex: dco_decode_String(arr[9]),
     );
   }
 
@@ -4604,6 +4988,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  WpgpPaymentIntent sse_decode_box_autoadd_wpgp_payment_intent(
+      SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_wpgp_payment_intent(deserializer));
+  }
+
+  @protected
+  WpgpUserOperation sse_decode_box_autoadd_wpgp_user_operation(
+      SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_wpgp_user_operation(deserializer));
+  }
+
+  @protected
   Chain sse_decode_chain(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var inner = sse_decode_i_32(deserializer);
@@ -4822,6 +5220,54 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_data = sse_decode_opt_String(deserializer);
     return WalletResult(
         success: var_success, message: var_message, data: var_data);
+  }
+
+  @protected
+  WpgpPaymentIntent sse_decode_wpgp_payment_intent(
+      SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_business = sse_decode_String(deserializer);
+    var var_recipient = sse_decode_String(deserializer);
+    var var_token = sse_decode_String(deserializer);
+    var var_amount = sse_decode_u_64(deserializer);
+    var var_deadline = sse_decode_u_64(deserializer);
+    var var_invoiceId = sse_decode_String(deserializer);
+    var var_nonce = sse_decode_u_64(deserializer);
+    return WpgpPaymentIntent(
+        business: var_business,
+        recipient: var_recipient,
+        token: var_token,
+        amount: var_amount,
+        deadline: var_deadline,
+        invoiceId: var_invoiceId,
+        nonce: var_nonce);
+  }
+
+  @protected
+  WpgpUserOperation sse_decode_wpgp_user_operation(
+      SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_sender = sse_decode_String(deserializer);
+    var var_nonce = sse_decode_u_64(deserializer);
+    var var_callDataHex = sse_decode_String(deserializer);
+    var var_verificationGasLimit = sse_decode_u_64(deserializer);
+    var var_callGasLimit = sse_decode_u_64(deserializer);
+    var var_preVerificationGas = sse_decode_u_64(deserializer);
+    var var_maxPriorityFeePerGas = sse_decode_String(deserializer);
+    var var_maxFeePerGas = sse_decode_String(deserializer);
+    var var_paymaster = sse_decode_String(deserializer);
+    var var_paymasterDataHex = sse_decode_String(deserializer);
+    return WpgpUserOperation(
+        sender: var_sender,
+        nonce: var_nonce,
+        callDataHex: var_callDataHex,
+        verificationGasLimit: var_verificationGasLimit,
+        callGasLimit: var_callGasLimit,
+        preVerificationGas: var_preVerificationGas,
+        maxPriorityFeePerGas: var_maxPriorityFeePerGas,
+        maxFeePerGas: var_maxFeePerGas,
+        paymaster: var_paymaster,
+        paymasterDataHex: var_paymasterDataHex);
   }
 
   @protected
@@ -5092,6 +5538,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_box_autoadd_wpgp_payment_intent(
+      WpgpPaymentIntent self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_wpgp_payment_intent(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_wpgp_user_operation(
+      WpgpUserOperation self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_wpgp_user_operation(self, serializer);
+  }
+
+  @protected
   void sse_encode_chain(Chain self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.index, serializer);
@@ -5277,6 +5737,35 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_bool(self.success, serializer);
     sse_encode_String(self.message, serializer);
     sse_encode_opt_String(self.data, serializer);
+  }
+
+  @protected
+  void sse_encode_wpgp_payment_intent(
+      WpgpPaymentIntent self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.business, serializer);
+    sse_encode_String(self.recipient, serializer);
+    sse_encode_String(self.token, serializer);
+    sse_encode_u_64(self.amount, serializer);
+    sse_encode_u_64(self.deadline, serializer);
+    sse_encode_String(self.invoiceId, serializer);
+    sse_encode_u_64(self.nonce, serializer);
+  }
+
+  @protected
+  void sse_encode_wpgp_user_operation(
+      WpgpUserOperation self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.sender, serializer);
+    sse_encode_u_64(self.nonce, serializer);
+    sse_encode_String(self.callDataHex, serializer);
+    sse_encode_u_64(self.verificationGasLimit, serializer);
+    sse_encode_u_64(self.callGasLimit, serializer);
+    sse_encode_u_64(self.preVerificationGas, serializer);
+    sse_encode_String(self.maxPriorityFeePerGas, serializer);
+    sse_encode_String(self.maxFeePerGas, serializer);
+    sse_encode_String(self.paymaster, serializer);
+    sse_encode_String(self.paymasterDataHex, serializer);
   }
 }
 

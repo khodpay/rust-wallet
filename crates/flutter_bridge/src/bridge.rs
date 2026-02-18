@@ -1,33 +1,30 @@
 //! Flutter Rust Bridge definitions for KhodPay Wallet
 //!
-//! This module provides both Object-Oriented (struct wrappers) and 
+//! This module provides both Object-Oriented (struct wrappers) and
 //! Procedural (utility functions) APIs for Flutter integration.
 
 use flutter_rust_bridge::frb;
 use khodpay_bip32::{
-    ExtendedPrivateKey as RustExtendedPrivateKey,
+    ChildNumber, DerivationPath, ExtendedPrivateKey as RustExtendedPrivateKey,
     ExtendedPublicKey as RustExtendedPublicKey,
-    DerivationPath, ChildNumber,
 };
-use khodpay_bip39::{Mnemonic as RustMnemonic, WordCount, Language};
+use khodpay_bip39::{Language, Mnemonic as RustMnemonic, WordCount};
 use khodpay_bip44::{
-    Wallet as RustWallet,
-    Purpose as RustPurpose,
-    CoinType as RustCoinType,
-    Chain as RustChain,
-    Bip44Path as RustBip44Path,
-    Account as RustAccount,
+    Account as RustAccount, Bip44Path as RustBip44Path, Chain as RustChain,
+    CoinType as RustCoinType, Purpose as RustPurpose, Wallet as RustWallet,
+};
+use khodpay_signing::eip712::{
+    encode_address, encode_bytes32, encode_uint64, sign_typed_data, verify_typed_data,
+    Eip712Domain, Eip712Type,
+};
+use khodpay_signing::erc4337::{
+    sign_user_operation, verify_user_operation, PackedUserOperation, ENTRY_POINT_V07,
 };
 use khodpay_signing::{
-    Address as RustAddress,
-    ChainId as RustChainId,
-    Wei as RustWei,
-    Signature as RustSignature,
-    Eip1559Transaction as RustEip1559Transaction,
-    SignedTransaction as RustSignedTransaction,
-    Bip44Signer as RustBip44Signer,
-    recover_signer as rust_recover_signer,
-    TRANSFER_GAS, TOKEN_TRANSFER_GAS, GWEI, ETHER,
+    recover_signer as rust_recover_signer, Address as RustAddress, Bip44Signer as RustBip44Signer,
+    ChainId as RustChainId, Eip1559Transaction as RustEip1559Transaction,
+    Signature as RustSignature, SignedTransaction as RustSignedTransaction, Wei as RustWei, ETHER,
+    GWEI, TOKEN_TRANSFER_GAS, TRANSFER_GAS,
 };
 use std::str::FromStr;
 
@@ -268,7 +265,6 @@ pub struct WalletResult {
     pub data: Option<String>,
 }
 
-
 // =============================================================================
 // PART 2: STRUCT WRAPPERS (Object-Oriented API)
 // =============================================================================
@@ -295,7 +291,7 @@ impl Mnemonic {
 
         let mnemonic = RustMnemonic::generate(count, Language::English)
             .map_err(|e| format!("Failed to generate mnemonic: {}", e))?;
-        
+
         Ok(Self { inner: mnemonic })
     }
 
@@ -428,9 +424,11 @@ impl ExtendedPrivateKey {
             ChildNumber::Normal(index)
         };
 
-        let child = self.inner.derive_child(child_num)
+        let child = self
+            .inner
+            .derive_child(child_num)
             .map_err(|e| format!("Failed to derive child: {}", e))?;
-        
+
         Ok(Self { inner: child })
     }
 
@@ -439,10 +437,12 @@ impl ExtendedPrivateKey {
     pub fn derive_path(&self, path: String) -> Result<Self, String> {
         let derivation_path = DerivationPath::from_str(&path)
             .map_err(|e| format!("Invalid derivation path: {}", e))?;
-        
-        let derived = self.inner.derive_path(&derivation_path)
+
+        let derived = self
+            .inner
+            .derive_path(&derivation_path)
             .map_err(|e| format!("Failed to derive path: {}", e))?;
-        
+
         Ok(Self { inner: derived })
     }
 
@@ -518,7 +518,9 @@ impl ExtendedPublicKey {
     /// Derive a child public key (non-hardened only)
     #[frb]
     pub fn derive_child(&self, index: u32) -> Result<Self, String> {
-        let child = self.inner.derive_child(ChildNumber::Normal(index))
+        let child = self
+            .inner
+            .derive_child(ChildNumber::Normal(index))
             .map_err(|e| format!("Failed to derive child: {}", e))?;
         Ok(Self { inner: child })
     }
@@ -528,10 +530,14 @@ impl ExtendedPublicKey {
     pub fn derive_path(&self, path: String) -> Result<Self, String> {
         let derivation_path = DerivationPath::from_str(&path)
             .map_err(|e| format!("Invalid derivation path: {}", e))?;
-        
-        let derived = self.inner.derive_path(&derivation_path)
-            .map_err(|e| format!("Failed to derive path (hardened derivation not allowed): {}", e))?;
-        
+
+        let derived = self.inner.derive_path(&derivation_path).map_err(|e| {
+            format!(
+                "Failed to derive path (hardened derivation not allowed): {}",
+                e
+            )
+        })?;
+
         Ok(Self { inner: derived })
     }
 }
@@ -557,7 +563,7 @@ impl Bip44Wallet {
             network.into(),
         )
         .map_err(|e| format!("Failed to create wallet: {}", e))?;
-        
+
         Ok(Self { inner: wallet })
     }
 
@@ -566,7 +572,7 @@ impl Bip44Wallet {
     pub fn from_seed(seed: Vec<u8>, network: Network) -> Result<Self, String> {
         let wallet = RustWallet::from_seed(&seed, network.into())
             .map_err(|e| format!("Failed to create wallet: {}", e))?;
-        
+
         Ok(Self { inner: wallet })
     }
 
@@ -584,11 +590,14 @@ impl Bip44Wallet {
         coin_type: CoinType,
         account_index: u32,
     ) -> Result<Bip44Account, String> {
-        let account = self.inner
+        let account = self
+            .inner
             .get_account(purpose.into(), coin_type.into(), account_index)
             .map_err(|e| format!("Failed to get account: {}", e))?;
-        
-        Ok(Bip44Account { inner: account.clone() })
+
+        Ok(Bip44Account {
+            inner: account.clone(),
+        })
     }
 }
 
@@ -633,15 +642,17 @@ impl Bip44Account {
     /// Derive an external (receiving) address at the given index
     #[frb]
     pub fn derive_external(&self, index: u32) -> Result<String, String> {
-        let key = self.inner.derive_external(index)
+        let key = self
+            .inner
+            .derive_external(index)
             .map_err(|e| format!("Failed to derive external address: {}", e))?;
-        
+
         // For EVM chains (Ethereum, BSC, Polygon, etc.), derive the address from public key
         if self.inner.coin_type().is_evm_compatible() {
             // Get the uncompressed public key (65 bytes with 0x04 prefix)
             let public_key = key.private_key().public_key();
             let pubkey_uncompressed = public_key.serialize_uncompressed();
-            
+
             // Skip the 0x04 prefix and derive EVM address from 64-byte public key
             let address = RustAddress::from_public_key_bytes(&pubkey_uncompressed[1..])
                 .map_err(|e| format!("Failed to derive EVM address: {}", e))?;
@@ -655,15 +666,17 @@ impl Bip44Account {
     /// Derive an internal (change) address at the given index
     #[frb]
     pub fn derive_internal(&self, index: u32) -> Result<String, String> {
-        let key = self.inner.derive_internal(index)
+        let key = self
+            .inner
+            .derive_internal(index)
             .map_err(|e| format!("Failed to derive internal address: {}", e))?;
-        
+
         // For EVM chains (Ethereum, BSC, Polygon, etc.), derive the address from public key
         if self.inner.coin_type().is_evm_compatible() {
             // Get the uncompressed public key (65 bytes with 0x04 prefix)
             let public_key = key.private_key().public_key();
             let pubkey_uncompressed = public_key.serialize_uncompressed();
-            
+
             // Skip the 0x04 prefix and derive EVM address from 64-byte public key
             let address = RustAddress::from_public_key_bytes(&pubkey_uncompressed[1..])
                 .map_err(|e| format!("Failed to derive EVM address: {}", e))?;
@@ -677,15 +690,17 @@ impl Bip44Account {
     /// Derive an address for the specified chain and index
     #[frb]
     pub fn derive_address(&self, chain: Chain, index: u32) -> Result<String, String> {
-        let key = self.inner.derive_address(chain.into(), index)
+        let key = self
+            .inner
+            .derive_address(chain.into(), index)
             .map_err(|e| format!("Failed to derive address: {}", e))?;
-        
+
         // For EVM chains (Ethereum, BSC, Polygon, etc.), derive the address from public key
         if self.inner.coin_type().is_evm_compatible() {
             // Get the uncompressed public key (65 bytes with 0x04 prefix)
             let public_key = key.private_key().public_key();
             let pubkey_uncompressed = public_key.serialize_uncompressed();
-            
+
             // Skip the 0x04 prefix and derive EVM address from 64-byte public key
             let address = RustAddress::from_public_key_bytes(&pubkey_uncompressed[1..])
                 .map_err(|e| format!("Failed to derive EVM address: {}", e))?;
@@ -704,9 +719,11 @@ impl Bip44Account {
         start: u32,
         count: u32,
     ) -> Result<Vec<String>, String> {
-        let keys = self.inner.derive_address_range(chain.into(), start, count)
+        let keys = self
+            .inner
+            .derive_address_range(chain.into(), start, count)
             .map_err(|e| format!("Failed to derive address range: {}", e))?;
-        
+
         // For EVM chains (Ethereum, BSC, Polygon, etc.), derive addresses from public keys
         if self.inner.coin_type().is_evm_compatible() {
             keys.iter()
@@ -714,7 +731,7 @@ impl Bip44Account {
                     // Get the uncompressed public key (65 bytes with 0x04 prefix)
                     let public_key = key.private_key().public_key();
                     let pubkey_uncompressed = public_key.serialize_uncompressed();
-                    
+
                     // Skip the 0x04 prefix and derive EVM address from 64-byte public key
                     let address = RustAddress::from_public_key_bytes(&pubkey_uncompressed[1..])
                         .map_err(|e| format!("Failed to derive EVM address: {}", e))?;
@@ -746,22 +763,24 @@ impl EvmAddress {
     /// Create the zero address (0x0000...0000)
     #[frb]
     pub fn zero() -> Self {
-        Self { inner: RustAddress::ZERO }
+        Self {
+            inner: RustAddress::ZERO,
+        }
     }
 
     /// Parse an address from a hex string (with or without 0x prefix)
     #[frb]
     pub fn from_hex(hex_string: String) -> Result<Self, String> {
-        let addr = RustAddress::from_str(&hex_string)
-            .map_err(|e| format!("Invalid address: {}", e))?;
+        let addr =
+            RustAddress::from_str(&hex_string).map_err(|e| format!("Invalid address: {}", e))?;
         Ok(Self { inner: addr })
     }
 
     /// Create an address from 20 bytes
     #[frb]
     pub fn from_bytes(bytes: Vec<u8>) -> Result<Self, String> {
-        let addr = RustAddress::from_slice(&bytes)
-            .map_err(|e| format!("Invalid address bytes: {}", e))?;
+        let addr =
+            RustAddress::from_slice(&bytes).map_err(|e| format!("Invalid address bytes: {}", e))?;
         Ok(Self { inner: addr })
     }
 
@@ -816,36 +835,47 @@ impl EvmWei {
     /// Create zero wei
     #[frb]
     pub fn zero() -> Self {
-        Self { value_hex: "0".to_string() }
+        Self {
+            value_hex: "0".to_string(),
+        }
     }
 
     /// Create Wei from a u64 value (in wei)
     #[frb]
     pub fn from_wei_u64(wei: u64) -> Self {
         let rust_wei = RustWei::from_wei(wei);
-        Self { value_hex: rust_wei.to_string() }
+        Self {
+            value_hex: rust_wei.to_string(),
+        }
     }
 
     /// Create Wei from a decimal string (in wei)
     #[frb]
     pub fn from_wei_string(wei_string: String) -> Result<Self, String> {
-        let rust_wei: RustWei = wei_string.parse()
+        let rust_wei: RustWei = wei_string
+            .parse()
             .map_err(|e| format!("Invalid wei value: {}", e))?;
-        Ok(Self { value_hex: rust_wei.to_string() })
+        Ok(Self {
+            value_hex: rust_wei.to_string(),
+        })
     }
 
     /// Create Wei from gwei (1 gwei = 10^9 wei)
     #[frb]
     pub fn from_gwei(gwei: u64) -> Self {
         let rust_wei = RustWei::from_gwei(gwei);
-        Self { value_hex: rust_wei.to_string() }
+        Self {
+            value_hex: rust_wei.to_string(),
+        }
     }
 
     /// Create Wei from ether/BNB (1 ether = 10^18 wei)
     #[frb]
     pub fn from_ether(ether: u64) -> Self {
         let rust_wei = RustWei::from_ether(ether);
-        Self { value_hex: rust_wei.to_string() }
+        Self {
+            value_hex: rust_wei.to_string(),
+        }
     }
 
     /// Returns the value as a decimal string
@@ -884,19 +914,29 @@ impl EvmWei {
     /// Add two Wei values
     #[frb]
     pub fn add(&self, other: &EvmWei) -> Result<Self, String> {
-        let a: RustWei = self.value_hex.parse()
+        let a: RustWei = self
+            .value_hex
+            .parse()
             .map_err(|e| format!("Invalid wei value: {}", e))?;
-        let b: RustWei = other.value_hex.parse()
+        let b: RustWei = other
+            .value_hex
+            .parse()
             .map_err(|e| format!("Invalid wei value: {}", e))?;
-        Ok(Self { value_hex: (a + b).to_string() })
+        Ok(Self {
+            value_hex: (a + b).to_string(),
+        })
     }
 
     /// Multiply Wei by a u64 scalar
     #[frb]
     pub fn multiply(&self, scalar: u64) -> Result<Self, String> {
-        let a: RustWei = self.value_hex.parse()
+        let a: RustWei = self
+            .value_hex
+            .parse()
             .map_err(|e| format!("Invalid wei value: {}", e))?;
-        Ok(Self { value_hex: (a * scalar).to_string() })
+        Ok(Self {
+            value_hex: (a * scalar).to_string(),
+        })
     }
 }
 
@@ -935,15 +975,13 @@ impl EvmSignature {
     /// Returns the signature as 65 raw bytes (r || s || v)
     #[frb]
     pub fn to_bytes(&self) -> Result<Vec<u8>, String> {
-        let r = hex::decode(&self.r_hex)
-            .map_err(|e| format!("Invalid r hex: {}", e))?;
-        let s = hex::decode(&self.s_hex)
-            .map_err(|e| format!("Invalid s hex: {}", e))?;
-        
+        let r = hex::decode(&self.r_hex).map_err(|e| format!("Invalid r hex: {}", e))?;
+        let s = hex::decode(&self.s_hex).map_err(|e| format!("Invalid s hex: {}", e))?;
+
         if r.len() != 32 || s.len() != 32 {
             return Err("r and s must be 32 bytes each".to_string());
         }
-        
+
         let mut bytes = Vec::with_capacity(65);
         bytes.extend_from_slice(&r);
         bytes.extend_from_slice(&s);
@@ -970,22 +1008,20 @@ impl From<RustSignature> for EvmSignature {
 
 impl TryFrom<&EvmSignature> for RustSignature {
     type Error = String;
-    
+
     fn try_from(sig: &EvmSignature) -> Result<Self, Self::Error> {
-        let r = hex::decode(&sig.r_hex)
-            .map_err(|e| format!("Invalid r hex: {}", e))?;
-        let s = hex::decode(&sig.s_hex)
-            .map_err(|e| format!("Invalid s hex: {}", e))?;
-        
+        let r = hex::decode(&sig.r_hex).map_err(|e| format!("Invalid r hex: {}", e))?;
+        let s = hex::decode(&sig.s_hex).map_err(|e| format!("Invalid s hex: {}", e))?;
+
         if r.len() != 32 || s.len() != 32 {
             return Err("r and s must be 32 bytes each".to_string());
         }
-        
+
         let mut r_arr = [0u8; 32];
         let mut s_arr = [0u8; 32];
         r_arr.copy_from_slice(&r);
         s_arr.copy_from_slice(&s);
-        
+
         Ok(RustSignature::new(r_arr, s_arr, sig.v))
     }
 }
@@ -1056,13 +1092,19 @@ impl Eip1559Transaction {
 
     /// Convert to internal Rust transaction type
     fn to_rust_transaction(&self) -> Result<RustEip1559Transaction, String> {
-        let max_priority_fee: RustWei = self.max_priority_fee_per_gas.parse()
+        let max_priority_fee: RustWei = self
+            .max_priority_fee_per_gas
+            .parse()
             .map_err(|e| format!("Invalid max_priority_fee_per_gas: {}", e))?;
-        let max_fee: RustWei = self.max_fee_per_gas.parse()
+        let max_fee: RustWei = self
+            .max_fee_per_gas
+            .parse()
             .map_err(|e| format!("Invalid max_fee_per_gas: {}", e))?;
-        let value: RustWei = self.value.parse()
+        let value: RustWei = self
+            .value
+            .parse()
             .map_err(|e| format!("Invalid value: {}", e))?;
-        
+
         let data = if self.data_hex.is_empty() || self.data_hex == "0x" {
             Vec::new()
         } else {
@@ -1080,8 +1122,8 @@ impl Eip1559Transaction {
             .data(data);
 
         if let Some(ref to_addr) = self.to {
-            let addr = RustAddress::from_str(to_addr)
-                .map_err(|e| format!("Invalid to address: {}", e))?;
+            let addr =
+                RustAddress::from_str(to_addr).map_err(|e| format!("Invalid to address: {}", e))?;
             builder = builder.to(addr);
         }
 
@@ -1112,7 +1154,7 @@ impl Eip1559TransactionBuilder {
     }
 
     /// Build the transaction from the current builder state
-    /// 
+    ///
     /// In Dart, construct the builder with fields directly:
     /// ```dart
     /// var builder = Eip1559TransactionBuilder(
@@ -1129,15 +1171,21 @@ impl Eip1559TransactionBuilder {
     #[frb]
     pub fn build(&self) -> Result<Eip1559Transaction, String> {
         let tx = Eip1559Transaction {
-            chain_id: self.chain_id.clone()
+            chain_id: self
+                .chain_id
+                .clone()
                 .ok_or_else(|| "chain_id is required".to_string())?,
-            nonce: self.nonce
-                .ok_or_else(|| "nonce is required".to_string())?,
-            max_priority_fee_per_gas: self.max_priority_fee_per_gas.clone()
+            nonce: self.nonce.ok_or_else(|| "nonce is required".to_string())?,
+            max_priority_fee_per_gas: self
+                .max_priority_fee_per_gas
+                .clone()
                 .ok_or_else(|| "max_priority_fee_per_gas is required".to_string())?,
-            max_fee_per_gas: self.max_fee_per_gas.clone()
+            max_fee_per_gas: self
+                .max_fee_per_gas
+                .clone()
                 .ok_or_else(|| "max_fee_per_gas is required".to_string())?,
-            gas_limit: self.gas_limit
+            gas_limit: self
+                .gas_limit
                 .ok_or_else(|| "gas_limit is required".to_string())?,
             to: self.to.clone(),
             value: self.value.clone().unwrap_or_else(|| "0".to_string()),
@@ -1165,7 +1213,10 @@ impl SignedEvmTransaction {
     /// Create a new signed transaction
     #[frb]
     pub fn new(transaction: Eip1559Transaction, signature: EvmSignature) -> Self {
-        Self { transaction, signature }
+        Self {
+            transaction,
+            signature,
+        }
     }
 
     /// Encode the signed transaction as raw bytes
@@ -1220,34 +1271,37 @@ impl EvmSigner {
         // Use RustBip44Signer::new which takes a RustAccount reference
         let signer = RustBip44Signer::new(&account.inner, address_index)
             .map_err(|e| format!("Failed to create signer: {}", e))?;
-        
+
         Ok(Self { inner: signer })
     }
 
     /// Create a signer directly from a 32-byte private key (hex string)
     #[frb]
     pub fn from_private_key_hex(private_key_hex: String) -> Result<Self, String> {
-        let hex_str = private_key_hex.strip_prefix("0x").unwrap_or(&private_key_hex);
-        let bytes = hex::decode(hex_str)
-            .map_err(|e| format!("Invalid private key hex: {}", e))?;
-        
+        let hex_str = private_key_hex
+            .strip_prefix("0x")
+            .unwrap_or(&private_key_hex);
+        let bytes = hex::decode(hex_str).map_err(|e| format!("Invalid private key hex: {}", e))?;
+
         if bytes.len() != 32 {
             return Err("Private key must be 32 bytes".to_string());
         }
-        
+
         let mut key_arr = [0u8; 32];
         key_arr.copy_from_slice(&bytes);
-        
+
         let signer = RustBip44Signer::from_private_key(&key_arr)
             .map_err(|e| format!("Failed to create signer: {}", e))?;
-        
+
         Ok(Self { inner: signer })
     }
 
     /// Returns the EVM address associated with this signer
     #[frb]
     pub fn address(&self) -> EvmAddress {
-        EvmAddress { inner: self.inner.address() }
+        EvmAddress {
+            inner: self.inner.address(),
+        }
     }
 
     /// Returns the EVM address as a checksummed hex string
@@ -1262,13 +1316,15 @@ impl EvmSigner {
         if hash.len() != 32 {
             return Err("Hash must be 32 bytes".to_string());
         }
-        
+
         let mut hash_arr = [0u8; 32];
         hash_arr.copy_from_slice(&hash);
-        
-        let sig = self.inner.sign_hash(&hash_arr)
+
+        let sig = self
+            .inner
+            .sign_hash(&hash_arr)
             .map_err(|e| format!("Signing failed: {}", e))?;
-        
+
         Ok(sig.into())
     }
 
@@ -1276,7 +1332,9 @@ impl EvmSigner {
     #[frb]
     pub fn sign_transaction(&self, tx: &Eip1559Transaction) -> Result<EvmSignature, String> {
         let rust_tx = tx.to_rust_transaction()?;
-        let sig = self.inner.sign_transaction(&rust_tx)
+        let sig = self
+            .inner
+            .sign_transaction(&rust_tx)
             .map_err(|e| format!("Signing failed: {}", e))?;
         Ok(sig.into())
     }
@@ -1304,13 +1362,19 @@ impl EvmAccessListItem {
     /// Create a new access list item
     #[frb]
     pub fn new(address: String, storage_keys: Vec<String>) -> Self {
-        Self { address, storage_keys }
+        Self {
+            address,
+            storage_keys,
+        }
     }
 
     /// Create an access list item with only an address (no storage keys)
     #[frb]
     pub fn address_only(address: String) -> Self {
-        Self { address, storage_keys: Vec::new() }
+        Self {
+            address,
+            storage_keys: Vec::new(),
+        }
     }
 }
 
@@ -1337,7 +1401,7 @@ pub fn generate_mnemonic(word_count: u32) -> Result<String, String> {
 }
 
 /// Create mnemonic from entropy bytes
-/// 
+///
 /// Entropy must be 16, 20, 24, 28, or 32 bytes for 12, 15, 18, 21, or 24 words respectively.
 #[frb]
 pub fn generate_mnemonic_from_entropy(entropy: Vec<u8>) -> Result<String, String> {
@@ -1354,7 +1418,10 @@ pub fn validate_mnemonic(phrase: String) -> bool {
 
 /// Convert a mnemonic phrase to a BIP39 seed (64 bytes as hex string)
 #[frb(name = "mnemonicPhraseToSeedHex")]
-pub fn mnemonic_phrase_to_seed_hex(phrase: String, passphrase: Option<String>) -> Result<String, String> {
+pub fn mnemonic_phrase_to_seed_hex(
+    phrase: String,
+    passphrase: Option<String>,
+) -> Result<String, String> {
     let mnemonic = RustMnemonic::from_phrase(&phrase, Language::English)
         .map_err(|e| format!("Invalid mnemonic: {}", e))?;
     let seed = mnemonic
@@ -1373,22 +1440,16 @@ pub fn create_master_key(
     let mnemonic = RustMnemonic::from_phrase(&mnemonic, Language::English)
         .map_err(|e| format!("Invalid mnemonic: {}", e))?;
 
-    let master_key = RustExtendedPrivateKey::from_mnemonic(
-        &mnemonic,
-        passphrase.as_deref(),
-        network.into(),
-    )
-    .map_err(|e| format!("Failed to create master key: {}", e))?;
+    let master_key =
+        RustExtendedPrivateKey::from_mnemonic(&mnemonic, passphrase.as_deref(), network.into())
+            .map_err(|e| format!("Failed to create master key: {}", e))?;
 
     Ok(master_key.to_string())
 }
 
 /// Derive a child key from an extended private key using a derivation path
 #[frb]
-pub fn derive_key(
-    extended_key: String,
-    derivation_path: String,
-) -> Result<String, String> {
+pub fn derive_key(extended_key: String, derivation_path: String) -> Result<String, String> {
     let master_key = RustExtendedPrivateKey::from_str(&extended_key)
         .map_err(|e| format!("Invalid extended key: {}", e))?;
 
@@ -1414,10 +1475,7 @@ pub fn get_public_key(extended_private_key: String) -> Result<String, String> {
 
 /// Get address from an extended private key at specific index
 #[frb]
-pub fn get_address(
-    extended_private_key: String,
-    address_index: u32,
-) -> Result<String, String> {
+pub fn get_address(extended_private_key: String, address_index: u32) -> Result<String, String> {
     let private_key = RustExtendedPrivateKey::from_str(&extended_private_key)
         .map_err(|e| format!("Invalid extended private key: {}", e))?;
 
@@ -1430,7 +1488,7 @@ pub fn get_address(
         .map_err(|e| format!("Failed to derive address: {}", e))?;
 
     let public_key = address_key.to_extended_public_key();
-    
+
     // Return the extended public key (you may want to convert to Bitcoin address format)
     Ok(public_key.to_string())
 }
@@ -1446,19 +1504,16 @@ pub fn create_bip44_wallet(
     let mnemonic = RustMnemonic::from_phrase(&mnemonic, Language::English)
         .map_err(|e| format!("Invalid mnemonic: {}", e))?;
 
-    let master_key = RustExtendedPrivateKey::from_mnemonic(
-        &mnemonic,
-        passphrase.as_deref(),
-        network.into(),
-    )
-    .map_err(|e| format!("Failed to create master key: {}", e))?;
+    let master_key =
+        RustExtendedPrivateKey::from_mnemonic(&mnemonic, passphrase.as_deref(), network.into())
+            .map_err(|e| format!("Failed to create master key: {}", e))?;
 
     // BIP44 path: m/44'/0'/account_index'
     let coin_type = match network {
         Network::BitcoinMainnet => 0,
         Network::BitcoinTestnet => 1,
     };
-    
+
     let path_str = format!("m/44'/{}'/{}'", coin_type, account_index);
     let path = DerivationPath::from_str(&path_str)
         .map_err(|e| format!("Invalid derivation path: {}", e))?;
@@ -1527,8 +1582,8 @@ pub fn derive_bip44_address(
 /// Parse a BIP44 path string (e.g., "m/44'/0'/0'/0/0")
 #[frb]
 pub fn parse_bip44_path(path: String) -> Result<WalletResult, String> {
-    let bip44_path = RustBip44Path::from_str(&path)
-        .map_err(|e| format!("Invalid BIP44 path: {}", e))?;
+    let bip44_path =
+        RustBip44Path::from_str(&path).map_err(|e| format!("Invalid BIP44 path: {}", e))?;
 
     let purpose: Purpose = bip44_path.purpose().into();
     let coin_type: CoinType = bip44_path.coin_type().into();
@@ -1554,7 +1609,7 @@ pub fn parse_bip44_path(path: String) -> Result<WalletResult, String> {
 #[frb]
 pub fn get_coin_info(coin_type: CoinType) -> WalletResult {
     let rust_coin: RustCoinType = coin_type.into();
-    
+
     let info = format!(
         "Name: {}, Symbol: {}, Index: {}",
         rust_coin.name(),
@@ -1573,7 +1628,7 @@ pub fn get_coin_info(coin_type: CoinType) -> WalletResult {
 #[frb]
 pub fn get_purpose_info(purpose: Purpose) -> WalletResult {
     let rust_purpose: RustPurpose = purpose.into();
-    
+
     let info = format!(
         "Name: {}, Value: {}, Description: {}",
         rust_purpose.name(),
@@ -1631,8 +1686,7 @@ pub fn ether_to_wei(ether: u64) -> String {
 /// Parse an EVM address from hex string
 #[frb]
 pub fn parse_evm_address(address: String) -> Result<String, String> {
-    let addr = RustAddress::from_str(&address)
-        .map_err(|e| format!("Invalid address: {}", e))?;
+    let addr = RustAddress::from_str(&address).map_err(|e| format!("Invalid address: {}", e))?;
     Ok(addr.to_checksum_string())
 }
 
@@ -1692,6 +1746,7 @@ pub fn create_evm_signer_from_mnemonic(
 }
 
 /// Sign an EIP-1559 transaction and return the raw transaction hex
+#[allow(clippy::too_many_arguments)]
 #[frb]
 pub fn sign_eip1559_transaction(
     private_key_hex: String,
@@ -1705,26 +1760,27 @@ pub fn sign_eip1559_transaction(
     data_hex: Option<String>,
 ) -> Result<String, String> {
     // Parse private key
-    let hex_str = private_key_hex.strip_prefix("0x").unwrap_or(&private_key_hex);
-    let key_bytes = hex::decode(hex_str)
-        .map_err(|e| format!("Invalid private key hex: {}", e))?;
-    
+    let hex_str = private_key_hex
+        .strip_prefix("0x")
+        .unwrap_or(&private_key_hex);
+    let key_bytes = hex::decode(hex_str).map_err(|e| format!("Invalid private key hex: {}", e))?;
+
     if key_bytes.len() != 32 {
         return Err("Private key must be 32 bytes".to_string());
     }
-    
+
     let mut key_arr = [0u8; 32];
     key_arr.copy_from_slice(&key_bytes);
-    
+
     let signer = RustBip44Signer::from_private_key(&key_arr)
         .map_err(|e| format!("Failed to create signer: {}", e))?;
 
     // Parse recipient address
-    let to_addr = RustAddress::from_str(&to)
-        .map_err(|e| format!("Invalid to address: {}", e))?;
+    let to_addr = RustAddress::from_str(&to).map_err(|e| format!("Invalid to address: {}", e))?;
 
     // Parse value
-    let value: RustWei = value_wei.parse()
+    let value: RustWei = value_wei
+        .parse()
         .map_err(|e| format!("Invalid value: {}", e))?;
 
     // Parse data
@@ -1753,7 +1809,8 @@ pub fn sign_eip1559_transaction(
         .map_err(|e| format!("Failed to build transaction: {}", e))?;
 
     // Sign transaction
-    let signature = signer.sign_transaction(&tx)
+    let signature = signer
+        .sign_transaction(&tx)
         .map_err(|e| format!("Failed to sign transaction: {}", e))?;
 
     // Create signed transaction
@@ -1764,27 +1821,22 @@ pub fn sign_eip1559_transaction(
 
 /// Recover signer address from a signature and message hash
 #[frb]
-pub fn recover_signer_address(
-    hash_hex: String,
-    signature_hex: String,
-) -> Result<String, String> {
+pub fn recover_signer_address(hash_hex: String, signature_hex: String) -> Result<String, String> {
     // Parse hash
     let hash_str = hash_hex.strip_prefix("0x").unwrap_or(&hash_hex);
-    let hash_bytes = hex::decode(hash_str)
-        .map_err(|e| format!("Invalid hash hex: {}", e))?;
-    
+    let hash_bytes = hex::decode(hash_str).map_err(|e| format!("Invalid hash hex: {}", e))?;
+
     if hash_bytes.len() != 32 {
         return Err("Hash must be 32 bytes".to_string());
     }
-    
+
     let mut hash_arr = [0u8; 32];
     hash_arr.copy_from_slice(&hash_bytes);
 
     // Parse signature (65 bytes: r || s || v)
     let sig_str = signature_hex.strip_prefix("0x").unwrap_or(&signature_hex);
-    let sig_bytes = hex::decode(sig_str)
-        .map_err(|e| format!("Invalid signature hex: {}", e))?;
-    
+    let sig_bytes = hex::decode(sig_str).map_err(|e| format!("Invalid signature hex: {}", e))?;
+
     let signature = RustSignature::from_bytes(&sig_bytes)
         .ok_or_else(|| "Invalid signature (expected 65 bytes)".to_string())?;
 
@@ -1804,43 +1856,44 @@ pub fn derive_evm_address(
 ) -> Result<String, String> {
     let account_key = RustExtendedPrivateKey::from_str(&extended_private_key)
         .map_err(|e| format!("Invalid extended private key: {}", e))?;
-    
+
     // Derive chain/address_index
     let chain_key = account_key
         .derive_child(ChildNumber::Normal(chain_index))
         .map_err(|e| format!("Failed to derive chain: {}", e))?;
-    
+
     let address_key = chain_key
         .derive_child(ChildNumber::Normal(address_index))
         .map_err(|e| format!("Failed to derive address: {}", e))?;
-    
+
     // Get private key bytes
     let private_key_bytes = address_key.private_key().to_bytes();
-    
+
     // Create signer to get address
     let signer = RustBip44Signer::from_private_key(&private_key_bytes)
         .map_err(|e| format!("Failed to create signer: {}", e))?;
-    
+
     Ok(signer.address().to_checksum_string())
 }
 
 /// Get EVM address from private key hex
 #[frb]
 pub fn get_evm_address_from_private_key(private_key_hex: String) -> Result<String, String> {
-    let hex_str = private_key_hex.strip_prefix("0x").unwrap_or(&private_key_hex);
-    let bytes = hex::decode(hex_str)
-        .map_err(|e| format!("Invalid private key hex: {}", e))?;
-    
+    let hex_str = private_key_hex
+        .strip_prefix("0x")
+        .unwrap_or(&private_key_hex);
+    let bytes = hex::decode(hex_str).map_err(|e| format!("Invalid private key hex: {}", e))?;
+
     if bytes.len() != 32 {
         return Err("Private key must be 32 bytes".to_string());
     }
-    
+
     let mut key_arr = [0u8; 32];
     key_arr.copy_from_slice(&bytes);
-    
+
     let signer = RustBip44Signer::from_private_key(&key_arr)
         .map_err(|e| format!("Failed to create signer: {}", e))?;
-    
+
     Ok(signer.address().to_checksum_string())
 }
 
@@ -1858,4 +1911,455 @@ pub fn health_check() -> String {
 #[frb]
 pub fn add(a: i32, b: i32) -> i32 {
     a + b
+}
+
+// =============================================================================
+// PART 6: WPGP — EIP-712 + ERC-4337 BRIDGE
+// =============================================================================
+
+/// WPGP PaymentIntent — the structured data signed by the business via EIP-712.
+///
+/// All fields are passed as strings to avoid Dart integer overflow on u64/u128 values.
+#[frb]
+#[derive(Debug, Clone)]
+pub struct WpgpPaymentIntent {
+    /// Business wallet address (EIP-55 checksummed hex)
+    pub business: String,
+    /// Recipient wallet address (EIP-55 checksummed hex)
+    pub recipient: String,
+    /// ERC-20 token contract address (EIP-55 checksummed hex)
+    pub token: String,
+    /// Payment amount in token's smallest unit (decimal string)
+    pub amount: u64,
+    /// Unix timestamp after which the intent expires
+    pub deadline: u64,
+    /// Unique invoice identifier (32-byte hex, with or without 0x prefix)
+    pub invoice_id: String,
+    /// Replay-protection nonce for this business address
+    pub nonce: u64,
+}
+
+/// Internal EIP-712 implementation for WpgpPaymentIntent.
+struct WpgpPaymentIntentTyped {
+    business: RustAddress,
+    recipient: RustAddress,
+    token: RustAddress,
+    amount: u64,
+    deadline: u64,
+    invoice_id: [u8; 32],
+    nonce: u64,
+}
+
+impl Eip712Type for WpgpPaymentIntentTyped {
+    fn type_string() -> &'static str {
+        "PaymentIntent(address business,address recipient,address token,uint64 amount,uint64 deadline,bytes32 invoiceId,uint64 nonce)"
+    }
+
+    fn encode_data(&self) -> Vec<u8> {
+        let mut buf = Vec::new();
+        buf.extend_from_slice(&encode_address(&self.business));
+        buf.extend_from_slice(&encode_address(&self.recipient));
+        buf.extend_from_slice(&encode_address(&self.token));
+        buf.extend_from_slice(&encode_uint64(self.amount));
+        buf.extend_from_slice(&encode_uint64(self.deadline));
+        buf.extend_from_slice(&encode_bytes32(self.invoice_id));
+        buf.extend_from_slice(&encode_uint64(self.nonce));
+        buf
+    }
+}
+
+/// Parse a WpgpPaymentIntent into the internal typed struct.
+fn parse_payment_intent(intent: &WpgpPaymentIntent) -> Result<WpgpPaymentIntentTyped, String> {
+    let business = RustAddress::from_str(&intent.business)
+        .map_err(|e| format!("Invalid business address: {}", e))?;
+    let recipient = RustAddress::from_str(&intent.recipient)
+        .map_err(|e| format!("Invalid recipient address: {}", e))?;
+    let token = RustAddress::from_str(&intent.token)
+        .map_err(|e| format!("Invalid token address: {}", e))?;
+
+    let invoice_hex = intent
+        .invoice_id
+        .strip_prefix("0x")
+        .unwrap_or(&intent.invoice_id);
+    let invoice_bytes =
+        hex::decode(invoice_hex).map_err(|e| format!("Invalid invoice_id hex: {}", e))?;
+    if invoice_bytes.len() != 32 {
+        return Err(format!(
+            "invoice_id must be 32 bytes, got {}",
+            invoice_bytes.len()
+        ));
+    }
+    let mut invoice_id = [0u8; 32];
+    invoice_id.copy_from_slice(&invoice_bytes);
+
+    Ok(WpgpPaymentIntentTyped {
+        business,
+        recipient,
+        token,
+        amount: intent.amount,
+        deadline: intent.deadline,
+        invoice_id,
+        nonce: intent.nonce,
+    })
+}
+
+/// Build an `Eip712Domain` from Flutter-supplied strings.
+fn parse_eip712_domain(
+    name: &str,
+    version: &str,
+    chain_id: u64,
+    verifying_contract: Option<&str>,
+) -> Result<Eip712Domain, String> {
+    match verifying_contract {
+        Some(addr_str) => {
+            let addr = RustAddress::from_str(addr_str)
+                .map_err(|e| format!("Invalid verifying_contract: {}", e))?;
+            Ok(Eip712Domain::new(name, version, chain_id, addr))
+        }
+        None => Ok(Eip712Domain::builder()
+            .name(name)
+            .version(version)
+            .chain_id(chain_id)
+            .build()),
+    }
+}
+
+/// Business-side: sign a WPGP PaymentIntent with EIP-712.
+///
+/// Returns the 65-byte signature as a `0x`-prefixed hex string.
+///
+/// Parameters:
+/// - `private_key_hex`: 32-byte private key as hex (with or without `0x`)
+/// - `intent`: the payment intent fields
+/// - `domain_name`: EIP-712 domain name (e.g. `"WPGPPaymentGateway"`)
+/// - `domain_version`: EIP-712 domain version (e.g. `"1"`)
+/// - `chain_id`: numeric chain ID (e.g. `56` for BSC)
+/// - `verifying_contract`: optional gateway contract address for domain separation
+#[frb]
+pub fn wpgp_sign_payment_intent(
+    private_key_hex: String,
+    intent: WpgpPaymentIntent,
+    domain_name: String,
+    domain_version: String,
+    chain_id: u64,
+    verifying_contract: Option<String>,
+) -> Result<String, String> {
+    let hex_str = private_key_hex
+        .strip_prefix("0x")
+        .unwrap_or(&private_key_hex);
+    let key_bytes = hex::decode(hex_str).map_err(|e| format!("Invalid private key hex: {}", e))?;
+    if key_bytes.len() != 32 {
+        return Err("Private key must be 32 bytes".to_string());
+    }
+    let mut key_arr = [0u8; 32];
+    key_arr.copy_from_slice(&key_bytes);
+    let signer = RustBip44Signer::from_private_key(&key_arr)
+        .map_err(|e| format!("Failed to create signer: {}", e))?;
+
+    let domain = parse_eip712_domain(
+        &domain_name,
+        &domain_version,
+        chain_id,
+        verifying_contract.as_deref(),
+    )?;
+    let typed = parse_payment_intent(&intent)?;
+    let sig =
+        sign_typed_data(&signer, &domain, &typed).map_err(|e| format!("Signing failed: {}", e))?;
+
+    Ok(format!(
+        "0x{}{}{}",
+        hex::encode(sig.r),
+        hex::encode(sig.s),
+        hex::encode([sig.v])
+    ))
+}
+
+/// Business-side: verify a WPGP PaymentIntent EIP-712 signature.
+///
+/// Returns `true` if the signature was produced by `expected_signer`.
+///
+/// - `signature_hex`: 65-byte signature as hex (with or without `0x`)
+/// - `expected_signer`: the address that should have signed
+#[frb]
+pub fn wpgp_verify_payment_signature(
+    intent: WpgpPaymentIntent,
+    domain_name: String,
+    domain_version: String,
+    chain_id: u64,
+    verifying_contract: Option<String>,
+    signature_hex: String,
+    expected_signer: String,
+) -> Result<bool, String> {
+    let domain = parse_eip712_domain(
+        &domain_name,
+        &domain_version,
+        chain_id,
+        verifying_contract.as_deref(),
+    )?;
+    let typed = parse_payment_intent(&intent)?;
+
+    let sig_str = signature_hex.strip_prefix("0x").unwrap_or(&signature_hex);
+    let sig_bytes = hex::decode(sig_str).map_err(|e| format!("Invalid signature hex: {}", e))?;
+    let sig = RustSignature::from_bytes(&sig_bytes)
+        .ok_or_else(|| "Invalid signature (expected 65 bytes)".to_string())?;
+
+    let expected = RustAddress::from_str(&expected_signer)
+        .map_err(|e| format!("Invalid expected_signer address: {}", e))?;
+
+    verify_typed_data(&domain, &typed, &sig, expected)
+        .map_err(|e| format!("Verification failed: {}", e))
+}
+
+/// ERC-4337 UserOperation fields for the Flutter layer.
+///
+/// All gas values are decimal strings to avoid Dart integer overflow.
+#[frb]
+#[derive(Debug, Clone)]
+pub struct WpgpUserOperation {
+    /// Smart account address (sender)
+    pub sender: String,
+    /// Anti-replay nonce
+    pub nonce: u64,
+    /// ABI-encoded contract call (hex, with or without `0x`)
+    pub call_data_hex: String,
+    /// verificationGasLimit packed with callGasLimit (decimal string)
+    pub verification_gas_limit: u64,
+    /// callGasLimit (decimal string)
+    pub call_gas_limit: u64,
+    /// Pre-verification gas
+    pub pre_verification_gas: u64,
+    /// maxPriorityFeePerGas in wei (decimal string)
+    pub max_priority_fee_per_gas: String,
+    /// maxFeePerGas in wei (decimal string)
+    pub max_fee_per_gas: String,
+    /// Optional paymaster address (empty string = no paymaster)
+    pub paymaster: String,
+    /// Optional paymaster data (hex, with or without `0x`)
+    pub paymaster_data_hex: String,
+}
+
+/// User-side: build and sign an ERC-4337 v0.7 PackedUserOperation.
+///
+/// Returns the 65-byte signature as a `0x`-prefixed hex string.
+///
+/// - `entry_point`: EntryPoint contract address (defaults to canonical v0.7 if empty)
+/// - `chain_id`: numeric chain ID
+#[frb]
+pub fn wpgp_sign_user_operation(
+    private_key_hex: String,
+    user_op: WpgpUserOperation,
+    entry_point: String,
+    chain_id: u64,
+) -> Result<String, String> {
+    let hex_str = private_key_hex
+        .strip_prefix("0x")
+        .unwrap_or(&private_key_hex);
+    let key_bytes = hex::decode(hex_str).map_err(|e| format!("Invalid private key hex: {}", e))?;
+    if key_bytes.len() != 32 {
+        return Err("Private key must be 32 bytes".to_string());
+    }
+    let mut key_arr = [0u8; 32];
+    key_arr.copy_from_slice(&key_bytes);
+    let signer = RustBip44Signer::from_private_key(&key_arr)
+        .map_err(|e| format!("Failed to create signer: {}", e))?;
+
+    let packed_op = build_packed_user_op(&user_op)?;
+
+    let ep_str = if entry_point.is_empty() {
+        ENTRY_POINT_V07
+    } else {
+        entry_point.as_str()
+    };
+    let ep_addr =
+        RustAddress::from_str(ep_str).map_err(|e| format!("Invalid entry_point address: {}", e))?;
+
+    let sig = sign_user_operation(&signer, &packed_op, ep_addr, chain_id)
+        .map_err(|e| format!("Signing failed: {}", e))?;
+
+    Ok(format!(
+        "0x{}{}{}",
+        hex::encode(sig.r),
+        hex::encode(sig.s),
+        hex::encode([sig.v])
+    ))
+}
+
+/// User-side: verify an ERC-4337 UserOperation signature.
+///
+/// Returns `true` if the signature was produced by `expected_signer`.
+#[frb]
+pub fn wpgp_verify_user_operation(
+    user_op: WpgpUserOperation,
+    entry_point: String,
+    chain_id: u64,
+    signature_hex: String,
+    expected_signer: String,
+) -> Result<bool, String> {
+    let packed_op = build_packed_user_op(&user_op)?;
+
+    let ep_str = if entry_point.is_empty() {
+        ENTRY_POINT_V07
+    } else {
+        entry_point.as_str()
+    };
+    let ep_addr =
+        RustAddress::from_str(ep_str).map_err(|e| format!("Invalid entry_point address: {}", e))?;
+
+    let sig_str = signature_hex.strip_prefix("0x").unwrap_or(&signature_hex);
+    let sig_bytes = hex::decode(sig_str).map_err(|e| format!("Invalid signature hex: {}", e))?;
+    let sig = RustSignature::from_bytes(&sig_bytes)
+        .ok_or_else(|| "Invalid signature (expected 65 bytes)".to_string())?;
+
+    let expected = RustAddress::from_str(&expected_signer)
+        .map_err(|e| format!("Invalid expected_signer address: {}", e))?;
+
+    verify_user_operation(&packed_op, ep_addr, chain_id, &sig, expected)
+        .map_err(|e| format!("Verification failed: {}", e))
+}
+
+/// Compute the ERC-4337 userOpHash without signing (useful for debugging).
+///
+/// Returns the 32-byte hash as a `0x`-prefixed hex string.
+#[frb]
+pub fn wpgp_user_operation_hash(
+    user_op: WpgpUserOperation,
+    entry_point: String,
+    chain_id: u64,
+) -> Result<String, String> {
+    use khodpay_signing::erc4337::hash_user_operation;
+
+    let packed_op = build_packed_user_op(&user_op)?;
+
+    let ep_str = if entry_point.is_empty() {
+        ENTRY_POINT_V07
+    } else {
+        entry_point.as_str()
+    };
+    let ep_addr =
+        RustAddress::from_str(ep_str).map_err(|e| format!("Invalid entry_point address: {}", e))?;
+
+    let hash = hash_user_operation(&packed_op, ep_addr, chain_id);
+    Ok(format!("0x{}", hex::encode(hash)))
+}
+
+/// EOA path: build a signed EIP-1559 transaction that calls the payment gateway directly.
+///
+/// Returns the raw transaction as a `0x`-prefixed hex string ready for `eth_sendRawTransaction`.
+///
+/// - `call_data_hex`: ABI-encoded `executePayment(...)` calldata
+/// - `gateway_address`: the PaymentGateway contract address
+/// - `gas_limit`: recommended ~300_000 for a payment gateway call
+#[allow(clippy::too_many_arguments)]
+#[frb]
+pub fn wpgp_build_eoa_transaction(
+    private_key_hex: String,
+    chain_id: ChainId,
+    nonce: u64,
+    gateway_address: String,
+    call_data_hex: String,
+    gas_limit: u64,
+    max_priority_fee_gwei: u64,
+    max_fee_gwei: u64,
+) -> Result<String, String> {
+    let hex_str = private_key_hex
+        .strip_prefix("0x")
+        .unwrap_or(&private_key_hex);
+    let key_bytes = hex::decode(hex_str).map_err(|e| format!("Invalid private key hex: {}", e))?;
+    if key_bytes.len() != 32 {
+        return Err("Private key must be 32 bytes".to_string());
+    }
+    let mut key_arr = [0u8; 32];
+    key_arr.copy_from_slice(&key_bytes);
+    let signer = RustBip44Signer::from_private_key(&key_arr)
+        .map_err(|e| format!("Failed to create signer: {}", e))?;
+
+    let gateway = RustAddress::from_str(&gateway_address)
+        .map_err(|e| format!("Invalid gateway_address: {}", e))?;
+
+    let data_str = call_data_hex.strip_prefix("0x").unwrap_or(&call_data_hex);
+    let data = if data_str.is_empty() {
+        Vec::new()
+    } else {
+        hex::decode(data_str).map_err(|e| format!("Invalid call_data_hex: {}", e))?
+    };
+
+    let tx = RustEip1559Transaction::builder()
+        .chain_id(chain_id.into())
+        .nonce(nonce)
+        .to(gateway)
+        .value(RustWei::ZERO)
+        .gas_limit(gas_limit)
+        .max_priority_fee_per_gas(RustWei::from_gwei(max_priority_fee_gwei))
+        .max_fee_per_gas(RustWei::from_gwei(max_fee_gwei))
+        .data(data)
+        .build()
+        .map_err(|e| format!("Failed to build transaction: {}", e))?;
+
+    let sig = signer
+        .sign_transaction(&tx)
+        .map_err(|e| format!("Signing failed: {}", e))?;
+
+    Ok(RustSignedTransaction::new(tx, sig).to_raw_transaction())
+}
+
+/// Returns the canonical ERC-4337 v0.7 EntryPoint address.
+#[frb]
+pub fn wpgp_entry_point_v07() -> String {
+    ENTRY_POINT_V07.to_string()
+}
+
+// ── Internal helpers ──────────────────────────────────────────────────────────
+
+fn build_packed_user_op(user_op: &WpgpUserOperation) -> Result<PackedUserOperation, String> {
+    let sender = RustAddress::from_str(&user_op.sender)
+        .map_err(|e| format!("Invalid sender address: {}", e))?;
+
+    let call_data_str = user_op
+        .call_data_hex
+        .strip_prefix("0x")
+        .unwrap_or(&user_op.call_data_hex);
+    let call_data = if call_data_str.is_empty() {
+        Vec::new()
+    } else {
+        hex::decode(call_data_str).map_err(|e| format!("Invalid call_data_hex: {}", e))?
+    };
+
+    let max_priority: u128 = user_op
+        .max_priority_fee_per_gas
+        .parse()
+        .map_err(|e| format!("Invalid max_priority_fee_per_gas: {}", e))?;
+    let max_fee: u128 = user_op
+        .max_fee_per_gas
+        .parse()
+        .map_err(|e| format!("Invalid max_fee_per_gas: {}", e))?;
+
+    let mut builder = PackedUserOperation::builder()
+        .sender(sender)
+        .nonce(user_op.nonce.into())
+        .call_data(call_data)
+        .account_gas_limits(
+            user_op.verification_gas_limit.into(),
+            user_op.call_gas_limit.into(),
+        )
+        .pre_verification_gas(user_op.pre_verification_gas.into())
+        .gas_fees(max_priority, max_fee);
+
+    if !user_op.paymaster.is_empty() {
+        let pm_addr = RustAddress::from_str(&user_op.paymaster)
+            .map_err(|e| format!("Invalid paymaster address: {}", e))?;
+        let pm_data_str = user_op
+            .paymaster_data_hex
+            .strip_prefix("0x")
+            .unwrap_or(&user_op.paymaster_data_hex);
+        let pm_data = if pm_data_str.is_empty() {
+            Vec::new()
+        } else {
+            hex::decode(pm_data_str).map_err(|e| format!("Invalid paymaster_data_hex: {}", e))?
+        };
+        builder = builder.paymaster(pm_addr, pm_data);
+    }
+
+    builder
+        .build()
+        .map_err(|e| format!("Failed to build UserOperation: {}", e))
 }

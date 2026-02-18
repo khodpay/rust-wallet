@@ -20,7 +20,7 @@ flutter_rust_bridge = "=2.11.1"
 khodpay-bip32 = { version = "0.2.0", path = "../bip32" }
 khodpay-bip39 = { version = "0.4.0", path = "../bip39" }
 khodpay-bip44 = { version = "0.1.0", path = "../bip44" }
-khodpay-signing = { version = "0.1.0", path = "../khodpay-signing" }
+khodpay-signing = { version = "0.2.0", path = "../khodpay-signing", features = ["erc4337"] }
 
 # Optional: For serializable structs
 serde = { version = "1", features = ["derive"] }

@@ -38,7 +38,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.11.1";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1869164546;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -75283639;
 
 // Section: executor
 
@@ -5126,6 +5126,302 @@ fn wire__crate__bridge__validate_mnemonic_impl(
         },
     )
 }
+fn wire__crate__bridge__wpgp_build_eoa_transaction_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "wpgp_build_eoa_transaction",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_private_key_hex = <String>::sse_decode(&mut deserializer);
+            let api_chain_id = <crate::bridge::ChainId>::sse_decode(&mut deserializer);
+            let api_nonce = <u64>::sse_decode(&mut deserializer);
+            let api_gateway_address = <String>::sse_decode(&mut deserializer);
+            let api_call_data_hex = <String>::sse_decode(&mut deserializer);
+            let api_gas_limit = <u64>::sse_decode(&mut deserializer);
+            let api_max_priority_fee_gwei = <u64>::sse_decode(&mut deserializer);
+            let api_max_fee_gwei = <u64>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, String>((move || {
+                    let output_ok = crate::bridge::wpgp_build_eoa_transaction(
+                        api_private_key_hex,
+                        api_chain_id,
+                        api_nonce,
+                        api_gateway_address,
+                        api_call_data_hex,
+                        api_gas_limit,
+                        api_max_priority_fee_gwei,
+                        api_max_fee_gwei,
+                    )?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__bridge__wpgp_entry_point_v07_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "wpgp_entry_point_v07",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok(crate::bridge::wpgp_entry_point_v07())?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__bridge__wpgp_sign_payment_intent_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "wpgp_sign_payment_intent",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_private_key_hex = <String>::sse_decode(&mut deserializer);
+            let api_intent = <crate::bridge::WpgpPaymentIntent>::sse_decode(&mut deserializer);
+            let api_domain_name = <String>::sse_decode(&mut deserializer);
+            let api_domain_version = <String>::sse_decode(&mut deserializer);
+            let api_chain_id = <u64>::sse_decode(&mut deserializer);
+            let api_verifying_contract = <Option<String>>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, String>((move || {
+                    let output_ok = crate::bridge::wpgp_sign_payment_intent(
+                        api_private_key_hex,
+                        api_intent,
+                        api_domain_name,
+                        api_domain_version,
+                        api_chain_id,
+                        api_verifying_contract,
+                    )?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__bridge__wpgp_sign_user_operation_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "wpgp_sign_user_operation",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_private_key_hex = <String>::sse_decode(&mut deserializer);
+            let api_user_op = <crate::bridge::WpgpUserOperation>::sse_decode(&mut deserializer);
+            let api_entry_point = <String>::sse_decode(&mut deserializer);
+            let api_chain_id = <u64>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, String>((move || {
+                    let output_ok = crate::bridge::wpgp_sign_user_operation(
+                        api_private_key_hex,
+                        api_user_op,
+                        api_entry_point,
+                        api_chain_id,
+                    )?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__bridge__wpgp_user_operation_hash_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "wpgp_user_operation_hash",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_user_op = <crate::bridge::WpgpUserOperation>::sse_decode(&mut deserializer);
+            let api_entry_point = <String>::sse_decode(&mut deserializer);
+            let api_chain_id = <u64>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, String>((move || {
+                    let output_ok = crate::bridge::wpgp_user_operation_hash(
+                        api_user_op,
+                        api_entry_point,
+                        api_chain_id,
+                    )?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__bridge__wpgp_verify_payment_signature_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "wpgp_verify_payment_signature",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_intent = <crate::bridge::WpgpPaymentIntent>::sse_decode(&mut deserializer);
+            let api_domain_name = <String>::sse_decode(&mut deserializer);
+            let api_domain_version = <String>::sse_decode(&mut deserializer);
+            let api_chain_id = <u64>::sse_decode(&mut deserializer);
+            let api_verifying_contract = <Option<String>>::sse_decode(&mut deserializer);
+            let api_signature_hex = <String>::sse_decode(&mut deserializer);
+            let api_expected_signer = <String>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, String>((move || {
+                    let output_ok = crate::bridge::wpgp_verify_payment_signature(
+                        api_intent,
+                        api_domain_name,
+                        api_domain_version,
+                        api_chain_id,
+                        api_verifying_contract,
+                        api_signature_hex,
+                        api_expected_signer,
+                    )?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__bridge__wpgp_verify_user_operation_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "wpgp_verify_user_operation",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_user_op = <crate::bridge::WpgpUserOperation>::sse_decode(&mut deserializer);
+            let api_entry_point = <String>::sse_decode(&mut deserializer);
+            let api_chain_id = <u64>::sse_decode(&mut deserializer);
+            let api_signature_hex = <String>::sse_decode(&mut deserializer);
+            let api_expected_signer = <String>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, String>((move || {
+                    let output_ok = crate::bridge::wpgp_verify_user_operation(
+                        api_user_op,
+                        api_entry_point,
+                        api_chain_id,
+                        api_signature_hex,
+                        api_expected_signer,
+                    )?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
 
 // Section: related_funcs
 
@@ -5594,6 +5890,56 @@ impl SseDecode for crate::bridge::WalletResult {
     }
 }
 
+impl SseDecode for crate::bridge::WpgpPaymentIntent {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_business = <String>::sse_decode(deserializer);
+        let mut var_recipient = <String>::sse_decode(deserializer);
+        let mut var_token = <String>::sse_decode(deserializer);
+        let mut var_amount = <u64>::sse_decode(deserializer);
+        let mut var_deadline = <u64>::sse_decode(deserializer);
+        let mut var_invoiceId = <String>::sse_decode(deserializer);
+        let mut var_nonce = <u64>::sse_decode(deserializer);
+        return crate::bridge::WpgpPaymentIntent {
+            business: var_business,
+            recipient: var_recipient,
+            token: var_token,
+            amount: var_amount,
+            deadline: var_deadline,
+            invoice_id: var_invoiceId,
+            nonce: var_nonce,
+        };
+    }
+}
+
+impl SseDecode for crate::bridge::WpgpUserOperation {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_sender = <String>::sse_decode(deserializer);
+        let mut var_nonce = <u64>::sse_decode(deserializer);
+        let mut var_callDataHex = <String>::sse_decode(deserializer);
+        let mut var_verificationGasLimit = <u64>::sse_decode(deserializer);
+        let mut var_callGasLimit = <u64>::sse_decode(deserializer);
+        let mut var_preVerificationGas = <u64>::sse_decode(deserializer);
+        let mut var_maxPriorityFeePerGas = <String>::sse_decode(deserializer);
+        let mut var_maxFeePerGas = <String>::sse_decode(deserializer);
+        let mut var_paymaster = <String>::sse_decode(deserializer);
+        let mut var_paymasterDataHex = <String>::sse_decode(deserializer);
+        return crate::bridge::WpgpUserOperation {
+            sender: var_sender,
+            nonce: var_nonce,
+            call_data_hex: var_callDataHex,
+            verification_gas_limit: var_verificationGasLimit,
+            call_gas_limit: var_callGasLimit,
+            pre_verification_gas: var_preVerificationGas,
+            max_priority_fee_per_gas: var_maxPriorityFeePerGas,
+            max_fee_per_gas: var_maxFeePerGas,
+            paymaster: var_paymaster,
+            paymaster_data_hex: var_paymasterDataHex,
+        };
+    }
+}
+
 fn pde_ffi_dispatcher_primary_impl(
     func_id: i32,
     port: flutter_rust_bridge::for_generated::MessagePort,
@@ -5972,6 +6318,28 @@ fn pde_ffi_dispatcher_primary_impl(
             data_len,
         ),
         125 => wire__crate__bridge__validate_mnemonic_impl(port, ptr, rust_vec_len, data_len),
+        126 => {
+            wire__crate__bridge__wpgp_build_eoa_transaction_impl(port, ptr, rust_vec_len, data_len)
+        }
+        127 => wire__crate__bridge__wpgp_entry_point_v07_impl(port, ptr, rust_vec_len, data_len),
+        128 => {
+            wire__crate__bridge__wpgp_sign_payment_intent_impl(port, ptr, rust_vec_len, data_len)
+        }
+        129 => {
+            wire__crate__bridge__wpgp_sign_user_operation_impl(port, ptr, rust_vec_len, data_len)
+        }
+        130 => {
+            wire__crate__bridge__wpgp_user_operation_hash_impl(port, ptr, rust_vec_len, data_len)
+        }
+        131 => wire__crate__bridge__wpgp_verify_payment_signature_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        132 => {
+            wire__crate__bridge__wpgp_verify_user_operation_impl(port, ptr, rust_vec_len, data_len)
+        }
         _ => unreachable!(),
     }
 }
@@ -6340,6 +6708,61 @@ impl flutter_rust_bridge::IntoIntoDart<crate::bridge::WalletResult>
     for crate::bridge::WalletResult
 {
     fn into_into_dart(self) -> crate::bridge::WalletResult {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::bridge::WpgpPaymentIntent {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.business.into_into_dart().into_dart(),
+            self.recipient.into_into_dart().into_dart(),
+            self.token.into_into_dart().into_dart(),
+            self.amount.into_into_dart().into_dart(),
+            self.deadline.into_into_dart().into_dart(),
+            self.invoice_id.into_into_dart().into_dart(),
+            self.nonce.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::bridge::WpgpPaymentIntent
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::bridge::WpgpPaymentIntent>
+    for crate::bridge::WpgpPaymentIntent
+{
+    fn into_into_dart(self) -> crate::bridge::WpgpPaymentIntent {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::bridge::WpgpUserOperation {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.sender.into_into_dart().into_dart(),
+            self.nonce.into_into_dart().into_dart(),
+            self.call_data_hex.into_into_dart().into_dart(),
+            self.verification_gas_limit.into_into_dart().into_dart(),
+            self.call_gas_limit.into_into_dart().into_dart(),
+            self.pre_verification_gas.into_into_dart().into_dart(),
+            self.max_priority_fee_per_gas.into_into_dart().into_dart(),
+            self.max_fee_per_gas.into_into_dart().into_dart(),
+            self.paymaster.into_into_dart().into_dart(),
+            self.paymaster_data_hex.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::bridge::WpgpUserOperation
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::bridge::WpgpUserOperation>
+    for crate::bridge::WpgpUserOperation
+{
+    fn into_into_dart(self) -> crate::bridge::WpgpUserOperation {
         self
     }
 }
@@ -6742,6 +7165,35 @@ impl SseEncode for crate::bridge::WalletResult {
         <bool>::sse_encode(self.success, serializer);
         <String>::sse_encode(self.message, serializer);
         <Option<String>>::sse_encode(self.data, serializer);
+    }
+}
+
+impl SseEncode for crate::bridge::WpgpPaymentIntent {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.business, serializer);
+        <String>::sse_encode(self.recipient, serializer);
+        <String>::sse_encode(self.token, serializer);
+        <u64>::sse_encode(self.amount, serializer);
+        <u64>::sse_encode(self.deadline, serializer);
+        <String>::sse_encode(self.invoice_id, serializer);
+        <u64>::sse_encode(self.nonce, serializer);
+    }
+}
+
+impl SseEncode for crate::bridge::WpgpUserOperation {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.sender, serializer);
+        <u64>::sse_encode(self.nonce, serializer);
+        <String>::sse_encode(self.call_data_hex, serializer);
+        <u64>::sse_encode(self.verification_gas_limit, serializer);
+        <u64>::sse_encode(self.call_gas_limit, serializer);
+        <u64>::sse_encode(self.pre_verification_gas, serializer);
+        <String>::sse_encode(self.max_priority_fee_per_gas, serializer);
+        <String>::sse_encode(self.max_fee_per_gas, serializer);
+        <String>::sse_encode(self.paymaster, serializer);
+        <String>::sse_encode(self.paymaster_data_hex, serializer);
     }
 }
 
