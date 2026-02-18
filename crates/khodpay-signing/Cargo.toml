@@ -1,12 +1,12 @@
 [package]
 name = "khodpay-signing"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["Khodpay"]
-description = "EVM transaction signing for BSC and other EVM chains"
+description = "EVM signing: EIP-1559 transactions, EIP-712 typed data, and ERC-4337 UserOperation"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/khodpay/khodpay-wallet"
-keywords = ["bsc", "ethereum", "evm", "signing", "transaction"]
+keywords = ["eip712", "erc4337", "ethereum", "signing", "account-abstraction"]
 categories = ["cryptography", "no-std"]
 
 [dependencies]
@@ -35,10 +35,13 @@ zeroize = { version = "1.7", features = ["derive"] }
 
 # Optional serialization
 serde = { version = "1.0", optional = true, features = ["derive"] }
+serde_json = { version = "1.0", optional = true }
 
 [features]
 default = []
 serde = ["dep:serde"]
+eip712 = ["serde", "dep:serde_json"]
+erc4337 = ["eip712"]
 
 [dev-dependencies]
 khodpay-bip39 = { version = "0.4.0", path = "../bip39" }
