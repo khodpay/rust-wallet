@@ -6,9 +6,9 @@
 import 'frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `build_packed_user_op`, `parse_eip712_domain`, `parse_payment_intent`, `to_rust_transaction`
+// These functions are ignored because they are not marked as `pub`: `build_packed_user_op`, `parse_bytes32`, `parse_eip712_domain`, `parse_payment_intent`, `parse_uint256`, `to_rust_transaction`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `WpgpPaymentIntentTyped`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `encode_data`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `try_from`, `type_string`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `encode_data`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `try_from`, `type_string`
 
 /// Get the numeric chain ID value
 Future<BigInt> chainIdToU64({required ChainId chainId}) =>
@@ -221,6 +221,55 @@ Future<String> healthCheck() => RustLib.instance.api.crateBridgeHealthCheck();
 /// Add two numbers (example from the article)
 Future<int> add({required int a, required int b}) =>
     RustLib.instance.api.crateBridgeAdd(a: a, b: b);
+
+/// Generic EIP-712: sign any pre-encoded struct hash.
+///
+/// Flutter is responsible for computing `struct_hash_hex` — the `hashStruct` of whatever
+/// EIP-712 message it needs to sign. This function:
+/// 1. Computes the domain separator from the given parameters
+/// 2. Assembles the final EIP-712 hash: `keccak256("\x19\x01" || domainSeparator || structHash)`
+/// 3. Signs it with the given private key
+///
+/// Returns the 65-byte signature as a `0x`-prefixed hex string.
+Future<String> eip712Sign(
+        {required String privateKeyHex,
+        required String domainName,
+        required String domainVersion,
+        required BigInt chainId,
+        String? verifyingContract,
+        required String structHashHex}) =>
+    RustLib.instance.api.crateBridgeEip712Sign(
+        privateKeyHex: privateKeyHex,
+        domainName: domainName,
+        domainVersion: domainVersion,
+        chainId: chainId,
+        verifyingContract: verifyingContract,
+        structHashHex: structHashHex);
+
+/// Generic EIP-712: verify a signature against any pre-encoded struct hash.
+///
+/// Flutter is responsible for computing `struct_hash_hex`. This function:
+/// 1. Computes the domain separator
+/// 2. Assembles the final EIP-712 hash
+/// 3. Recovers the signer and compares against `expected_signer`
+///
+/// Returns `true` if the signature matches `expected_signer`.
+Future<bool> eip712Verify(
+        {required String domainName,
+        required String domainVersion,
+        required BigInt chainId,
+        String? verifyingContract,
+        required String structHashHex,
+        required String signatureHex,
+        required String expectedSigner}) =>
+    RustLib.instance.api.crateBridgeEip712Verify(
+        domainName: domainName,
+        domainVersion: domainVersion,
+        chainId: chainId,
+        verifyingContract: verifyingContract,
+        structHashHex: structHashHex,
+        signatureHex: signatureHex,
+        expectedSigner: expectedSigner);
 
 /// Business-side: sign a WPGP PaymentIntent with EIP-712.
 ///
@@ -1063,7 +1112,10 @@ class WalletResult {
 ///
 /// All fields are passed as strings to avoid Dart integer overflow on u64/u128 values.
 class WpgpPaymentIntent {
-  /// Business wallet address (EIP-55 checksummed hex)
+  /// bytes32 UUID identifying the business slot in the registry (0x-prefixed hex)
+  final String businessId;
+
+  /// Business wallet address (EIP-55 checksummed hex) — must match registered owner
   final String business;
 
   /// Recipient wallet address (EIP-55 checksummed hex)
@@ -1072,19 +1124,20 @@ class WpgpPaymentIntent {
   /// ERC-20 token contract address (EIP-55 checksummed hex)
   final String token;
 
-  /// Payment amount in token's smallest unit (decimal string)
-  final BigInt amount;
+  /// Payment amount in token's smallest unit (decimal string, uint256)
+  final String amount;
 
-  /// Unix timestamp after which the intent expires
-  final BigInt deadline;
+  /// Unix timestamp after which the intent expires (decimal string, uint256)
+  final String deadline;
 
   /// Unique invoice identifier (32-byte hex, with or without 0x prefix)
   final String invoiceId;
 
-  /// Replay-protection nonce for this business address
-  final BigInt nonce;
+  /// Replay-protection nonce for this business slot (decimal string, uint256)
+  final String nonce;
 
   const WpgpPaymentIntent({
+    required this.businessId,
     required this.business,
     required this.recipient,
     required this.token,
@@ -1096,6 +1149,7 @@ class WpgpPaymentIntent {
 
   @override
   int get hashCode =>
+      businessId.hashCode ^
       business.hashCode ^
       recipient.hashCode ^
       token.hashCode ^
@@ -1109,6 +1163,7 @@ class WpgpPaymentIntent {
       identical(this, other) ||
       other is WpgpPaymentIntent &&
           runtimeType == other.runtimeType &&
+          businessId == other.businessId &&
           business == other.business &&
           recipient == other.recipient &&
           token == other.token &&

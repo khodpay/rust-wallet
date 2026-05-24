@@ -394,7 +394,7 @@ fn encode_uint64_as_u256(value: u64) -> [u8; 32] {
 }
 
 /// Computes `keccak256` of the given bytes.
-pub(crate) fn keccak256(data: &[u8]) -> [u8; 32] {
+pub fn keccak256(data: &[u8]) -> [u8; 32] {
     let mut hasher = Keccak256::new();
     hasher.update(data);
     hasher.finalize().into()

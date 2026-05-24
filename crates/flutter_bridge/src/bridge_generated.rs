@@ -38,7 +38,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.11.1";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -75283639;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 621995266;
 
 // Section: executor
 
@@ -3221,6 +3221,98 @@ fn wire__crate__bridge__derive_key_impl(
         },
     )
 }
+fn wire__crate__bridge__eip712_sign_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "eip712_sign",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_private_key_hex = <String>::sse_decode(&mut deserializer);
+            let api_domain_name = <String>::sse_decode(&mut deserializer);
+            let api_domain_version = <String>::sse_decode(&mut deserializer);
+            let api_chain_id = <u64>::sse_decode(&mut deserializer);
+            let api_verifying_contract = <Option<String>>::sse_decode(&mut deserializer);
+            let api_struct_hash_hex = <String>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, String>((move || {
+                    let output_ok = crate::bridge::eip712_sign(
+                        api_private_key_hex,
+                        api_domain_name,
+                        api_domain_version,
+                        api_chain_id,
+                        api_verifying_contract,
+                        api_struct_hash_hex,
+                    )?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__bridge__eip712_verify_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "eip712_verify",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_domain_name = <String>::sse_decode(&mut deserializer);
+            let api_domain_version = <String>::sse_decode(&mut deserializer);
+            let api_chain_id = <u64>::sse_decode(&mut deserializer);
+            let api_verifying_contract = <Option<String>>::sse_decode(&mut deserializer);
+            let api_struct_hash_hex = <String>::sse_decode(&mut deserializer);
+            let api_signature_hex = <String>::sse_decode(&mut deserializer);
+            let api_expected_signer = <String>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, String>((move || {
+                    let output_ok = crate::bridge::eip712_verify(
+                        api_domain_name,
+                        api_domain_version,
+                        api_chain_id,
+                        api_verifying_contract,
+                        api_struct_hash_hex,
+                        api_signature_hex,
+                        api_expected_signer,
+                    )?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
 fn wire__crate__bridge__eip_1559_transaction_builder_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -5893,14 +5985,16 @@ impl SseDecode for crate::bridge::WalletResult {
 impl SseDecode for crate::bridge::WpgpPaymentIntent {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_businessId = <String>::sse_decode(deserializer);
         let mut var_business = <String>::sse_decode(deserializer);
         let mut var_recipient = <String>::sse_decode(deserializer);
         let mut var_token = <String>::sse_decode(deserializer);
-        let mut var_amount = <u64>::sse_decode(deserializer);
-        let mut var_deadline = <u64>::sse_decode(deserializer);
+        let mut var_amount = <String>::sse_decode(deserializer);
+        let mut var_deadline = <String>::sse_decode(deserializer);
         let mut var_invoiceId = <String>::sse_decode(deserializer);
-        let mut var_nonce = <u64>::sse_decode(deserializer);
+        let mut var_nonce = <String>::sse_decode(deserializer);
         return crate::bridge::WpgpPaymentIntent {
+            business_id: var_businessId,
             business: var_business,
             recipient: var_recipient,
             token: var_token,
@@ -6167,177 +6261,179 @@ fn pde_ffi_dispatcher_primary_impl(
         67 => wire__crate__bridge__derive_bip44_address_impl(port, ptr, rust_vec_len, data_len),
         68 => wire__crate__bridge__derive_evm_address_impl(port, ptr, rust_vec_len, data_len),
         69 => wire__crate__bridge__derive_key_impl(port, ptr, rust_vec_len, data_len),
-        70 => wire__crate__bridge__eip_1559_transaction_builder_impl(
+        70 => wire__crate__bridge__eip712_sign_impl(port, ptr, rust_vec_len, data_len),
+        71 => wire__crate__bridge__eip712_verify_impl(port, ptr, rust_vec_len, data_len),
+        72 => wire__crate__bridge__eip_1559_transaction_builder_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        71 => wire__crate__bridge__eip_1559_transaction_builder_build_impl(
+        73 => wire__crate__bridge__eip_1559_transaction_builder_build_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        72 => wire__crate__bridge__eip_1559_transaction_builder_default_impl(
+        74 => wire__crate__bridge__eip_1559_transaction_builder_default_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        73 => wire__crate__bridge__eip_1559_transaction_builder_new_impl(
+        75 => wire__crate__bridge__eip_1559_transaction_builder_new_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        74 => wire__crate__bridge__eip_1559_transaction_is_contract_creation_impl(
+        76 => wire__crate__bridge__eip_1559_transaction_is_contract_creation_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        75 => wire__crate__bridge__eip_1559_transaction_is_transfer_impl(
+        77 => wire__crate__bridge__eip_1559_transaction_is_transfer_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        76 => wire__crate__bridge__eip_1559_transaction_token_transfer_gas_impl(
+        78 => wire__crate__bridge__eip_1559_transaction_token_transfer_gas_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        77 => wire__crate__bridge__eip_1559_transaction_transfer_gas_impl(
+        79 => wire__crate__bridge__eip_1559_transaction_transfer_gas_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        78 => wire__crate__bridge__eip_1559_transaction_validate_impl(
+        80 => wire__crate__bridge__eip_1559_transaction_validate_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        79 => wire__crate__bridge__ether_to_wei_impl(port, ptr, rust_vec_len, data_len),
-        80 => wire__crate__bridge__evm_access_list_item_address_only_impl(
+        81 => wire__crate__bridge__ether_to_wei_impl(port, ptr, rust_vec_len, data_len),
+        82 => wire__crate__bridge__evm_access_list_item_address_only_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        81 => wire__crate__bridge__evm_access_list_item_new_impl(port, ptr, rust_vec_len, data_len),
-        82 => wire__crate__bridge__evm_signature_from_bytes_impl(port, ptr, rust_vec_len, data_len),
-        83 => wire__crate__bridge__evm_signature_new_impl(port, ptr, rust_vec_len, data_len),
-        84 => wire__crate__bridge__evm_signature_to_bytes_impl(port, ptr, rust_vec_len, data_len),
-        85 => {
+        83 => wire__crate__bridge__evm_access_list_item_new_impl(port, ptr, rust_vec_len, data_len),
+        84 => wire__crate__bridge__evm_signature_from_bytes_impl(port, ptr, rust_vec_len, data_len),
+        85 => wire__crate__bridge__evm_signature_new_impl(port, ptr, rust_vec_len, data_len),
+        86 => wire__crate__bridge__evm_signature_to_bytes_impl(port, ptr, rust_vec_len, data_len),
+        87 => {
             wire__crate__bridge__evm_signature_to_hex_string_impl(port, ptr, rust_vec_len, data_len)
         }
-        86 => wire__crate__bridge__evm_wei_add_impl(port, ptr, rust_vec_len, data_len),
-        87 => wire__crate__bridge__evm_wei_from_ether_impl(port, ptr, rust_vec_len, data_len),
-        88 => wire__crate__bridge__evm_wei_from_gwei_impl(port, ptr, rust_vec_len, data_len),
-        89 => wire__crate__bridge__evm_wei_from_wei_string_impl(port, ptr, rust_vec_len, data_len),
-        90 => wire__crate__bridge__evm_wei_from_wei_u64_impl(port, ptr, rust_vec_len, data_len),
-        91 => wire__crate__bridge__evm_wei_is_zero_impl(port, ptr, rust_vec_len, data_len),
-        92 => wire__crate__bridge__evm_wei_multiply_impl(port, ptr, rust_vec_len, data_len),
-        93 => {
+        88 => wire__crate__bridge__evm_wei_add_impl(port, ptr, rust_vec_len, data_len),
+        89 => wire__crate__bridge__evm_wei_from_ether_impl(port, ptr, rust_vec_len, data_len),
+        90 => wire__crate__bridge__evm_wei_from_gwei_impl(port, ptr, rust_vec_len, data_len),
+        91 => wire__crate__bridge__evm_wei_from_wei_string_impl(port, ptr, rust_vec_len, data_len),
+        92 => wire__crate__bridge__evm_wei_from_wei_u64_impl(port, ptr, rust_vec_len, data_len),
+        93 => wire__crate__bridge__evm_wei_is_zero_impl(port, ptr, rust_vec_len, data_len),
+        94 => wire__crate__bridge__evm_wei_multiply_impl(port, ptr, rust_vec_len, data_len),
+        95 => {
             wire__crate__bridge__evm_wei_to_decimal_string_impl(port, ptr, rust_vec_len, data_len)
         }
-        94 => wire__crate__bridge__evm_wei_to_ether_impl(port, ptr, rust_vec_len, data_len),
-        95 => wire__crate__bridge__evm_wei_to_gwei_impl(port, ptr, rust_vec_len, data_len),
-        96 => wire__crate__bridge__evm_wei_to_u64_impl(port, ptr, rust_vec_len, data_len),
-        97 => wire__crate__bridge__evm_wei_zero_impl(port, ptr, rust_vec_len, data_len),
-        98 => wire__crate__bridge__generate_mnemonic_impl(port, ptr, rust_vec_len, data_len),
-        99 => wire__crate__bridge__generate_mnemonic_from_entropy_impl(
+        96 => wire__crate__bridge__evm_wei_to_ether_impl(port, ptr, rust_vec_len, data_len),
+        97 => wire__crate__bridge__evm_wei_to_gwei_impl(port, ptr, rust_vec_len, data_len),
+        98 => wire__crate__bridge__evm_wei_to_u64_impl(port, ptr, rust_vec_len, data_len),
+        99 => wire__crate__bridge__evm_wei_zero_impl(port, ptr, rust_vec_len, data_len),
+        100 => wire__crate__bridge__generate_mnemonic_impl(port, ptr, rust_vec_len, data_len),
+        101 => wire__crate__bridge__generate_mnemonic_from_entropy_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        100 => wire__crate__bridge__get_address_impl(port, ptr, rust_vec_len, data_len),
-        101 => wire__crate__bridge__get_chain_id_value_impl(port, ptr, rust_vec_len, data_len),
-        102 => wire__crate__bridge__get_chain_name_impl(port, ptr, rust_vec_len, data_len),
-        103 => wire__crate__bridge__get_coin_info_impl(port, ptr, rust_vec_len, data_len),
-        104 => wire__crate__bridge__get_ether_in_wei_impl(port, ptr, rust_vec_len, data_len),
-        105 => wire__crate__bridge__get_evm_address_from_private_key_impl(
+        102 => wire__crate__bridge__get_address_impl(port, ptr, rust_vec_len, data_len),
+        103 => wire__crate__bridge__get_chain_id_value_impl(port, ptr, rust_vec_len, data_len),
+        104 => wire__crate__bridge__get_chain_name_impl(port, ptr, rust_vec_len, data_len),
+        105 => wire__crate__bridge__get_coin_info_impl(port, ptr, rust_vec_len, data_len),
+        106 => wire__crate__bridge__get_ether_in_wei_impl(port, ptr, rust_vec_len, data_len),
+        107 => wire__crate__bridge__get_evm_address_from_private_key_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        106 => wire__crate__bridge__get_gwei_in_wei_impl(port, ptr, rust_vec_len, data_len),
-        107 => wire__crate__bridge__get_public_key_impl(port, ptr, rust_vec_len, data_len),
-        108 => wire__crate__bridge__get_purpose_info_impl(port, ptr, rust_vec_len, data_len),
-        109 => wire__crate__bridge__get_token_transfer_gas_impl(port, ptr, rust_vec_len, data_len),
-        110 => wire__crate__bridge__get_transfer_gas_impl(port, ptr, rust_vec_len, data_len),
-        111 => wire__crate__bridge__gwei_to_wei_impl(port, ptr, rust_vec_len, data_len),
-        112 => wire__crate__bridge__health_check_impl(port, ptr, rust_vec_len, data_len),
-        113 => wire__crate__bridge__is_testnet_chain_impl(port, ptr, rust_vec_len, data_len),
-        114 => {
+        108 => wire__crate__bridge__get_gwei_in_wei_impl(port, ptr, rust_vec_len, data_len),
+        109 => wire__crate__bridge__get_public_key_impl(port, ptr, rust_vec_len, data_len),
+        110 => wire__crate__bridge__get_purpose_info_impl(port, ptr, rust_vec_len, data_len),
+        111 => wire__crate__bridge__get_token_transfer_gas_impl(port, ptr, rust_vec_len, data_len),
+        112 => wire__crate__bridge__get_transfer_gas_impl(port, ptr, rust_vec_len, data_len),
+        113 => wire__crate__bridge__gwei_to_wei_impl(port, ptr, rust_vec_len, data_len),
+        114 => wire__crate__bridge__health_check_impl(port, ptr, rust_vec_len, data_len),
+        115 => wire__crate__bridge__is_testnet_chain_impl(port, ptr, rust_vec_len, data_len),
+        116 => {
             wire__crate__bridge__mnemonic_phrase_to_seed_hex_impl(port, ptr, rust_vec_len, data_len)
         }
-        115 => wire__crate__bridge__parse_bip44_path_impl(port, ptr, rust_vec_len, data_len),
-        116 => wire__crate__bridge__parse_evm_address_impl(port, ptr, rust_vec_len, data_len),
-        117 => wire__crate__bridge__recover_signer_address_impl(port, ptr, rust_vec_len, data_len),
-        118 => {
+        117 => wire__crate__bridge__parse_bip44_path_impl(port, ptr, rust_vec_len, data_len),
+        118 => wire__crate__bridge__parse_evm_address_impl(port, ptr, rust_vec_len, data_len),
+        119 => wire__crate__bridge__recover_signer_address_impl(port, ptr, rust_vec_len, data_len),
+        120 => {
             wire__crate__bridge__sign_eip1559_transaction_impl(port, ptr, rust_vec_len, data_len)
         }
-        119 => wire__crate__bridge__signed_evm_transaction_encode_impl(
+        121 => wire__crate__bridge__signed_evm_transaction_encode_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        120 => {
+        122 => {
             wire__crate__bridge__signed_evm_transaction_new_impl(port, ptr, rust_vec_len, data_len)
         }
-        121 => wire__crate__bridge__signed_evm_transaction_to_raw_transaction_impl(
+        123 => wire__crate__bridge__signed_evm_transaction_to_raw_transaction_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        122 => wire__crate__bridge__signed_evm_transaction_tx_hash_impl(
+        124 => wire__crate__bridge__signed_evm_transaction_tx_hash_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        123 => wire__crate__bridge__signed_evm_transaction_tx_hash_hex_impl(
+        125 => wire__crate__bridge__signed_evm_transaction_tx_hash_hex_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        124 => wire__crate__bridge__validate_evm_address_checksum_impl(
+        126 => wire__crate__bridge__validate_evm_address_checksum_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        125 => wire__crate__bridge__validate_mnemonic_impl(port, ptr, rust_vec_len, data_len),
-        126 => {
+        127 => wire__crate__bridge__validate_mnemonic_impl(port, ptr, rust_vec_len, data_len),
+        128 => {
             wire__crate__bridge__wpgp_build_eoa_transaction_impl(port, ptr, rust_vec_len, data_len)
         }
-        127 => wire__crate__bridge__wpgp_entry_point_v07_impl(port, ptr, rust_vec_len, data_len),
-        128 => {
+        129 => wire__crate__bridge__wpgp_entry_point_v07_impl(port, ptr, rust_vec_len, data_len),
+        130 => {
             wire__crate__bridge__wpgp_sign_payment_intent_impl(port, ptr, rust_vec_len, data_len)
         }
-        129 => {
+        131 => {
             wire__crate__bridge__wpgp_sign_user_operation_impl(port, ptr, rust_vec_len, data_len)
         }
-        130 => {
+        132 => {
             wire__crate__bridge__wpgp_user_operation_hash_impl(port, ptr, rust_vec_len, data_len)
         }
-        131 => wire__crate__bridge__wpgp_verify_payment_signature_impl(
+        133 => wire__crate__bridge__wpgp_verify_payment_signature_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        132 => {
+        134 => {
             wire__crate__bridge__wpgp_verify_user_operation_impl(port, ptr, rust_vec_len, data_len)
         }
         _ => unreachable!(),
@@ -6715,6 +6811,7 @@ impl flutter_rust_bridge::IntoIntoDart<crate::bridge::WalletResult>
 impl flutter_rust_bridge::IntoDart for crate::bridge::WpgpPaymentIntent {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
+            self.business_id.into_into_dart().into_dart(),
             self.business.into_into_dart().into_dart(),
             self.recipient.into_into_dart().into_dart(),
             self.token.into_into_dart().into_dart(),
@@ -7171,13 +7268,14 @@ impl SseEncode for crate::bridge::WalletResult {
 impl SseEncode for crate::bridge::WpgpPaymentIntent {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.business_id, serializer);
         <String>::sse_encode(self.business, serializer);
         <String>::sse_encode(self.recipient, serializer);
         <String>::sse_encode(self.token, serializer);
-        <u64>::sse_encode(self.amount, serializer);
-        <u64>::sse_encode(self.deadline, serializer);
+        <String>::sse_encode(self.amount, serializer);
+        <String>::sse_encode(self.deadline, serializer);
         <String>::sse_encode(self.invoice_id, serializer);
-        <u64>::sse_encode(self.nonce, serializer);
+        <String>::sse_encode(self.nonce, serializer);
     }
 }
 

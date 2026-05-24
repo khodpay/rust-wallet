@@ -14,8 +14,8 @@ use khodpay_bip44::{
     CoinType as RustCoinType, Purpose as RustPurpose, Wallet as RustWallet,
 };
 use khodpay_signing::eip712::{
-    encode_address, encode_bytes32, encode_uint64, sign_typed_data, verify_typed_data,
-    Eip712Domain, Eip712Type,
+    encode_address, encode_bytes32, encode_u256_bytes, encode_uint64, sign_typed_data,
+    verify_typed_data, Eip712Domain, Eip712Type,
 };
 use khodpay_signing::erc4337::{
     sign_user_operation, verify_user_operation, PackedUserOperation, ENTRY_POINT_V07,
@@ -1923,83 +1923,100 @@ pub fn add(a: i32, b: i32) -> i32 {
 #[frb]
 #[derive(Debug, Clone)]
 pub struct WpgpPaymentIntent {
-    /// Business wallet address (EIP-55 checksummed hex)
+    /// bytes32 UUID identifying the business slot in the registry (0x-prefixed hex)
+    pub business_id: String,
+    /// Business wallet address (EIP-55 checksummed hex) — must match registered owner
     pub business: String,
     /// Recipient wallet address (EIP-55 checksummed hex)
     pub recipient: String,
     /// ERC-20 token contract address (EIP-55 checksummed hex)
     pub token: String,
-    /// Payment amount in token's smallest unit (decimal string)
-    pub amount: u64,
-    /// Unix timestamp after which the intent expires
-    pub deadline: u64,
+    /// Payment amount in token's smallest unit (decimal string, uint256)
+    pub amount: String,
+    /// Unix timestamp after which the intent expires (decimal string, uint256)
+    pub deadline: String,
     /// Unique invoice identifier (32-byte hex, with or without 0x prefix)
     pub invoice_id: String,
-    /// Replay-protection nonce for this business address
-    pub nonce: u64,
+    /// Replay-protection nonce for this business slot (decimal string, uint256)
+    pub nonce: String,
 }
 
 /// Internal EIP-712 implementation for WpgpPaymentIntent.
 struct WpgpPaymentIntentTyped {
+    business_id: [u8; 32],
     business: RustAddress,
     recipient: RustAddress,
     token: RustAddress,
-    amount: u64,
-    deadline: u64,
+    amount: [u8; 32],
+    deadline: [u8; 32],
     invoice_id: [u8; 32],
-    nonce: u64,
+    nonce: [u8; 32],
 }
 
 impl Eip712Type for WpgpPaymentIntentTyped {
     fn type_string() -> &'static str {
-        "PaymentIntent(address business,address recipient,address token,uint64 amount,uint64 deadline,bytes32 invoiceId,uint64 nonce)"
+        "PaymentIntent(bytes32 businessId,address business,address recipient,address token,uint256 amount,uint256 deadline,bytes32 invoiceId,uint256 nonce)"
     }
 
     fn encode_data(&self) -> Vec<u8> {
         let mut buf = Vec::new();
+        buf.extend_from_slice(&encode_bytes32(self.business_id));
         buf.extend_from_slice(&encode_address(&self.business));
         buf.extend_from_slice(&encode_address(&self.recipient));
         buf.extend_from_slice(&encode_address(&self.token));
-        buf.extend_from_slice(&encode_uint64(self.amount));
-        buf.extend_from_slice(&encode_uint64(self.deadline));
+        buf.extend_from_slice(&encode_u256_bytes(self.amount));
+        buf.extend_from_slice(&encode_u256_bytes(self.deadline));
         buf.extend_from_slice(&encode_bytes32(self.invoice_id));
-        buf.extend_from_slice(&encode_uint64(self.nonce));
+        buf.extend_from_slice(&encode_u256_bytes(self.nonce));
         buf
     }
 }
 
+/// Parse a hex string (with or without 0x) into a fixed 32-byte array.
+fn parse_bytes32(hex_str: &str, field_name: &str) -> Result<[u8; 32], String> {
+    let stripped = hex_str.strip_prefix("0x").unwrap_or(hex_str);
+    let bytes = hex::decode(stripped).map_err(|e| format!("Invalid {} hex: {}", field_name, e))?;
+    if bytes.len() != 32 {
+        return Err(format!("{} must be 32 bytes, got {}", field_name, bytes.len()));
+    }
+    let mut arr = [0u8; 32];
+    arr.copy_from_slice(&bytes);
+    Ok(arr)
+}
+
+/// Parse a decimal string into a 32-byte big-endian uint256.
+fn parse_uint256(decimal_str: &str, field_name: &str) -> Result<[u8; 32], String> {
+    let value = decimal_str
+        .parse::<u128>()
+        .map_err(|e| format!("Invalid {} (expected decimal uint256): {}", field_name, e))?;
+    let mut arr = [0u8; 32];
+    arr[16..].copy_from_slice(&value.to_be_bytes());
+    Ok(arr)
+}
+
 /// Parse a WpgpPaymentIntent into the internal typed struct.
 fn parse_payment_intent(intent: &WpgpPaymentIntent) -> Result<WpgpPaymentIntentTyped, String> {
+    let business_id = parse_bytes32(&intent.business_id, "business_id")?;
     let business = RustAddress::from_str(&intent.business)
         .map_err(|e| format!("Invalid business address: {}", e))?;
     let recipient = RustAddress::from_str(&intent.recipient)
         .map_err(|e| format!("Invalid recipient address: {}", e))?;
     let token = RustAddress::from_str(&intent.token)
         .map_err(|e| format!("Invalid token address: {}", e))?;
-
-    let invoice_hex = intent
-        .invoice_id
-        .strip_prefix("0x")
-        .unwrap_or(&intent.invoice_id);
-    let invoice_bytes =
-        hex::decode(invoice_hex).map_err(|e| format!("Invalid invoice_id hex: {}", e))?;
-    if invoice_bytes.len() != 32 {
-        return Err(format!(
-            "invoice_id must be 32 bytes, got {}",
-            invoice_bytes.len()
-        ));
-    }
-    let mut invoice_id = [0u8; 32];
-    invoice_id.copy_from_slice(&invoice_bytes);
+    let amount = parse_uint256(&intent.amount, "amount")?;
+    let deadline = parse_uint256(&intent.deadline, "deadline")?;
+    let invoice_id = parse_bytes32(&intent.invoice_id, "invoice_id")?;
+    let nonce = parse_uint256(&intent.nonce, "nonce")?;
 
     Ok(WpgpPaymentIntentTyped {
+        business_id,
         business,
         recipient,
         token,
-        amount: intent.amount,
-        deadline: intent.deadline,
+        amount,
+        deadline,
         invoice_id,
-        nonce: intent.nonce,
+        nonce,
     })
 }
 
@@ -2022,6 +2039,119 @@ fn parse_eip712_domain(
             .chain_id(chain_id)
             .build()),
     }
+}
+
+/// Generic EIP-712: sign any pre-encoded struct hash.
+///
+/// Flutter is responsible for computing `struct_hash_hex` — the `hashStruct` of whatever
+/// EIP-712 message it needs to sign. This function:
+/// 1. Computes the domain separator from the given parameters
+/// 2. Assembles the final EIP-712 hash: `keccak256("\x19\x01" || domainSeparator || structHash)`
+/// 3. Signs it with the given private key
+///
+/// Returns the 65-byte signature as a `0x`-prefixed hex string.
+#[frb]
+pub fn eip712_sign(
+    private_key_hex: String,
+    domain_name: String,
+    domain_version: String,
+    chain_id: u64,
+    verifying_contract: Option<String>,
+    struct_hash_hex: String,
+) -> Result<String, String> {
+    let hex_str = private_key_hex
+        .strip_prefix("0x")
+        .unwrap_or(&private_key_hex);
+    let key_bytes = hex::decode(hex_str).map_err(|e| format!("Invalid private key hex: {}", e))?;
+    if key_bytes.len() != 32 {
+        return Err("Private key must be 32 bytes".to_string());
+    }
+    let mut key_arr = [0u8; 32];
+    key_arr.copy_from_slice(&key_bytes);
+    let signer = RustBip44Signer::from_private_key(&key_arr)
+        .map_err(|e| format!("Failed to create signer: {}", e))?;
+
+    let domain = parse_eip712_domain(&domain_name, &domain_version, chain_id, verifying_contract.as_deref())?;
+
+    let sh_hex = struct_hash_hex.strip_prefix("0x").unwrap_or(&struct_hash_hex);
+    let sh_bytes = hex::decode(sh_hex).map_err(|e| format!("Invalid struct_hash_hex: {}", e))?;
+    if sh_bytes.len() != 32 {
+        return Err(format!("struct_hash must be 32 bytes, got {}", sh_bytes.len()));
+    }
+    let mut struct_hash = [0u8; 32];
+    struct_hash.copy_from_slice(&sh_bytes);
+
+    // Assemble "\x19\x01" || domainSeparator || structHash and hash it
+    let domain_sep = domain.domain_separator();
+    let mut buf = [0u8; 66];
+    buf[0] = 0x19;
+    buf[1] = 0x01;
+    buf[2..34].copy_from_slice(&domain_sep);
+    buf[34..66].copy_from_slice(&struct_hash);
+    use khodpay_signing::eip712::keccak256 as eip712_keccak256;
+    let final_hash = eip712_keccak256(&buf);
+
+    let sig = signer
+        .sign_hash(&final_hash)
+        .map_err(|e| format!("Signing failed: {}", e))?;
+
+    Ok(format!(
+        "0x{}{}{}",
+        hex::encode(sig.r),
+        hex::encode(sig.s),
+        hex::encode([sig.v])
+    ))
+}
+
+/// Generic EIP-712: verify a signature against any pre-encoded struct hash.
+///
+/// Flutter is responsible for computing `struct_hash_hex`. This function:
+/// 1. Computes the domain separator
+/// 2. Assembles the final EIP-712 hash
+/// 3. Recovers the signer and compares against `expected_signer`
+///
+/// Returns `true` if the signature matches `expected_signer`.
+#[frb]
+pub fn eip712_verify(
+    domain_name: String,
+    domain_version: String,
+    chain_id: u64,
+    verifying_contract: Option<String>,
+    struct_hash_hex: String,
+    signature_hex: String,
+    expected_signer: String,
+) -> Result<bool, String> {
+    let domain = parse_eip712_domain(&domain_name, &domain_version, chain_id, verifying_contract.as_deref())?;
+
+    let sh_hex = struct_hash_hex.strip_prefix("0x").unwrap_or(&struct_hash_hex);
+    let sh_bytes = hex::decode(sh_hex).map_err(|e| format!("Invalid struct_hash_hex: {}", e))?;
+    if sh_bytes.len() != 32 {
+        return Err(format!("struct_hash must be 32 bytes, got {}", sh_bytes.len()));
+    }
+    let mut struct_hash = [0u8; 32];
+    struct_hash.copy_from_slice(&sh_bytes);
+
+    let domain_sep = domain.domain_separator();
+    let mut buf = [0u8; 66];
+    buf[0] = 0x19;
+    buf[1] = 0x01;
+    buf[2..34].copy_from_slice(&domain_sep);
+    buf[34..66].copy_from_slice(&struct_hash);
+    use khodpay_signing::eip712::keccak256 as eip712_keccak256;
+    let final_hash = eip712_keccak256(&buf);
+
+    let sig_str = signature_hex.strip_prefix("0x").unwrap_or(&signature_hex);
+    let sig_bytes = hex::decode(sig_str).map_err(|e| format!("Invalid signature hex: {}", e))?;
+    let sig = RustSignature::from_bytes(&sig_bytes)
+        .ok_or_else(|| "Invalid signature (expected 65 bytes)".to_string())?;
+
+    let expected = RustAddress::from_str(&expected_signer)
+        .map_err(|e| format!("Invalid expected_signer address: {}", e))?;
+
+    let recovered = rust_recover_signer(&final_hash, &sig)
+        .map_err(|e| format!("Signature recovery failed: {}", e))?;
+
+    Ok(recovered == expected)
 }
 
 /// Business-side: sign a WPGP PaymentIntent with EIP-712.
