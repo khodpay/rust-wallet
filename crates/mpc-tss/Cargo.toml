@@ -1,0 +1,37 @@
+[package]
+name = "khodpay-mpc-tss"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.81"
+authors = ["KhodPay Team"]
+description = "2-of-2 threshold ECDSA (CGGMP21) engine for secp256k1/EVM — device-side key share, DKG, signing, and resharing"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/khodpay/khodpay-wallet"
+keywords = ["mpc", "threshold-signatures", "tss", "ecdsa", "ethereum"]
+categories = ["cryptography"]
+
+[dependencies]
+# Threshold ECDSA protocol — CGGMP21, secp256k1 curve
+cggmp21 = { version = "=0.6.3", features = ["curve-secp256k1"] }
+
+# Error handling
+thiserror = "1.0"
+
+# Memory-safe zeroing of secret material
+zeroize = { version = "1.7", features = ["derive"] }
+
+# Serialisation of device share (opaque blob)
+serde = { version = "1.0", features = ["derive"] }
+
+# secp256k1 operations + ECDSA verification
+k256 = { version = "0.13", features = ["ecdsa"] }
+
+# CSPRNG — matches the rand version pulled in by cggmp21
+rand = { version = "0.8", features = ["std"] }
+
+# Session ID generation
+uuid = { version = "1", features = ["v4"] }
+
+[dev-dependencies]
+# For round-trip serialisation tests
+serde_json = "1.0"
