@@ -32,6 +32,14 @@ rand = { version = "0.8", features = ["std"] }
 # Session ID generation
 uuid = { version = "1", features = ["v4"] }
 
+[dependencies.sha3]
+version = "0.10"
+
+[dependencies.serde_json]
+version = "1.0"
+
 [dev-dependencies]
-# For round-trip serialisation tests
-serde_json = "1.0"
+# For 2-party DKG/signing simulation in unit tests (no real network needed)
+round-based = { version = "0.4.1", features = ["sim"] }
+# sha2 is a transitive dep of cggmp21; make it explicit for test code
+sha2 = "0.10"

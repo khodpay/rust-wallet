@@ -46,10 +46,13 @@
 #![warn(rustdoc::broken_intra_doc_links)]
 #![deny(unsafe_code)]
 
+pub mod address;
+mod dkg;
 mod error;
 mod session;
 mod share;
 
+pub use dkg::{DkgOutput, DkgSession};
 pub use error::{MpcError, Result};
 pub use session::{MpcSession, RoundPayload, SessionState};
 pub use share::DeviceShare;
