@@ -24,18 +24,21 @@
 //! and [`zeroize::ZeroizeOnDrop`].  `Debug` impls for such types output
 //! `[REDACTED]` — bytes are never written to logs at any log level.
 //!
-//! ## Usage (scaffold — Task 01)
-//!
-//! Right now only the foundation types are available:
+//! ## Usage
 //!
 //! ```
-//! use khodpay_mpc_tss::{DeviceShare, MpcError};
+//! use khodpay_mpc_tss::{DeviceShare, MpcError, MpcSession, SessionState};
 //!
 //! // Construct a share from stored bytes.
-//! let bytes: &[u8] = &[/* ... secure-storage bytes ... */
-//!     0x01, 0x02, 0x03];
+//! let bytes: &[u8] = &[0x01, 0x02, 0x03];
 //! let share = DeviceShare::from_bytes(bytes)?;
 //! assert_eq!(share.to_bytes(), bytes);
+//!
+//! // Create a session and drive it through a round.
+//! let mut session = MpcSession::new();
+//! assert!(matches!(session.state(), SessionState::Pending));
+//! session.advance_round(1)?;
+//! assert!(matches!(session.state(), SessionState::InProgress { round: 1 }));
 //! # Ok::<(), MpcError>(())
 //! ```
 
@@ -44,7 +47,9 @@
 #![deny(unsafe_code)]
 
 mod error;
+mod session;
 mod share;
 
 pub use error::{MpcError, Result};
+pub use session::{MpcSession, RoundPayload, SessionState};
 pub use share::DeviceShare;

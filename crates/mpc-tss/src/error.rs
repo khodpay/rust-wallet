@@ -22,7 +22,7 @@ use thiserror::Error;
 /// Implements [`std::error::Error`], [`std::fmt::Display`], [`Send`], and
 /// [`Sync`] so it is safe to propagate across thread boundaries and wrap with
 /// `anyhow` or similar.
-#[derive(Debug, Error)]
+#[derive(Debug, Clone, Error)]
 pub enum MpcError {
     /// The distributed key-generation ceremony failed.
     ///
