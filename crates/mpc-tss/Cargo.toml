@@ -10,9 +10,23 @@ repository = "https://github.com/khodpay/khodpay-wallet"
 keywords = ["mpc", "threshold-signatures", "tss", "ecdsa", "ethereum"]
 categories = ["cryptography"]
 
+[features]
+# Exposes in-process ceremony helpers (run_local, trusted_dealer, etc.) for
+# integration tests in other crates (e.g. crates/flutter_bridge).
+# Never enable this feature in production builds.
+test-utils = ["cggmp21/spof", "dep:round-based", "dep:sha2"]
+
 [dependencies]
 # Threshold ECDSA protocol — CGGMP21, secp256k1 curve
 cggmp21 = { version = "=0.6.3", features = ["curve-secp256k1"] }
+
+# gmp-mpfr-sys is a transitive dep via cggmp21 → fast-paillier → rug.
+# The `force-cross` feature is required to cross-compile to iOS/Android.
+gmp-mpfr-sys = { version = "=1.7.1", features = ["force-cross"] }
+
+# Optional: needed only when test-utils feature is enabled
+round-based = { version = "0.4.1", features = ["sim"], optional = true }
+sha2 = { version = "0.10", optional = true }
 
 # Error handling
 thiserror = "1.0"
@@ -39,9 +53,5 @@ version = "0.10"
 version = "1.0"
 
 [dev-dependencies]
-# For 2-party DKG/signing simulation in unit tests (no real network needed)
-round-based = { version = "0.4.1", features = ["sim"] }
-# sha2 is a transitive dep of cggmp21; make it explicit for test code
-sha2 = "0.10"
 # spof feature enables trusted_dealer for test key generation (generates full KeyShare with AuxInfo)
 cggmp21 = { version = "=0.6.3", features = ["curve-secp256k1", "spof"] }

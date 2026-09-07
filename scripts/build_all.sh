@@ -12,6 +12,12 @@ echo -e "${BLUE}║  KhodPay Wallet - Complete Build Process                    
 echo -e "${BLUE}╚══════════════════════════════════════════════════════════════╝${NC}"
 echo ""
 
+# Step 0: Populate GMP/MPFR/MPC cross-compile cache (skipped if already cached)
+echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${YELLOW}🔧 Step 0/4: Populating GMP cross-compile cache...${NC}"
+echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+./scripts/build_gmp_cache.sh
+
 # Step 1: Generate bridge code
 echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e "${YELLOW}📝 Step 1/4: Generating bridge code...${NC}"

@@ -3,6 +3,13 @@
 //! This module provides both Object-Oriented (struct wrappers) and
 //! Procedural (utility functions) APIs for Flutter integration.
 
+// Re-export MPC bridge types so flutter_rust_bridge_codegen discovers them
+// when it scans this file as the primary bridge entry point.
+pub use crate::mpc::{
+    MpcDkgAdvanceResult, MpcDkgSession, MpcReshareAdvanceResult, MpcReshareSession,
+    MpcSigningAdvanceResult, MpcSigningSession,
+};
+
 use flutter_rust_bridge::frb;
 use khodpay_bip32::{
     ChildNumber, DerivationPath, ExtendedPrivateKey as RustExtendedPrivateKey,

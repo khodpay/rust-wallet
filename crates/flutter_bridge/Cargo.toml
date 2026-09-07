@@ -9,7 +9,7 @@ description = "Flutter Rust Bridge for KhodPay Wallet"
 repository = "https://github.com/khodpay/rust-wallet"
 
 [lib]
-crate-type = ["cdylib", "staticlib"]  # For Flutter FFI
+crate-type = ["cdylib", "staticlib", "rlib"]  # cdylib/staticlib for Flutter FFI; rlib for integration tests
 name = "khodpay_flutter_bridge"
 
 [dependencies]
@@ -21,6 +21,7 @@ khodpay-bip32 = { version = "0.2.0", path = "../bip32" }
 khodpay-bip39 = { version = "0.4.0", path = "../bip39" }
 khodpay-bip44 = { version = "0.1.0", path = "../bip44" }
 khodpay-signing = { version = "0.2.0", path = "../khodpay-signing", features = ["erc4337"] }
+khodpay-mpc-tss = { version = "0.1.0", path = "../mpc-tss" }
 
 # Optional: For serializable structs
 serde = { version = "1", features = ["derive"] }
@@ -33,6 +34,14 @@ getrandom = "0.2"
 
 # Hex encoding
 hex = "0.4"
+
+[dev-dependencies]
+# Enables run_local / trusted_dealer helpers for the MPC integration test
+khodpay-mpc-tss = { version = "0.1.0", path = "../mpc-tss", features = ["test-utils"] }
+# For 2-party ceremony simulation (pulled in transitively via test-utils, but explicit here for clarity)
+cggmp21 = { version = "=0.6.3", features = ["curve-secp256k1", "spof"] }
+# For serialising KeyShare → DeviceShare bytes in integration tests
+serde_json = "1.0"
 
 [profile.release]
 opt-level = 3          # Maximum optimizations

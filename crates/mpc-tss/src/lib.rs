@@ -54,6 +54,31 @@ mod session;
 mod share;
 mod signing;
 
+// Expose submodules publicly when the `test-utils` feature is active so that
+// integration tests in other crates (e.g. `crates/flutter_bridge`) can reach
+// the in-process ceremony helpers (`run_local`, `run_two_party_*`).
+/// Re-exports of signing ceremony helpers for use in external integration tests.
+///
+/// Only available with the `test-utils` feature — never enable in production.
+#[cfg(feature = "test-utils")]
+pub mod signing_test_utils {
+    pub use super::signing::*;
+}
+/// Re-exports of resharing ceremony helpers for use in external integration tests.
+///
+/// Only available with the `test-utils` feature — never enable in production.
+#[cfg(feature = "test-utils")]
+pub mod resharing_test_utils {
+    pub use super::resharing::*;
+}
+/// Re-exports of DKG ceremony helpers for use in external integration tests.
+///
+/// Only available with the `test-utils` feature — never enable in production.
+#[cfg(feature = "test-utils")]
+pub mod dkg_test_utils {
+    pub use super::dkg::*;
+}
+
 pub use dkg::{DkgOutput, DkgSession};
 pub use error::{MpcError, Result};
 pub use resharing::{ReshareOutput, ReshareSession};

@@ -23,15 +23,15 @@
 
 use crate::{session::MpcSession, share::DeviceShare};
 
-#[cfg(test)]
-use cggmp21::{supported_curves::Secp256k1, ExecutionId, IncompleteKeyShare};
-#[cfg(test)]
-use rand::rngs::OsRng;
-#[cfg(test)]
+#[cfg(any(test, feature = "test-utils"))]
 use crate::{
     address::evm_address_from_public_key,
     error::{MpcError, Result},
 };
+#[cfg(any(test, feature = "test-utils"))]
+use cggmp21::{supported_curves::Secp256k1, ExecutionId, IncompleteKeyShare};
+#[cfg(any(test, feature = "test-utils"))]
+use rand::rngs::OsRng;
 
 // ─── Result types ────────────────────────────────────────────────────────────
 
@@ -92,8 +92,8 @@ impl DkgSession {
     ///
     /// Returns [`MpcError::DkgFailed`] if the protocol fails or if the resulting
     /// share cannot be serialised.
-    #[cfg(test)]
-    pub(crate) fn run_local(&mut self) -> Result<DkgOutput> {
+    #[cfg(any(test, feature = "test-utils"))]
+    pub fn run_local(&mut self) -> Result<DkgOutput> {
         // Transition: Pending → InProgress { round: 1 }
         self.inner.advance_round(1)?;
 
@@ -107,14 +107,13 @@ impl DkgSession {
                     e
                 })?;
 
-                let share_bytes =
-                    serde_json::to_vec(&device_incomplete_share).map_err(|e| {
-                        let err = MpcError::ShareDeserializationError {
-                            reason: format!("failed to serialise device share: {e}"),
-                        };
-                        let _ = self.inner.fail(err.clone());
-                        err
-                    })?;
+                let share_bytes = serde_json::to_vec(&device_incomplete_share).map_err(|e| {
+                    let err = MpcError::ShareDeserializationError {
+                        reason: format!("failed to serialise device share: {e}"),
+                    };
+                    let _ = self.inner.fail(err.clone());
+                    err
+                })?;
 
                 let device_share = DeviceShare::from_bytes(&share_bytes)?;
                 self.inner.complete()?;
@@ -156,9 +155,9 @@ impl std::fmt::Debug for DkgSession {
 ///
 /// Returns `(party_0_share, party_1_share)` on success.
 ///
-/// Available in tests only — production transport is handled by the Flutter bridge.
-#[cfg(test)]
-pub(crate) fn run_two_party_dkg(
+/// Available in tests and when the `test-utils` feature is enabled.
+#[cfg(any(test, feature = "test-utils"))]
+pub fn run_two_party_dkg(
     execution_id_str: &str,
 ) -> std::result::Result<
     (IncompleteKeyShare<Secp256k1>, IncompleteKeyShare<Secp256k1>),
@@ -178,7 +177,11 @@ pub(crate) fn run_two_party_dkg(
     let results = round_based::sim::run::<Msg, _>(2, |i, party| {
         let eid = ExecutionId::new(&eid_bytes);
         let mut rng = OsRng;
-        async move { cggmp21::keygen::<Secp256k1>(eid, i, 2).start(&mut rng, party).await }
+        async move {
+            cggmp21::keygen::<Secp256k1>(eid, i, 2)
+                .start(&mut rng, party)
+                .await
+        }
     })
     .unwrap_or_else(|e| panic!("round_based sim infrastructure failed: {e}"));
 
@@ -327,8 +330,7 @@ mod tests {
 
     #[test]
     fn test_both_shares_have_same_public_key() {
-        let (dev, srv) =
-            run_two_party_dkg("test-both-shares-same-pk").expect("DKG must succeed");
+        let (dev, srv) = run_two_party_dkg("test-both-shares-same-pk").expect("DKG must succeed");
         assert_eq!(
             dev.shared_public_key(),
             srv.shared_public_key(),
@@ -338,8 +340,7 @@ mod tests {
 
     #[test]
     fn test_device_and_server_have_different_party_indices() {
-        let (dev, srv) =
-            run_two_party_dkg("test-different-indices").expect("DKG must succeed");
+        let (dev, srv) = run_two_party_dkg("test-different-indices").expect("DKG must succeed");
         assert_eq!(dev.i, 0);
         assert_eq!(srv.i, 1);
         assert_ne!(dev.i, srv.i);
@@ -351,8 +352,7 @@ mod tests {
             run_two_party_dkg("test-public-commitments-differ").expect("DKG must succeed");
         // Each party's commitment to their own secret share must be distinct
         assert_ne!(
-            dev.public_shares[0],
-            srv.public_shares[1],
+            dev.public_shares[0], srv.public_shares[1],
             "party public commitments must be distinct"
         );
     }

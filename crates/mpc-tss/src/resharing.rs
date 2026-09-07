@@ -110,8 +110,8 @@ impl ReshareSession {
     ///
     /// Returns [`crate::MpcError::ResharingFailed`] if the protocol fails or
     /// if the resulting share cannot be serialised.
-    #[cfg(test)]
-    pub(crate) fn run_local(
+    #[cfg(any(test, feature = "test-utils"))]
+    pub fn run_local(
         &mut self,
         key_shares: &[cggmp21::KeyShare<cggmp21::supported_curves::Secp256k1>],
     ) -> crate::error::Result<ReshareOutput> {
@@ -127,14 +127,13 @@ impl ReshareSession {
 
                 // Serialise the refreshed IncompleteKeyShare (core) so it can
                 // be stored as a DeviceShare byte blob, mirroring the DKG path.
-                let share_bytes =
-                    serde_json::to_vec(&new_device_ks.core).map_err(|e| {
-                        let err = MpcError::ResharingFailed {
-                            reason: format!("failed to serialise refreshed device share: {e}"),
-                        };
-                        let _ = self.inner.fail(err.clone());
-                        err
-                    })?;
+                let share_bytes = serde_json::to_vec(&new_device_ks.core).map_err(|e| {
+                    let err = MpcError::ResharingFailed {
+                        reason: format!("failed to serialise refreshed device share: {e}"),
+                    };
+                    let _ = self.inner.fail(err.clone());
+                    err
+                })?;
 
                 let new_device_share = DeviceShare::from_bytes(&share_bytes).map_err(|e| {
                     let _ = self.inner.fail(e.clone());
@@ -178,9 +177,9 @@ impl std::fmt::Debug for ReshareSession {
 /// Both parties supply their current [`cggmp21::KeyShare`] and receive a fresh
 /// one with the same joint public key.
 ///
-/// Available in tests only — production transport is the Flutter bridge's job.
-#[cfg(test)]
-pub(crate) fn run_two_party_key_refresh(
+/// Available in tests and when the `test-utils` feature is enabled.
+#[cfg(any(test, feature = "test-utils"))]
+pub fn run_two_party_key_refresh(
     key_shares: &[cggmp21::KeyShare<cggmp21::supported_curves::Secp256k1>],
 ) -> std::result::Result<
     Vec<cggmp21::KeyShare<cggmp21::supported_curves::Secp256k1>>,
@@ -193,7 +192,11 @@ pub(crate) fn run_two_party_key_refresh(
     use rand::rngs::OsRng;
     use sha3::{Digest, Sha3_256};
 
-    assert_eq!(key_shares.len(), 2, "need exactly 2 key shares for 2-of-2 refresh");
+    assert_eq!(
+        key_shares.len(),
+        2,
+        "need exactly 2 key shares for 2-of-2 refresh"
+    );
 
     // Derive a unique execution ID from the current shares' public key bytes
     // so each refresh ceremony has a distinct EID.
@@ -208,18 +211,13 @@ pub(crate) fn run_two_party_key_refresh(
     };
     let eid_bytes: [u8; 32] = Sha3_256::digest(pk_bytes).into();
 
-    type Msg = cggmp21::key_refresh::msg::non_threshold::Msg<
-        Secp256k1,
-        sha2::Sha256,
-        SecurityLevel128,
-    >;
+    type Msg =
+        cggmp21::key_refresh::msg::non_threshold::Msg<Secp256k1, sha2::Sha256, SecurityLevel128>;
 
     // Pre-generate Paillier primes for each party.
     // This is slow in real usage; in tests it's acceptable.
-    let primes_0: PregeneratedPrimes<SecurityLevel128> =
-        PregeneratedPrimes::generate(&mut OsRng);
-    let primes_1: PregeneratedPrimes<SecurityLevel128> =
-        PregeneratedPrimes::generate(&mut OsRng);
+    let primes_0: PregeneratedPrimes<SecurityLevel128> = PregeneratedPrimes::generate(&mut OsRng);
+    let primes_1: PregeneratedPrimes<SecurityLevel128> = PregeneratedPrimes::generate(&mut OsRng);
     let primes = vec![primes_0, primes_1];
 
     let shares_clone = key_shares.to_vec();
@@ -253,7 +251,10 @@ pub(crate) fn run_two_party_key_refresh(
 mod tests {
     use super::*;
     use crate::{
-        signing::{run_two_party_signing, run_two_party_trusted_dealer, verify_signature_recovers_address, encode_signature_evm},
+        signing::{
+            encode_signature_evm, run_two_party_signing, run_two_party_trusted_dealer,
+            verify_signature_recovers_address,
+        },
         MpcError, SessionState,
     };
 
@@ -261,10 +262,9 @@ mod tests {
 
     /// Known 32-byte hash used as a fixed test vector.
     const TEST_HASH: [u8; 32] = [
-        0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe,
-        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-        0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
-        0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+        0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
+        0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15,
+        0x16, 0x17,
     ];
 
     // ─── ReshareSession lifecycle ─────────────────────────────────────────────
@@ -321,8 +321,8 @@ mod tests {
         let mut session = ReshareSession::new();
         let output = session.run_local(&shares).unwrap();
         let bytes = output.new_device_share.to_bytes().to_vec();
-        let restored = crate::share::DeviceShare::from_bytes(&bytes)
-            .expect("round-trip must succeed");
+        let restored =
+            crate::share::DeviceShare::from_bytes(&bytes).expect("round-trip must succeed");
         assert_eq!(output.new_device_share, restored);
     }
 
@@ -336,15 +336,13 @@ mod tests {
         let (old_shares, wallet_address) = run_two_party_trusted_dealer();
 
         // Run resharing to get new KeyShares.
-        let new_shares =
-            run_two_party_key_refresh(&old_shares).expect("key refresh must succeed");
+        let new_shares = run_two_party_key_refresh(&old_shares).expect("key refresh must succeed");
 
         // Sign with the new shares.
-        let raw_sig =
-            run_two_party_signing(&new_shares, TEST_HASH).expect("signing with new shares must succeed");
-        let sig_bytes =
-            encode_signature_evm(&raw_sig, &wallet_address, TEST_HASH)
-                .expect("signature encoding must succeed");
+        let raw_sig = run_two_party_signing(&new_shares, TEST_HASH)
+            .expect("signing with new shares must succeed");
+        let sig_bytes = encode_signature_evm(&raw_sig, &wallet_address, TEST_HASH)
+            .expect("signature encoding must succeed");
 
         assert!(
             verify_signature_recovers_address(&sig_bytes, TEST_HASH, &wallet_address),
@@ -358,8 +356,7 @@ mod tests {
     fn test_wallet_address_unchanged_after_reshare() {
         let (old_shares, wallet_address) = run_two_party_trusted_dealer();
 
-        let new_shares =
-            run_two_party_key_refresh(&old_shares).expect("key refresh must succeed");
+        let new_shares = run_two_party_key_refresh(&old_shares).expect("key refresh must succeed");
 
         // Derive the address from the new device share's public key.
         let new_pk = new_shares[0].core.shared_public_key;
@@ -377,12 +374,10 @@ mod tests {
     #[test]
     fn test_both_parties_agree_on_public_key_after_reshare() {
         let (old_shares, _) = run_two_party_trusted_dealer();
-        let new_shares =
-            run_two_party_key_refresh(&old_shares).expect("key refresh must succeed");
+        let new_shares = run_two_party_key_refresh(&old_shares).expect("key refresh must succeed");
 
         assert_eq!(
-            new_shares[0].core.shared_public_key,
-            new_shares[1].core.shared_public_key,
+            new_shares[0].core.shared_public_key, new_shares[1].core.shared_public_key,
             "both parties must agree on the joint public key after resharing"
         );
     }
@@ -399,8 +394,7 @@ mod tests {
     #[test]
     fn test_old_share_cannot_sign_after_reshare() {
         let (old_shares, wallet_address) = run_two_party_trusted_dealer();
-        let new_shares =
-            run_two_party_key_refresh(&old_shares).expect("key refresh must succeed");
+        let new_shares = run_two_party_key_refresh(&old_shares).expect("key refresh must succeed");
 
         // Mix: old device share (index 0) + new server share (index 1).
         // These are from different refresh epochs and must not produce a valid
@@ -417,8 +411,7 @@ mod tests {
                 // Protocol completed but signature must NOT verify.
                 // encode_signature_evm itself will fail (can't find matching
                 // recovery ID), or the signature will recover to a wrong address.
-                let sig_result =
-                    encode_signature_evm(&raw_sig, &wallet_address, TEST_HASH);
+                let sig_result = encode_signature_evm(&raw_sig, &wallet_address, TEST_HASH);
                 match sig_result {
                     Ok(sig_bytes) => {
                         assert!(
@@ -453,8 +446,7 @@ mod tests {
         let old_device_bytes =
             serde_json::to_vec(&old_shares[0].core).expect("serialisation must succeed");
 
-        let new_shares =
-            run_two_party_key_refresh(&old_shares).expect("key refresh must succeed");
+        let new_shares = run_two_party_key_refresh(&old_shares).expect("key refresh must succeed");
 
         let new_device_bytes =
             serde_json::to_vec(&new_shares[0].core).expect("serialisation must succeed");
@@ -486,6 +478,9 @@ mod tests {
         let mut session = ReshareSession::new();
         let output = session.run_local(&shares).unwrap();
         let debug = format!("{output:?}");
-        assert!(debug.contains("REDACTED"), "ReshareOutput debug must be redacted");
+        assert!(
+            debug.contains("REDACTED"),
+            "ReshareOutput debug must be redacted"
+        );
     }
 }

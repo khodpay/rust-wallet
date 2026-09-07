@@ -91,8 +91,8 @@ impl SigningSession {
     ///
     /// Returns [`crate::MpcError::SigningFailed`] if the protocol fails or
     /// if the produced signature does not recover to `wallet_address`.
-    #[cfg(test)]
-    pub(crate) fn run_local(
+    #[cfg(any(test, feature = "test-utils"))]
+    pub fn run_local(
         &mut self,
         key_shares: &[cggmp21::KeyShare<cggmp21::supported_curves::Secp256k1>],
         wallet_address: &str,
@@ -151,28 +151,32 @@ impl std::fmt::Debug for SigningSession {
 ///
 /// Returns [`crate::MpcError::SigningFailed`] if neither recovery ID produces
 /// the expected address (should never happen for a correctly-produced signature).
-#[cfg(test)]
-pub(crate) fn encode_signature_evm(
+#[cfg(any(test, feature = "test-utils"))]
+pub fn encode_signature_evm(
     sig: &cggmp21::Signature<cggmp21::supported_curves::Secp256k1>,
     expected_address: &str,
     tx_hash: [u8; 32],
 ) -> crate::error::Result<[u8; 65]> {
     use crate::error::MpcError;
-    use k256::{
-        ecdsa::{RecoveryId, Signature as K256Sig, VerifyingKey},
-    };
+    use k256::ecdsa::{RecoveryId, Signature as K256Sig, VerifyingKey};
 
     // Extract r and s from the cggmp21 Signature.
     // generic_ec Scalar::to_be_bytes() returns EncodedScalar which implements
     // AsRef<[u8]> — copy into a fixed [u8; 32] array.
     let r_enc = sig.r.to_be_bytes();
     let s_enc = sig.s.to_be_bytes();
-    let r_bytes: [u8; 32] = r_enc.as_ref().try_into().map_err(|_| MpcError::SigningFailed {
-        reason: "r scalar is not 32 bytes".into(),
-    })?;
-    let s_bytes: [u8; 32] = s_enc.as_ref().try_into().map_err(|_| MpcError::SigningFailed {
-        reason: "s scalar is not 32 bytes".into(),
-    })?;
+    let r_bytes: [u8; 32] = r_enc
+        .as_ref()
+        .try_into()
+        .map_err(|_| MpcError::SigningFailed {
+            reason: "r scalar is not 32 bytes".into(),
+        })?;
+    let s_bytes: [u8; 32] = s_enc
+        .as_ref()
+        .try_into()
+        .map_err(|_| MpcError::SigningFailed {
+            reason: "s scalar is not 32 bytes".into(),
+        })?;
 
     // Build a k256 compact signature from r||s bytes.
     // Use from_slice to avoid the low-S normalisation that from_scalars applies,
@@ -188,8 +192,7 @@ pub(crate) fn encode_signature_evm(
     for v in [0u8, 1u8] {
         let recid = RecoveryId::try_from(v).expect("v is 0 or 1");
 
-        let Ok(verifying_key) =
-            VerifyingKey::recover_from_prehash(&tx_hash, &k256_sig, recid)
+        let Ok(verifying_key) = VerifyingKey::recover_from_prehash(&tx_hash, &k256_sig, recid)
         else {
             continue;
         };
@@ -255,7 +258,9 @@ pub fn verify_signature_recovers_address(
     use k256::ecdsa::{RecoveryId, Signature as K256Sig, VerifyingKey};
 
     let r: [u8; 32] = signature[..32].try_into().expect("sig[..32] is 32 bytes");
-    let s: [u8; 32] = signature[32..64].try_into().expect("sig[32..64] is 32 bytes");
+    let s: [u8; 32] = signature[32..64]
+        .try_into()
+        .expect("sig[32..64] is 32 bytes");
     let v = signature[64];
 
     let Ok(k256_sig) = K256Sig::from_slice(&{
@@ -285,8 +290,8 @@ pub fn verify_signature_recovers_address(
 /// Both must be complete [`cggmp21::KeyShare`]s (with aux info).
 ///
 /// Returns the raw `cggmp21::Signature` on success.
-#[cfg(test)]
-pub(crate) fn run_two_party_signing(
+#[cfg(any(test, feature = "test-utils"))]
+pub fn run_two_party_signing(
     key_shares: &[cggmp21::KeyShare<cggmp21::supported_curves::Secp256k1>],
     tx_hash: [u8; 32],
 ) -> std::result::Result<
@@ -341,8 +346,8 @@ pub(crate) fn run_two_party_signing(
 ///
 /// Only for tests — the trusted dealer reconstructs the full private key
 /// internally, which is why it's gated behind the `spof` feature.
-#[cfg(test)]
-pub(crate) fn run_two_party_trusted_dealer() -> (
+#[cfg(any(test, feature = "test-utils"))]
+pub fn run_two_party_trusted_dealer() -> (
     Vec<cggmp21::KeyShare<cggmp21::supported_curves::Secp256k1>>,
     String, // wallet address
 ) {
@@ -372,16 +377,16 @@ mod tests {
 
     /// Known 32-byte hash used as a fixed test vector.
     const TEST_HASH: [u8; 32] = [
-        0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05,
-        0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13,
-        0x14, 0x15, 0x16, 0x17,
+        0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
+        0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15,
+        0x16, 0x17,
     ];
 
     /// A different 32-byte hash — must produce a different signature.
     const OTHER_HASH: [u8; 32] = [
-        0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee,
-        0xff, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c,
-        0x0d, 0x0e, 0x0f, 0x10,
+        0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff,
+        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e,
+        0x0f, 0x10,
     ];
 
     fn setup() -> (
@@ -537,8 +542,16 @@ mod tests {
         let out2 = s2.run_local(&shares, &addr, TEST_HASH).unwrap();
 
         // Both must verify.
-        assert!(verify_signature_recovers_address(&out1.signature, TEST_HASH, &addr));
-        assert!(verify_signature_recovers_address(&out2.signature, TEST_HASH, &addr));
+        assert!(verify_signature_recovers_address(
+            &out1.signature,
+            TEST_HASH,
+            &addr
+        ));
+        assert!(verify_signature_recovers_address(
+            &out2.signature,
+            TEST_HASH,
+            &addr
+        ));
     }
 
     // ─── Cross-session isolation ──────────────────────────────────────────────

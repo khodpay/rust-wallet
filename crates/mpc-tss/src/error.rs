@@ -114,9 +114,7 @@ impl PartialEq for MpcError {
             (MpcError::ResharingFailed { reason: a }, MpcError::ResharingFailed { reason: b }) => {
                 a == b
             }
-            (MpcError::InvalidShare { reason: a }, MpcError::InvalidShare { reason: b }) => {
-                a == b
-            }
+            (MpcError::InvalidShare { reason: a }, MpcError::InvalidShare { reason: b }) => a == b,
             (
                 MpcError::ProtocolViolation { reason: a },
                 MpcError::ProtocolViolation { reason: b },
@@ -205,44 +203,29 @@ mod tests {
         let e = MpcError::ShareDeserializationError {
             reason: "invalid cbor".into(),
         };
-        assert_eq!(
-            e.to_string(),
-            "share deserialisation error: invalid cbor"
-        );
+        assert_eq!(e.to_string(), "share deserialisation error: invalid cbor");
     }
 
     // ── PartialEq / Eq ──────────────────────────────────────────────────────
 
     #[test]
     fn test_eq_same_variant_same_data() {
-        let a = MpcError::DkgFailed {
-            reason: "x".into(),
-        };
-        let b = MpcError::DkgFailed {
-            reason: "x".into(),
-        };
+        let a = MpcError::DkgFailed { reason: "x".into() };
+        let b = MpcError::DkgFailed { reason: "x".into() };
         assert_eq!(a, b);
     }
 
     #[test]
     fn test_eq_same_variant_different_data() {
-        let a = MpcError::DkgFailed {
-            reason: "x".into(),
-        };
-        let b = MpcError::DkgFailed {
-            reason: "y".into(),
-        };
+        let a = MpcError::DkgFailed { reason: "x".into() };
+        let b = MpcError::DkgFailed { reason: "y".into() };
         assert_ne!(a, b);
     }
 
     #[test]
     fn test_eq_different_variants() {
-        let a = MpcError::DkgFailed {
-            reason: "x".into(),
-        };
-        let b = MpcError::SigningFailed {
-            reason: "x".into(),
-        };
+        let a = MpcError::DkgFailed { reason: "x".into() };
+        let b = MpcError::SigningFailed { reason: "x".into() };
         assert_ne!(a, b);
     }
 
@@ -298,28 +281,16 @@ mod tests {
     #[test]
     fn test_all_variants_eq_reflexive() {
         let variants: Vec<MpcError> = vec![
-            MpcError::DkgFailed {
-                reason: "r".into(),
-            },
-            MpcError::SigningFailed {
-                reason: "r".into(),
-            },
-            MpcError::ResharingFailed {
-                reason: "r".into(),
-            },
-            MpcError::InvalidShare {
-                reason: "r".into(),
-            },
-            MpcError::ProtocolViolation {
-                reason: "r".into(),
-            },
+            MpcError::DkgFailed { reason: "r".into() },
+            MpcError::SigningFailed { reason: "r".into() },
+            MpcError::ResharingFailed { reason: "r".into() },
+            MpcError::InvalidShare { reason: "r".into() },
+            MpcError::ProtocolViolation { reason: "r".into() },
             MpcError::NetworkRoundFailed {
                 round: 0,
                 reason: "r".into(),
             },
-            MpcError::ShareDeserializationError {
-                reason: "r".into(),
-            },
+            MpcError::ShareDeserializationError { reason: "r".into() },
         ];
         // Each variant equals a freshly constructed copy of itself
         for v in &variants {

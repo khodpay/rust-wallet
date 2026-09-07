@@ -24,8 +24,13 @@
 // Include the bridge module with our API definitions
 pub mod bridge;
 
+// MPC-TSS bridge bindings (DKG, signing, resharing)
+pub mod mpc;
+
 // Include the generated FFI code (must be public for FFI symbols to be exported)
 pub mod bridge_generated;
 
 // Re-export everything from bridge module for public API
 pub use bridge::*;
+// Re-export MPC types for public API
+pub use mpc::*;

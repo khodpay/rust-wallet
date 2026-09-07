@@ -16,3 +16,7 @@ rust-version = "1.81"
 # until CI runners are updated to Rust 1.85+
 [workspace.dependencies]
 base64ct = "=1.7.3"
+# gmp-mpfr-sys (transitive via cggmp21 → fast-paillier → rug) refuses cross-
+# compilation by default.  Declaring it here with `force-cross` propagates
+# that feature to all workspace members, enabling iOS/Android builds.
+gmp-mpfr-sys = { version = "=1.7.1", features = ["force-cross"] }
