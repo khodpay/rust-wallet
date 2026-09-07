@@ -397,16 +397,26 @@ mod tests {
     #[test]
     fn test_pending_to_in_progress_round_1() {
         let mut session = MpcSession::new();
-        session.advance_round(1).expect("advance_round(1) must succeed from Pending");
-        assert!(matches!(session.state(), SessionState::InProgress { round: 1 }));
+        session
+            .advance_round(1)
+            .expect("advance_round(1) must succeed from Pending");
+        assert!(matches!(
+            session.state(),
+            SessionState::InProgress { round: 1 }
+        ));
     }
 
     #[test]
     fn test_in_progress_round_advances() {
         let mut session = MpcSession::new();
         session.advance_round(1).unwrap();
-        session.advance_round(2).expect("advance_round(2) must succeed from InProgress");
-        assert!(matches!(session.state(), SessionState::InProgress { round: 2 }));
+        session
+            .advance_round(2)
+            .expect("advance_round(2) must succeed from InProgress");
+        assert!(matches!(
+            session.state(),
+            SessionState::InProgress { round: 2 }
+        ));
     }
 
     #[test]
@@ -424,7 +434,9 @@ mod tests {
     #[test]
     fn test_pending_to_complete() {
         let mut session = MpcSession::new();
-        session.complete().expect("complete() must succeed from Pending");
+        session
+            .complete()
+            .expect("complete() must succeed from Pending");
         assert!(session.is_complete());
         assert!(matches!(session.state(), SessionState::Complete));
     }
@@ -433,7 +445,9 @@ mod tests {
     fn test_in_progress_to_complete() {
         let mut session = MpcSession::new();
         session.advance_round(1).unwrap();
-        session.complete().expect("complete() must succeed from InProgress");
+        session
+            .complete()
+            .expect("complete() must succeed from InProgress");
         assert!(session.is_complete());
     }
 
@@ -468,9 +482,7 @@ mod tests {
     fn test_double_complete_returns_protocol_violation() {
         let mut session = MpcSession::new();
         session.complete().unwrap();
-        let err = session
-            .complete()
-            .expect_err("second complete() must fail");
+        let err = session.complete().expect_err("second complete() must fail");
         assert!(
             matches!(err, MpcError::ProtocolViolation { .. }),
             "expected ProtocolViolation, got: {:?}",

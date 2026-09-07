@@ -23,15 +23,17 @@
 
 use crate::{session::MpcSession, share::DeviceShare};
 
-#[cfg(test)]
-use cggmp21::{supported_curves::Secp256k1, ExecutionId, IncompleteKeyShare};
-#[cfg(test)]
-use rand::rngs::OsRng;
-#[cfg(test)]
+#[cfg(any(test, feature = "test-utils"))]
 use crate::{
     address::evm_address_from_public_key,
     error::{MpcError, Result},
 };
+#[cfg(any(test, feature = "test-utils"))]
+use cggmp21::{supported_curves::Secp256k1, ExecutionId, IncompleteKeyShare};
+#[cfg(any(test, feature = "test-utils"))]
+use rand::rngs::OsRng;
+#[cfg(any(test, feature = "test-utils"))]
+use zeroize::Zeroize;
 
 // ─── Result types ────────────────────────────────────────────────────────────
 
@@ -92,8 +94,8 @@ impl DkgSession {
     ///
     /// Returns [`MpcError::DkgFailed`] if the protocol fails or if the resulting
     /// share cannot be serialised.
-    #[cfg(test)]
-    pub(crate) fn run_local(&mut self) -> Result<DkgOutput> {
+    #[cfg(any(test, feature = "test-utils"))]
+    pub fn run_local(&mut self) -> Result<DkgOutput> {
         // Transition: Pending → InProgress { round: 1 }
         self.inner.advance_round(1)?;
 
@@ -101,13 +103,20 @@ impl DkgSession {
 
         match run_two_party_dkg(&session_id) {
             Ok((device_incomplete_share, _server_incomplete_share)) => {
+                // SECURITY AUDIT: both the device IncompleteKeyShare and the
+                // server IncompleteKeyShare are transiently in scope here.
+                // Neither is a usable private key on its own — CGGMP21 splits
+                // the secret across both parties.  The server share is
+                // immediately discarded (prefixed `_`); only the device share
+                // is retained and serialised into `DeviceShare`.
+                // No concatenation, XOR, or other combination of the two
+                // shares is performed anywhere in this function.
                 let joint_pk = device_incomplete_share.shared_public_key();
-                let wallet_address = evm_address_from_public_key(&joint_pk).map_err(|e| {
+                let wallet_address = evm_address_from_public_key(&joint_pk).inspect_err(|e| {
                     let _ = self.inner.fail(e.clone());
-                    e
                 })?;
 
-                let share_bytes =
+                let mut share_bytes =
                     serde_json::to_vec(&device_incomplete_share).map_err(|e| {
                         let err = MpcError::ShareDeserializationError {
                             reason: format!("failed to serialise device share: {e}"),
@@ -116,7 +125,15 @@ impl DkgSession {
                         err
                     })?;
 
+                // SECURITY: share_bytes is a heap-allocated copy of secret key
+                // material.  Zeroize it immediately after DeviceShare takes
+                // ownership of the bytes, so the plaintext does not linger in
+                // the allocator's freed pool.
+                // LINT: no tracing/log call may reference share_bytes or
+                // device_incomplete_share at any log level.
                 let device_share = DeviceShare::from_bytes(&share_bytes)?;
+                share_bytes.zeroize();
+
                 self.inner.complete()?;
 
                 Ok(DkgOutput {
@@ -156,9 +173,9 @@ impl std::fmt::Debug for DkgSession {
 ///
 /// Returns `(party_0_share, party_1_share)` on success.
 ///
-/// Available in tests only — production transport is handled by the Flutter bridge.
-#[cfg(test)]
-pub(crate) fn run_two_party_dkg(
+/// Available in tests and when the `test-utils` feature is enabled.
+#[cfg(any(test, feature = "test-utils"))]
+pub fn run_two_party_dkg(
     execution_id_str: &str,
 ) -> std::result::Result<
     (IncompleteKeyShare<Secp256k1>, IncompleteKeyShare<Secp256k1>),
@@ -178,7 +195,11 @@ pub(crate) fn run_two_party_dkg(
     let results = round_based::sim::run::<Msg, _>(2, |i, party| {
         let eid = ExecutionId::new(&eid_bytes);
         let mut rng = OsRng;
-        async move { cggmp21::keygen::<Secp256k1>(eid, i, 2).start(&mut rng, party).await }
+        async move {
+            cggmp21::keygen::<Secp256k1>(eid, i, 2)
+                .start(&mut rng, party)
+                .await
+        }
     })
     .unwrap_or_else(|e| panic!("round_based sim infrastructure failed: {e}"));
 
@@ -327,8 +348,7 @@ mod tests {
 
     #[test]
     fn test_both_shares_have_same_public_key() {
-        let (dev, srv) =
-            run_two_party_dkg("test-both-shares-same-pk").expect("DKG must succeed");
+        let (dev, srv) = run_two_party_dkg("test-both-shares-same-pk").expect("DKG must succeed");
         assert_eq!(
             dev.shared_public_key(),
             srv.shared_public_key(),
@@ -338,8 +358,7 @@ mod tests {
 
     #[test]
     fn test_device_and_server_have_different_party_indices() {
-        let (dev, srv) =
-            run_two_party_dkg("test-different-indices").expect("DKG must succeed");
+        let (dev, srv) = run_two_party_dkg("test-different-indices").expect("DKG must succeed");
         assert_eq!(dev.i, 0);
         assert_eq!(srv.i, 1);
         assert_ne!(dev.i, srv.i);
@@ -351,8 +370,7 @@ mod tests {
             run_two_party_dkg("test-public-commitments-differ").expect("DKG must succeed");
         // Each party's commitment to their own secret share must be distinct
         assert_ne!(
-            dev.public_shares[0],
-            srv.public_shares[1],
+            dev.public_shares[0], srv.public_shares[1],
             "party public commitments must be distinct"
         );
     }

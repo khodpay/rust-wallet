@@ -58,7 +58,9 @@ pub fn evm_address_from_public_key(pk: &NonZero<Point<Secp256k1>>) -> Result<Str
     let hash: [u8; 32] = Keccak256::digest(raw).into();
 
     // 4. Last 20 bytes.
-    let addr_bytes: [u8; 20] = hash[12..].try_into().expect("hash[12..] is exactly 20 bytes");
+    let addr_bytes: [u8; 20] = hash[12..]
+        .try_into()
+        .expect("hash[12..] is exactly 20 bytes");
 
     // 5. EIP-55 checksum encoding.
     Ok(eip55_checksum(&addr_bytes))
@@ -182,7 +184,8 @@ mod tests {
         use cggmp21::generic_ec::Point;
         // The secp256k1 generator G is NonZero<Point> — use it as a test public key
         let g: NonZero<Point<Secp256k1>> = Point::generator().into();
-        let addr = evm_address_from_public_key(&g).expect("generator point must produce an address");
+        let addr =
+            evm_address_from_public_key(&g).expect("generator point must produce an address");
         assert!(addr.starts_with("0x"), "address must start with 0x");
         assert_eq!(addr.len(), 42, "address must be 42 chars");
         // Every character after '0x' must be a hex digit (or uppercase letter for EIP-55)
@@ -214,7 +217,10 @@ mod tests {
         };
         let addr_g = evm_address_from_public_key(&g).unwrap();
         let addr_2g = evm_address_from_public_key(&two_g).unwrap();
-        assert_ne!(addr_g, addr_2g, "different public keys must yield different addresses");
+        assert_ne!(
+            addr_g, addr_2g,
+            "different public keys must yield different addresses"
+        );
     }
 
     /// Known-answer test: keccak256 of the secp256k1 generator's uncompressed
