@@ -1030,6 +1030,7 @@ dependencies = [
  "generic-ec",
  "generic-ec-zkp",
  "hex",
+ "rand_core",
  "serde",
  "serde_with 2.3.3",
  "thiserror 1.0.69",

@@ -51,8 +51,10 @@ mod dkg;
 mod error;
 mod session;
 mod share;
+mod signing;
 
 pub use dkg::{DkgOutput, DkgSession};
 pub use error::{MpcError, Result};
 pub use session::{MpcSession, RoundPayload, SessionState};
 pub use share::DeviceShare;
+pub use signing::{verify_signature_recovers_address, SigningOutput, SigningSession};

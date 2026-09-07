@@ -43,3 +43,5 @@ version = "1.0"
 round-based = { version = "0.4.1", features = ["sim"] }
 # sha2 is a transitive dep of cggmp21; make it explicit for test code
 sha2 = "0.10"
+# spof feature enables trusted_dealer for test key generation (generates full KeyShare with AuxInfo)
+cggmp21 = { version = "=0.6.3", features = ["curve-secp256k1", "spof"] }
