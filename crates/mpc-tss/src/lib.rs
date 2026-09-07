@@ -49,12 +49,14 @@
 pub mod address;
 mod dkg;
 mod error;
+mod resharing;
 mod session;
 mod share;
 mod signing;
 
 pub use dkg::{DkgOutput, DkgSession};
 pub use error::{MpcError, Result};
+pub use resharing::{ReshareOutput, ReshareSession};
 pub use session::{MpcSession, RoundPayload, SessionState};
 pub use share::DeviceShare;
 pub use signing::{verify_signature_recovers_address, SigningOutput, SigningSession};
