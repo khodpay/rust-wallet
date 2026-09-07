@@ -244,3 +244,156 @@ class WalletService {
 ---
 
 **See the full guide at:** `docs/FLUTTER_INTEGRATION_GUIDE.md`
+
+---
+
+## 🔐 MPC Wallet API (Threshold ECDSA)
+
+The MPC session types expose the 2-of-2 CGGMP21 threshold signing engine.
+The full private key is **never assembled** on either side.
+
+### Transport contract
+
+Each session type follows the same pattern:
+1. Call `create()` to get a session and its `firstRoundPayload`
+2. Send `firstRoundPayload` to the KhodPay signer server via gRPC
+3. Call `advance(serverPayload)` in a loop until `isComplete == true`
+
+---
+
+### `MpcDkgSession` — distributed key generation
+
+```dart
+// Start a DKG ceremony (generates a new MPC wallet address)
+final session = await MpcDkgSession.create();
+final sessionId = await session.sessionId();       // UUID v4 — forward to server
+final payload = await session.firstRoundPayload(); // bytes to send to server
+
+// Drive the ceremony round-by-round
+MpcDkgAdvanceResult result;
+do {
+  final serverBytes = await grpc.sendDkgRound(sessionId, payload);
+  result = await session.advance(serverBytes);
+} while (!result.isComplete);
+
+// Store the device share in SecureStorageService
+await secureStorage.write(
+  key: 'mpc_device_share_v1',
+  value: base64.encode(result.deviceShare!),
+);
+final walletAddress = result.walletAddress!; // EIP-55 checksummed
+```
+
+#### `MpcDkgSession` methods
+
+| Method | Signature | Description |
+|---|---|---|
+| `create` | `static Future<MpcDkgSession>` | Creates session, generates first-round payload |
+| `sessionId` | `Future<String>` | UUID v4 — forward to server for correlation |
+| `firstRoundPayload` | `Future<Uint8List>` | Opaque bytes for the first server round |
+| `advance` | `Future<MpcDkgAdvanceResult> Function(Uint8List serverPayload)` | Process one server response |
+
+#### `MpcDkgAdvanceResult` fields
+
+| Field | Type | Description |
+|---|---|---|
+| `isComplete` | `bool` | `true` when DKG finished |
+| `nextPayload` | `Uint8List?` | Forward to server if `!isComplete` |
+| `deviceShare` | `Uint8List?` | Opaque share bytes; store as `mpc_device_share_v1` |
+| `walletAddress` | `String?` | EIP-55 EVM address derived from joint public key |
+
+---
+
+### `MpcSigningSession` — threshold signing
+
+```dart
+// Sign a transaction hash using the stored device share
+final shareBytes = base64.decode(
+  await secureStorage.read(key: 'mpc_device_share_v1') ?? '',
+);
+final txHash = keccak256(encodedTransaction); // 32 bytes
+
+final session = await MpcSigningSession.create(
+  deviceShare: shareBytes,
+  txHash: txHash,
+);
+final sessionId = await session.sessionId();
+final payload = await session.firstRoundPayload();
+
+MpcSigningAdvanceResult result;
+do {
+  final serverBytes = await grpc.sendSigningRound(sessionId, payload);
+  result = await session.advance(serverBytes);
+} while (!result.isComplete);
+
+// 65-byte EVM signature: r (32) || s (32) || v (1), v = 0 or 1
+final signature = result.signature!;
+```
+
+#### `MpcSigningSession` methods
+
+| Method | Signature | Description |
+|---|---|---|
+| `create` | `static Future<MpcSigningSession> Function(Uint8List deviceShare, Uint8List txHash)` | Validates share + 32-byte hash, generates first payload |
+| `sessionId` | `Future<String>` | UUID v4 |
+| `firstRoundPayload` | `Future<Uint8List>` | session_id bytes ∥ tx_hash |
+| `advance` | `Future<MpcSigningAdvanceResult> Function(Uint8List serverPayload)` | Process one server response; 65-byte payload signals completion |
+
+#### `MpcSigningAdvanceResult` fields
+
+| Field | Type | Description |
+|---|---|---|
+| `isComplete` | `bool` | `true` when signing finished |
+| `nextPayload` | `Uint8List?` | Forward to server if `!isComplete` |
+| `signature` | `Uint8List?` | 65-byte EVM signature `r ∥ s ∥ v` |
+
+---
+
+### `MpcReshareSession` — device-loss recovery
+
+```dart
+// Issue a new device share (old share is invalidated server-side)
+// Server authorises this ceremony via Google ID token (server concern).
+final session = await MpcReshareSession.create();
+final sessionId = await session.sessionId();
+final payload = await session.firstRoundPayload();
+
+MpcReshareAdvanceResult result;
+do {
+  final serverBytes = await grpc.sendReshareRound(sessionId, payload);
+  result = await session.advance(serverBytes);
+} while (!result.isComplete);
+
+// Overwrite the old share — do NOT keep both
+await secureStorage.write(
+  key: 'mpc_device_share_v1',
+  value: base64.encode(result.newDeviceShare!),
+);
+// Wallet address is unchanged after resharing.
+```
+
+#### `MpcReshareSession` methods
+
+| Method | Signature | Description |
+|---|---|---|
+| `create` | `static Future<MpcReshareSession>` | Creates session, generates first-round payload |
+| `sessionId` | `Future<String>` | UUID v4 |
+| `firstRoundPayload` | `Future<Uint8List>` | Opaque bytes for the first server round |
+| `advance` | `Future<MpcReshareAdvanceResult> Function(Uint8List serverPayload)` | Process one server response |
+
+#### `MpcReshareAdvanceResult` fields
+
+| Field | Type | Description |
+|---|---|---|
+| `isComplete` | `bool` | `true` when resharing finished |
+| `nextPayload` | `Uint8List?` | Forward to server if `!isComplete` |
+| `newDeviceShare` | `Uint8List?` | New opaque share bytes; overwrite `mpc_device_share_v1` |
+
+---
+
+### SecureStorage key reference
+
+| Key | Written by | Content |
+|---|---|---|
+| `mpc_device_share_v1` | DKG completion, Reshare completion | Opaque device-side key share bytes |
+

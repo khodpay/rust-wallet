@@ -39,7 +39,7 @@ use crate::session::MpcSession;
 
 /// The output of a completed resharing ceremony on the device side.
 ///
-/// Returned by [`ReshareSession::run_local`].  Store
+/// Returned by `ReshareSession::run_local`.  Store
 /// [`ReshareOutput::new_device_share`] in `SecureStorageService` under the key
 /// `mpc_device_share_v1`, overwriting the previous entry.  The old share is
 /// now useless — the server will reject any signing request that uses it.
@@ -67,7 +67,7 @@ impl std::fmt::Debug for ReshareOutput {
 /// Wraps an [`MpcSession`] for lifecycle management.  After construction the
 /// session is in [`crate::SessionState::Pending`].
 ///
-/// Call [`ReshareSession::run_local`] (in tests / bridge integration) to drive
+/// Call `ReshareSession::run_local` (in tests / bridge integration) to drive
 /// the full ceremony in-process.  The production round-trip transport to the
 /// KhodPay signer server is added in Task 06.
 pub struct ReshareSession {

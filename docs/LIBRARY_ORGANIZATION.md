@@ -1,5 +1,18 @@
 # Library Organization for Git
 
+## 📚 Workspace Crates
+
+| Crate | Path | Description |
+|---|---|---|
+| `khodpay-bip39` | `crates/bip39` | BIP-39 mnemonic generation, validation, and seed derivation |
+| `khodpay-bip32` | `crates/bip32` | BIP-32 HD key derivation (extended private/public keys, derivation paths) |
+| `khodpay-bip44` | `crates/bip44` | BIP-44 multi-account wallet (coin types, account/chain/address derivation) |
+| `khodpay-signing` | `crates/khodpay-signing` | EVM transaction signing, EIP-1559, EIP-712, ERC-4337 (BIP-44 key path) |
+| `khodpay-mpc-tss` | `crates/mpc-tss` | 2-of-2 threshold ECDSA engine (CGGMP21/secp256k1): DKG, signing, resharing. No mnemonic involved; secret key is split across device and server — never assembled in full |
+| `khodpay-flutter-bridge` | `crates/flutter_bridge` | `flutter_rust_bridge` bindings exposing all of the above to Dart/Flutter |
+
+---
+
 ## 🎯 Overview
 
 After building, libraries are automatically organized into `build/libs/` with intermediate build artifacts removed. This keeps the repository clean while providing all necessary files for Flutter integration.

@@ -39,7 +39,7 @@ use zeroize::Zeroize;
 
 /// The result of a completed DKG ceremony on the device side.
 ///
-/// Returned by [`DkgSession::run_local`] (used in tests and the bridge
+/// Returned by `DkgSession::run_local` (used in tests and the bridge
 /// integration test).  Production code serialises [`DkgOutput::device_share`]
 /// to secure storage and surfaces [`DkgOutput::wallet_address`] to the UI.
 #[derive(Debug)]
@@ -57,7 +57,7 @@ pub struct DkgOutput {
 ///
 /// Each instance wraps an [`MpcSession`] that tracks the ceremony lifecycle.
 /// After construction the session is in [`crate::SessionState::Pending`].
-/// Call [`DkgSession::run_local`] (in tests / bridge integration) or drive it
+/// Call `DkgSession::run_local` (in tests / bridge integration) or drive it
 /// round-by-round via the Flutter bridge (Task 06) to produce a [`DkgOutput`].
 pub struct DkgSession {
     inner: MpcSession,
