@@ -1,0 +1,19 @@
+name: khodpay_bridge
+description: KhodPay Wallet Rust Bridge
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_rust_bridge: ^2.11.1
+  ffi: ^2.1.0
+  meta: ^1.10.0
+  freezed_annotation: ^2.4.1
+
+dev_dependencies:
+  freezed: ^2.4.5
+  build_runner: ^2.4.6

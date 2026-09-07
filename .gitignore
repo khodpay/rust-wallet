@@ -28,3 +28,19 @@ debug/
 # Internal/Migration Documentation (not for public repo)
 IMPORTANT_NOTES.md
 CRATE_RENAME_SUMMARY.md
+
+# Flutter Rust Bridge Build Artifacts
+# Ignore intermediate build files
+build/rust/release/
+build/rust/debug/
+build/rust/aarch64-*/
+build/rust/armv7-*/
+build/rust/i686-*/
+build/rust/x86_64-*/
+build/rust/.cargo-lock
+build/rust/*.log
+build/*.log
+
+# Keep only the organized libraries for Flutter
+!build/libs/
+!build/dart/

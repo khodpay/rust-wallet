@@ -352,8 +352,11 @@ impl Mnemonic {
     /// # Security Note
     ///
     /// This function uses the system's cryptographically secure random number generator
-    /// (`rand::rngs::OsRng`). The generated mnemonic should be stored securely and
-    /// backed up properly. Loss of the mnemonic means permanent loss of wallet access.
+    /// (`rand::rngs::OsRng`) which directly accesses the OS entropy source. This is more
+    /// reliable than `thread_rng()` for FFI contexts (e.g., Flutter) where thread-local
+    /// state may not be properly initialized. The generated mnemonic should be stored
+    /// securely and backed up properly. Loss of the mnemonic means permanent loss of
+    /// wallet access.
     ///
     /// # Examples
     ///
@@ -376,7 +379,9 @@ impl Mnemonic {
         let entropy_length = word_count.entropy_length();
 
         // Step 2: Generate cryptographically secure random entropy
-        // Uses OsRng for reliable entropy on mobile/static library targets
+        // Uses OsRng which directly accesses the OS entropy source.
+        // This is more reliable than thread_rng() for FFI contexts (e.g., Flutter)
+        // where thread-local state may not be properly initialized.
         let mut entropy = vec![0u8; entropy_length];
         OsRng.fill_bytes(&mut entropy);
 

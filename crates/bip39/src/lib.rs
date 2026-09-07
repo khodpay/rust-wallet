@@ -133,7 +133,7 @@
 //!
 //! ### ⚠️ Important Security Notes
 //!
-//! 1. **Entropy Generation**: Uses system CSPRNG (`rand::thread_rng()`)
+//! 1. **Entropy Generation**: Uses system CSPRNG (`rand::rngs::OsRng`)
 //! 2. **Mnemonic Storage**: Never store mnemonics in plain text
 //! 3. **Passphrase Security**: Passphrases add a "25th word" for additional security
 //! 4. **Memory Safety**: Consider zeroing sensitive data after use

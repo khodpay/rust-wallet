@@ -358,7 +358,9 @@ pub fn generate_mnemonic_in_language(word_count: WordCount, language: Language) 
     let entropy_length = word_count.entropy_length();
 
     // Step 2: Generate cryptographically secure random entropy
-    // Uses OsRng for reliable entropy on mobile/static library targets
+    // Uses OsRng which directly accesses the OS entropy source.
+    // This is more reliable than thread_rng() for FFI contexts (e.g., Flutter)
+    // where thread-local state may not be properly initialized.
     let mut entropy = vec![0u8; entropy_length];
     OsRng.fill_bytes(&mut entropy);
 
