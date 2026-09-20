@@ -38,6 +38,12 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_ExtendedPublicKeyP
 
 CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MnemonicPtr => wire.rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMnemonic;
 
+CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MpcDkgSessionPtr => wire.rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession;
+
+CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MpcReshareSessionPtr => wire.rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession;
+
+CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MpcSigningSessionPtr => wire.rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession;
+
 
 
                   @protected Bip44Account dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerBip44Account(dynamic raw);
@@ -53,6 +59,12 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MnemonicPtr => wir
 @protected ExtendedPublicKey dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExtendedPublicKey(dynamic raw);
 
 @protected Mnemonic dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMnemonic(dynamic raw);
+
+@protected MpcDkgSession dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(dynamic raw);
+
+@protected MpcReshareSession dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(dynamic raw);
+
+@protected MpcSigningSession dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(dynamic raw);
 
 @protected Bip44Wallet dco_decode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerBip44Wallet(dynamic raw);
 
@@ -70,6 +82,12 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MnemonicPtr => wir
 
 @protected Mnemonic dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMnemonic(dynamic raw);
 
+@protected MpcDkgSession dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(dynamic raw);
+
+@protected MpcReshareSession dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(dynamic raw);
+
+@protected MpcSigningSession dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(dynamic raw);
+
 @protected Bip44Account dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerBip44Account(dynamic raw);
 
 @protected Bip44Wallet dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerBip44Wallet(dynamic raw);
@@ -83,6 +101,12 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MnemonicPtr => wir
 @protected ExtendedPublicKey dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExtendedPublicKey(dynamic raw);
 
 @protected Mnemonic dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMnemonic(dynamic raw);
+
+@protected MpcDkgSession dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(dynamic raw);
+
+@protected MpcReshareSession dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(dynamic raw);
+
+@protected MpcSigningSession dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(dynamic raw);
 
 @protected String dco_decode_String(dynamic raw);
 
@@ -130,6 +154,12 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MnemonicPtr => wir
 
 @protected Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
+@protected MpcDkgAdvanceResult dco_decode_mpc_dkg_advance_result(dynamic raw);
+
+@protected MpcReshareAdvanceResult dco_decode_mpc_reshare_advance_result(dynamic raw);
+
+@protected MpcSigningAdvanceResult dco_decode_mpc_signing_advance_result(dynamic raw);
+
 @protected Network dco_decode_network(dynamic raw);
 
 @protected String? dco_decode_opt_String(dynamic raw);
@@ -137,6 +167,8 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MnemonicPtr => wir
 @protected ChainId? dco_decode_opt_box_autoadd_chain_id(dynamic raw);
 
 @protected BigInt? dco_decode_opt_box_autoadd_u_64(dynamic raw);
+
+@protected Uint8List? dco_decode_opt_list_prim_u_8_strict(dynamic raw);
 
 @protected Purpose dco_decode_purpose(dynamic raw);
 
@@ -172,6 +204,12 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MnemonicPtr => wir
 
 @protected Mnemonic sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMnemonic(SseDeserializer deserializer);
 
+@protected MpcDkgSession sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(SseDeserializer deserializer);
+
+@protected MpcReshareSession sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(SseDeserializer deserializer);
+
+@protected MpcSigningSession sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(SseDeserializer deserializer);
+
 @protected Bip44Wallet sse_decode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerBip44Wallet(SseDeserializer deserializer);
 
 @protected Bip44Account sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerBip44Account(SseDeserializer deserializer);
@@ -188,6 +226,12 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MnemonicPtr => wir
 
 @protected Mnemonic sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMnemonic(SseDeserializer deserializer);
 
+@protected MpcDkgSession sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(SseDeserializer deserializer);
+
+@protected MpcReshareSession sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(SseDeserializer deserializer);
+
+@protected MpcSigningSession sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(SseDeserializer deserializer);
+
 @protected Bip44Account sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerBip44Account(SseDeserializer deserializer);
 
 @protected Bip44Wallet sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerBip44Wallet(SseDeserializer deserializer);
@@ -201,6 +245,12 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MnemonicPtr => wir
 @protected ExtendedPublicKey sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExtendedPublicKey(SseDeserializer deserializer);
 
 @protected Mnemonic sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMnemonic(SseDeserializer deserializer);
+
+@protected MpcDkgSession sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(SseDeserializer deserializer);
+
+@protected MpcReshareSession sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(SseDeserializer deserializer);
+
+@protected MpcSigningSession sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(SseDeserializer deserializer);
 
 @protected String sse_decode_String(SseDeserializer deserializer);
 
@@ -248,6 +298,12 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MnemonicPtr => wir
 
 @protected Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
 
+@protected MpcDkgAdvanceResult sse_decode_mpc_dkg_advance_result(SseDeserializer deserializer);
+
+@protected MpcReshareAdvanceResult sse_decode_mpc_reshare_advance_result(SseDeserializer deserializer);
+
+@protected MpcSigningAdvanceResult sse_decode_mpc_signing_advance_result(SseDeserializer deserializer);
+
 @protected Network sse_decode_network(SseDeserializer deserializer);
 
 @protected String? sse_decode_opt_String(SseDeserializer deserializer);
@@ -255,6 +311,8 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MnemonicPtr => wir
 @protected ChainId? sse_decode_opt_box_autoadd_chain_id(SseDeserializer deserializer);
 
 @protected BigInt? sse_decode_opt_box_autoadd_u_64(SseDeserializer deserializer);
+
+@protected Uint8List? sse_decode_opt_list_prim_u_8_strict(SseDeserializer deserializer);
 
 @protected Purpose sse_decode_purpose(SseDeserializer deserializer);
 
@@ -290,6 +348,12 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MnemonicPtr => wir
 
 @protected void sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMnemonic(Mnemonic self, SseSerializer serializer);
 
+@protected void sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(MpcDkgSession self, SseSerializer serializer);
+
+@protected void sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(MpcReshareSession self, SseSerializer serializer);
+
+@protected void sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(MpcSigningSession self, SseSerializer serializer);
+
 @protected void sse_encode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerBip44Wallet(Bip44Wallet self, SseSerializer serializer);
 
 @protected void sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerBip44Account(Bip44Account self, SseSerializer serializer);
@@ -306,6 +370,12 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MnemonicPtr => wir
 
 @protected void sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMnemonic(Mnemonic self, SseSerializer serializer);
 
+@protected void sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(MpcDkgSession self, SseSerializer serializer);
+
+@protected void sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(MpcReshareSession self, SseSerializer serializer);
+
+@protected void sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(MpcSigningSession self, SseSerializer serializer);
+
 @protected void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerBip44Account(Bip44Account self, SseSerializer serializer);
 
 @protected void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerBip44Wallet(Bip44Wallet self, SseSerializer serializer);
@@ -319,6 +389,12 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MnemonicPtr => wir
 @protected void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExtendedPublicKey(ExtendedPublicKey self, SseSerializer serializer);
 
 @protected void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMnemonic(Mnemonic self, SseSerializer serializer);
+
+@protected void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(MpcDkgSession self, SseSerializer serializer);
+
+@protected void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(MpcReshareSession self, SseSerializer serializer);
+
+@protected void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(MpcSigningSession self, SseSerializer serializer);
 
 @protected void sse_encode_String(String self, SseSerializer serializer);
 
@@ -366,6 +442,12 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MnemonicPtr => wir
 
 @protected void sse_encode_list_prim_u_8_strict(Uint8List self, SseSerializer serializer);
 
+@protected void sse_encode_mpc_dkg_advance_result(MpcDkgAdvanceResult self, SseSerializer serializer);
+
+@protected void sse_encode_mpc_reshare_advance_result(MpcReshareAdvanceResult self, SseSerializer serializer);
+
+@protected void sse_encode_mpc_signing_advance_result(MpcSigningAdvanceResult self, SseSerializer serializer);
+
 @protected void sse_encode_network(Network self, SseSerializer serializer);
 
 @protected void sse_encode_opt_String(String? self, SseSerializer serializer);
@@ -373,6 +455,8 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MnemonicPtr => wir
 @protected void sse_encode_opt_box_autoadd_chain_id(ChainId? self, SseSerializer serializer);
 
 @protected void sse_encode_opt_box_autoadd_u_64(BigInt? self, SseSerializer serializer);
+
+@protected void sse_encode_opt_list_prim_u_8_strict(Uint8List? self, SseSerializer serializer);
 
 @protected void sse_encode_purpose(Purpose self, SseSerializer serializer);
 
@@ -429,6 +513,18 @@ void rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generated
 void rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMnemonic(int ptr) => wasmModule.rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMnemonic(ptr);
 
 void rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMnemonic(int ptr) => wasmModule.rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMnemonic(ptr);
+
+void rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(int ptr) => wasmModule.rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(ptr);
+
+void rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(int ptr) => wasmModule.rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(ptr);
+
+void rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(int ptr) => wasmModule.rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(ptr);
+
+void rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(int ptr) => wasmModule.rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(ptr);
+
+void rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(int ptr) => wasmModule.rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(ptr);
+
+void rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(int ptr) => wasmModule.rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(ptr);
         }
         @JS('wasm_bindgen') external RustLibWasmModule get wasmModule;
 
@@ -460,5 +556,17 @@ external void rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_
 external void rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMnemonic(int ptr);
 
 external void rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMnemonic(int ptr);
+
+external void rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(int ptr);
+
+external void rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(int ptr);
+
+external void rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(int ptr);
+
+external void rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(int ptr);
+
+external void rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(int ptr);
+
+external void rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(int ptr);
         }
         

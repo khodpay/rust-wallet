@@ -6,9 +6,9 @@
 import 'frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `build_packed_user_op`, `parse_bytes32`, `parse_eip712_domain`, `parse_payment_intent`, `parse_uint256`, `to_rust_transaction`
+// These functions are ignored because they are not marked as `pub`: `build_packed_user_op`, `parse_eip712_domain`, `parse_payment_intent`, `to_rust_transaction`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `WpgpPaymentIntentTyped`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `encode_data`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `try_from`, `type_string`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `encode_data`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `try_from`, `type_string`
 
 /// Get the numeric chain ID value
 Future<BigInt> chainIdToU64({required ChainId chainId}) =>
@@ -222,55 +222,6 @@ Future<String> healthCheck() => RustLib.instance.api.crateBridgeHealthCheck();
 Future<int> add({required int a, required int b}) =>
     RustLib.instance.api.crateBridgeAdd(a: a, b: b);
 
-/// Generic EIP-712: sign any pre-encoded struct hash.
-///
-/// Flutter is responsible for computing `struct_hash_hex` — the `hashStruct` of whatever
-/// EIP-712 message it needs to sign. This function:
-/// 1. Computes the domain separator from the given parameters
-/// 2. Assembles the final EIP-712 hash: `keccak256("\x19\x01" || domainSeparator || structHash)`
-/// 3. Signs it with the given private key
-///
-/// Returns the 65-byte signature as a `0x`-prefixed hex string.
-Future<String> eip712Sign(
-        {required String privateKeyHex,
-        required String domainName,
-        required String domainVersion,
-        required BigInt chainId,
-        String? verifyingContract,
-        required String structHashHex}) =>
-    RustLib.instance.api.crateBridgeEip712Sign(
-        privateKeyHex: privateKeyHex,
-        domainName: domainName,
-        domainVersion: domainVersion,
-        chainId: chainId,
-        verifyingContract: verifyingContract,
-        structHashHex: structHashHex);
-
-/// Generic EIP-712: verify a signature against any pre-encoded struct hash.
-///
-/// Flutter is responsible for computing `struct_hash_hex`. This function:
-/// 1. Computes the domain separator
-/// 2. Assembles the final EIP-712 hash
-/// 3. Recovers the signer and compares against `expected_signer`
-///
-/// Returns `true` if the signature matches `expected_signer`.
-Future<bool> eip712Verify(
-        {required String domainName,
-        required String domainVersion,
-        required BigInt chainId,
-        String? verifyingContract,
-        required String structHashHex,
-        required String signatureHex,
-        required String expectedSigner}) =>
-    RustLib.instance.api.crateBridgeEip712Verify(
-        domainName: domainName,
-        domainVersion: domainVersion,
-        chainId: chainId,
-        verifyingContract: verifyingContract,
-        structHashHex: structHashHex,
-        signatureHex: signatureHex,
-        expectedSigner: expectedSigner);
-
 /// Business-side: sign a WPGP PaymentIntent with EIP-712.
 ///
 /// Returns the 65-byte signature as a `0x`-prefixed hex string.
@@ -317,6 +268,59 @@ Future<bool> wpgpVerifyPaymentSignature(
         domainVersion: domainVersion,
         chainId: chainId,
         verifyingContract: verifyingContract,
+        signatureHex: signatureHex,
+        expectedSigner: expectedSigner);
+
+/// Low-level EIP-712 signing over an arbitrary struct hash.
+///
+/// Signs `keccak256(domainSeparator || structHash)` with the given private key.
+///
+/// Parameters:
+/// - `private_key_hex`: 32-byte private key as hex (with or without `0x`)
+/// - `domain_name`, `domain_version`, `chain_id`, `verifying_contract`: EIP-712 domain fields
+/// - `struct_hash_hex`: 32-byte struct hash as hex (with or without `0x`)
+///
+/// Returns the 65-byte signature as a `0x`-prefixed hex string.
+Future<String> eip712Sign(
+        {required String privateKeyHex,
+        required String domainName,
+        required String domainVersion,
+        required BigInt chainId,
+        String? verifyingContract,
+        required String structHashHex}) =>
+    RustLib.instance.api.crateBridgeEip712Sign(
+        privateKeyHex: privateKeyHex,
+        domainName: domainName,
+        domainVersion: domainVersion,
+        chainId: chainId,
+        verifyingContract: verifyingContract,
+        structHashHex: structHashHex);
+
+/// Low-level EIP-712 signature verification over an arbitrary struct hash.
+///
+/// Verifies that `keccak256(domainSeparator || structHash)` was signed by `expected_signer`.
+///
+/// Parameters:
+/// - `domain_name`, `domain_version`, `chain_id`, `verifying_contract`: EIP-712 domain fields
+/// - `struct_hash_hex`: 32-byte struct hash as hex (with or without `0x`)
+/// - `signature_hex`: 65-byte signature as hex (with or without `0x`)
+/// - `expected_signer`: EIP-55 checksummed address of the expected signer
+///
+/// Returns `true` if the signature is valid and was produced by `expected_signer`.
+Future<bool> eip712Verify(
+        {required String domainName,
+        required String domainVersion,
+        required BigInt chainId,
+        String? verifyingContract,
+        required String structHashHex,
+        required String signatureHex,
+        required String expectedSigner}) =>
+    RustLib.instance.api.crateBridgeEip712Verify(
+        domainName: domainName,
+        domainVersion: domainVersion,
+        chainId: chainId,
+        verifyingContract: verifyingContract,
+        structHashHex: structHashHex,
         signatureHex: signatureHex,
         expectedSigner: expectedSigner);
 
@@ -622,6 +626,121 @@ abstract class Mnemonic implements RustOpaqueInterface {
 
   /// Get the word count
   Future<int> wordCount();
+}
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcDkgSession>>
+abstract class MpcDkgSession implements RustOpaqueInterface {
+  /// Processes one round of server response and advances the ceremony.
+  ///
+  /// Pass the raw bytes received from the KhodPay signer server.  Inspect
+  /// `MpcDkgAdvanceResult::is_complete` to decide whether to loop or
+  /// finish.
+  ///
+  /// # Errors
+  ///
+  /// Returns a descriptive string on any protocol error.  The session is
+  /// not reusable after an error — create a fresh `MpcDkgSession`.
+  Future<MpcDkgAdvanceResult> advance({required List<int> serverPayload});
+
+  /// Creates a new DKG session and generates the first round payload.
+  ///
+  /// The returned session is ready to use: call `first_round_payload()`,
+  /// forward the bytes to the signer server, then drive the ceremony with
+  /// `advance()`.
+  ///
+  /// # Errors
+  ///
+  /// Returns a descriptive string if the underlying session cannot be
+  /// initialised (e.g. RNG failure).
+  static Future<MpcDkgSession> create() =>
+      RustLib.instance.api.crateBridgeMpcDkgSessionCreate();
+
+  /// Returns the opaque first-round payload to send to the KhodPay signer
+  /// server.
+  ///
+  /// This payload must be forwarded before calling `advance()`.
+  Future<Uint8List> firstRoundPayload();
+
+  /// Returns the session ID (UUID v4).
+  ///
+  /// Forward this to the server so it can correlate responses to this
+  /// specific DKG ceremony.
+  Future<String> sessionId();
+}
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcReshareSession>>
+abstract class MpcReshareSession implements RustOpaqueInterface {
+  /// Processes one round of server response and advances the resharing
+  /// ceremony.
+  ///
+  /// When `MpcReshareAdvanceResult::is_complete` is `true`,
+  /// `result.new_device_share` contains the fresh device share bytes.
+  /// Store them under `SecureStorageService("mpc_device_share_v1")`,
+  /// **overwriting** the previous entry.
+  ///
+  /// # Errors
+  ///
+  /// Returns a descriptive string on any protocol error.
+  Future<MpcReshareAdvanceResult> advance({required List<int> serverPayload});
+
+  /// Creates a new resharing session.
+  ///
+  /// The server authorises the resharing ceremony via the user's Google ID
+  /// token (handled server-side); this method only creates the device-side
+  /// session state.
+  ///
+  /// # Errors
+  ///
+  /// Returns a descriptive string if the session cannot be initialised.
+  static Future<MpcReshareSession> create() =>
+      RustLib.instance.api.crateBridgeMpcReshareSessionCreate();
+
+  /// Returns the opaque first-round payload to send to the KhodPay signer
+  /// server.
+  Future<Uint8List> firstRoundPayload();
+
+  /// Returns the session ID (UUID v4).
+  Future<String> sessionId();
+}
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcSigningSession>>
+abstract class MpcSigningSession implements RustOpaqueInterface {
+  /// Processes one round of server response and advances the signing
+  /// ceremony.
+  ///
+  /// Pass the raw bytes received from the KhodPay signer server.  When
+  /// `MpcSigningAdvanceResult::is_complete` is `true`,
+  /// `result.signature` contains the 65-byte EVM signature (`r || s || v`).
+  ///
+  /// # Errors
+  ///
+  /// Returns a descriptive string on any protocol or validation error.
+  Future<MpcSigningAdvanceResult> advance({required List<int> serverPayload});
+
+  /// Creates a new signing session for the given device share and transaction
+  /// hash.
+  ///
+  /// # Parameters
+  ///
+  /// - `device_share`: the opaque bytes returned by a previous DKG
+  ///   ceremony, read from `SecureStorageService("mpc_device_share_v1")`.
+  /// - `tx_hash`: the 32-byte keccak256 hash of the transaction to sign.
+  ///
+  /// # Errors
+  ///
+  /// Returns a descriptive string if `device_share` bytes are invalid or if
+  /// `tx_hash` is not exactly 32 bytes.
+  static Future<MpcSigningSession> create(
+          {required List<int> deviceShare, required List<int> txHash}) =>
+      RustLib.instance.api.crateBridgeMpcSigningSessionCreate(
+          deviceShare: deviceShare, txHash: txHash);
+
+  /// Returns the opaque first-round payload to send to the KhodPay signer
+  /// server.
+  Future<Uint8List> firstRoundPayload();
+
+  /// Returns the session ID (UUID v4).
+  Future<String> sessionId();
 }
 
 /// BIP44 Chain type (external/internal)
@@ -1009,6 +1128,132 @@ class EvmWei {
           valueHex == other.valueHex;
 }
 
+/// Result of one `advance()` call on [`MpcDkgSession`].
+///
+/// If `is_complete` is `false`, send `next_payload` (unwrapped) to the server
+/// and call `advance()` again with the server's response.
+///
+/// If `is_complete` is `true`, `device_share` and `wallet_address` are
+/// populated and the session is done.
+class MpcDkgAdvanceResult {
+  /// `true` when the DKG ceremony has completed.
+  final bool isComplete;
+
+  /// The payload to forward to the server for the next round.
+  /// `None` when `is_complete` is `true`.
+  final Uint8List? nextPayload;
+
+  /// The device-side key share (opaque bytes).
+  /// Populated only when `is_complete` is `true`.
+  /// Store under `SecureStorageService` key `mpc_device_share_v1`.
+  final Uint8List? deviceShare;
+
+  /// EIP-55 checksummed EVM wallet address derived from the joint public key.
+  /// Populated only when `is_complete` is `true`.
+  final String? walletAddress;
+
+  const MpcDkgAdvanceResult({
+    required this.isComplete,
+    this.nextPayload,
+    this.deviceShare,
+    this.walletAddress,
+  });
+
+  @override
+  int get hashCode =>
+      isComplete.hashCode ^
+      nextPayload.hashCode ^
+      deviceShare.hashCode ^
+      walletAddress.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MpcDkgAdvanceResult &&
+          runtimeType == other.runtimeType &&
+          isComplete == other.isComplete &&
+          nextPayload == other.nextPayload &&
+          deviceShare == other.deviceShare &&
+          walletAddress == other.walletAddress;
+}
+
+/// Result of one `advance()` call on [`MpcReshareSession`].
+///
+/// If `is_complete` is `false`, forward `next_payload` to the server for the
+/// next round.  When `is_complete` is `true`, `new_device_share` holds the
+/// freshly issued device share; store it under `mpc_device_share_v1`,
+/// overwriting the previous entry.
+class MpcReshareAdvanceResult {
+  /// `true` when the resharing ceremony has completed.
+  final bool isComplete;
+
+  /// The payload to forward to the server for the next round.
+  /// `None` when `is_complete` is `true`.
+  final Uint8List? nextPayload;
+
+  /// The new device-side key share (opaque bytes).
+  /// Populated only when `is_complete` is `true`.
+  /// Store under `SecureStorageService` key `mpc_device_share_v1`,
+  /// **overwriting** the previous entry — the old share is now invalid.
+  final Uint8List? newDeviceShare;
+
+  const MpcReshareAdvanceResult({
+    required this.isComplete,
+    this.nextPayload,
+    this.newDeviceShare,
+  });
+
+  @override
+  int get hashCode =>
+      isComplete.hashCode ^ nextPayload.hashCode ^ newDeviceShare.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MpcReshareAdvanceResult &&
+          runtimeType == other.runtimeType &&
+          isComplete == other.isComplete &&
+          nextPayload == other.nextPayload &&
+          newDeviceShare == other.newDeviceShare;
+}
+
+/// Result of one `advance()` call on [`MpcSigningSession`].
+///
+/// If `is_complete` is `false`, forward `next_payload` to the server for the
+/// next round.  When `is_complete` is `true`, `signature` contains the
+/// 65-byte EVM signature (`r || s || v`).
+class MpcSigningAdvanceResult {
+  /// `true` when the signing ceremony has completed.
+  final bool isComplete;
+
+  /// The payload to forward to the server for the next round.
+  /// `None` when `is_complete` is `true`.
+  final Uint8List? nextPayload;
+
+  /// 65-byte EVM signature (`r || s || v`).
+  /// Populated only when `is_complete` is `true`.
+  final Uint8List? signature;
+
+  const MpcSigningAdvanceResult({
+    required this.isComplete,
+    this.nextPayload,
+    this.signature,
+  });
+
+  @override
+  int get hashCode =>
+      isComplete.hashCode ^ nextPayload.hashCode ^ signature.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MpcSigningAdvanceResult &&
+          runtimeType == other.runtimeType &&
+          isComplete == other.isComplete &&
+          nextPayload == other.nextPayload &&
+          signature == other.signature;
+}
+
 /// Network type for the wallet
 enum Network {
   bitcoinMainnet,
@@ -1112,33 +1357,31 @@ class WalletResult {
 ///
 /// All fields are passed as strings to avoid Dart integer overflow on u64/u128 values.
 class WpgpPaymentIntent {
-  /// bytes32 UUID identifying the business slot in the registry (0x-prefixed hex)
+  /// Unique bytes32 business slot identifier (hex, with or without 0x prefix).
+  /// Matches PaymentIntent.businessId on-chain; the business wallet address is
+  /// NOT part of the struct — it is resolved from the registry by the contract.
   final String businessId;
 
-  /// Business wallet address (EIP-55 checksummed hex) — must match registered owner
-  final String business;
-
-  /// Recipient wallet address (EIP-55 checksummed hex)
+  /// Actual payment recipient address (EIP-55 checksummed hex)
   final String recipient;
 
-  /// ERC-20 token contract address (EIP-55 checksummed hex)
+  /// ERC-20 token contract address (EIP-55 checksummed hex, address(0) for native)
   final String token;
 
-  /// Payment amount in token's smallest unit (decimal string, uint256)
+  /// Total payment amount in token's smallest unit (decimal string — uint256)
   final String amount;
 
-  /// Unix timestamp after which the intent expires (decimal string, uint256)
+  /// Expiration timestamp in Unix seconds (decimal string — uint256)
   final String deadline;
 
-  /// Unique invoice identifier (32-byte hex, with or without 0x prefix)
+  /// Business invoice reference, 32-byte hex (with or without 0x prefix)
   final String invoiceId;
 
-  /// Replay-protection nonce for this business slot (decimal string, uint256)
+  /// Replay-protection nonce for this businessId (decimal string — uint256)
   final String nonce;
 
   const WpgpPaymentIntent({
     required this.businessId,
-    required this.business,
     required this.recipient,
     required this.token,
     required this.amount,
@@ -1150,7 +1393,6 @@ class WpgpPaymentIntent {
   @override
   int get hashCode =>
       businessId.hashCode ^
-      business.hashCode ^
       recipient.hashCode ^
       token.hashCode ^
       amount.hashCode ^
@@ -1164,7 +1406,6 @@ class WpgpPaymentIntent {
       other is WpgpPaymentIntent &&
           runtimeType == other.runtimeType &&
           businessId == other.businessId &&
-          business == other.business &&
           recipient == other.recipient &&
           token == other.token &&
           amount == other.amount &&

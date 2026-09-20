@@ -9,21 +9,31 @@ description = "Flutter Rust Bridge for KhodPay Wallet"
 repository = "https://github.com/khodpay/rust-wallet"
 
 [lib]
-crate-type = ["cdylib", "staticlib", "rlib"]  # cdylib/staticlib for Flutter FFI; rlib for integration tests
+crate-type = ["cdylib", "staticlib"]  # For Flutter FFI
 name = "khodpay_flutter_bridge"
 
 [dependencies]
 # Flutter Rust Bridge
 flutter_rust_bridge = "=2.11.1"
 
-# Local crates - your wallet functionality
-khodpay-bip32 = { version = "0.2.0", path = "../bip32" }
-khodpay-bip39 = { version = "0.4.0", path = "../bip39" }
-khodpay-bip44 = { version = "0.1.0", path = "../bip44" }
-khodpay-signing = { version = "0.2.0", path = "../khodpay-signing", features = ["erc4337"] }
-khodpay-mpc-tss = { version = "0.1.0", path = "../mpc-tss" }
+# Local crates - wallet functionality
+khodpay-bip32    = { version = "0.2.0", path = "../bip32" }
+khodpay-bip39    = { version = "0.4.0", path = "../bip39" }
+khodpay-bip44    = { version = "0.1.0", path = "../bip44" }
+khodpay-signing  = { version = "0.2.0", path = "../khodpay-signing", features = ["erc4337"] }
+khodpay-mpc-tss  = { version = "0.1.0", path = "../mpc-tss" }
 
-# Optional: For serializable structs
+# MPC protocol primitives — versions must match khodpay-mpc-tss's own deps
+cggmp21     = { version = "=0.6.3", features = ["curve-secp256k1"] }
+round-based = { version = "0.4.1", features = ["state-machine"] }
+sha2        = { version = "0.10" }
+sha3        = { version = "0.10" }
+rand        = { version = "0.8", features = ["std"] }
+zeroize     = { version = "1.7", features = ["derive"] }
+serde_json  = { version = "1.0" }
+k256        = { version = "0.13", features = ["ecdsa"] }
+
+# Serialisation
 serde = { version = "1", features = ["derive"] }
 
 # Error handling
@@ -35,17 +45,9 @@ getrandom = "0.2"
 # Hex encoding
 hex = "0.4"
 
-[dev-dependencies]
-# Enables run_local / trusted_dealer helpers for the MPC integration test
-khodpay-mpc-tss = { version = "0.1.0", path = "../mpc-tss", features = ["test-utils"] }
-# For 2-party ceremony simulation (pulled in transitively via test-utils, but explicit here for clarity)
-cggmp21 = { version = "=0.6.3", features = ["curve-secp256k1", "spof"] }
-# For serialising KeyShare → DeviceShare bytes in integration tests
-serde_json = "1.0"
-
 [profile.release]
-opt-level = 3          # Maximum optimizations
-lto = true             # Link-time optimization
-codegen-units = 1      # Better optimization
-strip = true           # Strip symbols for smaller binary
-panic = "abort"        # Smaller binary size
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"

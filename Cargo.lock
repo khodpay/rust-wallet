@@ -1304,13 +1304,19 @@ dependencies = [
  "flutter_rust_bridge",
  "getrandom 0.2.16",
  "hex",
+ "k256",
  "khodpay-bip32",
  "khodpay-bip39",
  "khodpay-bip44",
  "khodpay-mpc-tss",
  "khodpay-signing",
+ "rand",
+ "round-based",
  "serde",
  "serde_json",
+ "sha2",
+ "sha3",
+ "zeroize",
 ]
 
 [[package]]

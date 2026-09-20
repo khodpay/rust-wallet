@@ -43,6 +43,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MnemonicPtr => wire
       ._rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMnemonicPtr;
 
+  CrossPlatformFinalizerArg
+      get rust_arc_decrement_strong_count_MpcDkgSessionPtr => wire
+          ._rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSessionPtr;
+
+  CrossPlatformFinalizerArg
+      get rust_arc_decrement_strong_count_MpcReshareSessionPtr => wire
+          ._rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSessionPtr;
+
+  CrossPlatformFinalizerArg
+      get rust_arc_decrement_strong_count_MpcSigningSessionPtr => wire
+          ._rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSessionPtr;
+
   @protected
   Bip44Account
       dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerBip44Account(
@@ -76,6 +88,21 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   Mnemonic
       dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMnemonic(
+          dynamic raw);
+
+  @protected
+  MpcDkgSession
+      dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(
+          dynamic raw);
+
+  @protected
+  MpcReshareSession
+      dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(
+          dynamic raw);
+
+  @protected
+  MpcSigningSession
+      dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(
           dynamic raw);
 
   @protected
@@ -119,6 +146,21 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
           dynamic raw);
 
   @protected
+  MpcDkgSession
+      dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(
+          dynamic raw);
+
+  @protected
+  MpcReshareSession
+      dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(
+          dynamic raw);
+
+  @protected
+  MpcSigningSession
+      dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(
+          dynamic raw);
+
+  @protected
   Bip44Account
       dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerBip44Account(
           dynamic raw);
@@ -151,6 +193,21 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   Mnemonic
       dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMnemonic(
+          dynamic raw);
+
+  @protected
+  MpcDkgSession
+      dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(
+          dynamic raw);
+
+  @protected
+  MpcReshareSession
+      dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(
+          dynamic raw);
+
+  @protected
+  MpcSigningSession
+      dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(
           dynamic raw);
 
   @protected
@@ -226,6 +283,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
   @protected
+  MpcDkgAdvanceResult dco_decode_mpc_dkg_advance_result(dynamic raw);
+
+  @protected
+  MpcReshareAdvanceResult dco_decode_mpc_reshare_advance_result(dynamic raw);
+
+  @protected
+  MpcSigningAdvanceResult dco_decode_mpc_signing_advance_result(dynamic raw);
+
+  @protected
   Network dco_decode_network(dynamic raw);
 
   @protected
@@ -236,6 +302,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   BigInt? dco_decode_opt_box_autoadd_u_64(dynamic raw);
+
+  @protected
+  Uint8List? dco_decode_opt_list_prim_u_8_strict(dynamic raw);
 
   @protected
   Purpose dco_decode_purpose(dynamic raw);
@@ -303,6 +372,21 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
           SseDeserializer deserializer);
 
   @protected
+  MpcDkgSession
+      sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(
+          SseDeserializer deserializer);
+
+  @protected
+  MpcReshareSession
+      sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(
+          SseDeserializer deserializer);
+
+  @protected
+  MpcSigningSession
+      sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(
+          SseDeserializer deserializer);
+
+  @protected
   Bip44Wallet
       sse_decode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerBip44Wallet(
           SseDeserializer deserializer);
@@ -343,6 +427,21 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
           SseDeserializer deserializer);
 
   @protected
+  MpcDkgSession
+      sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(
+          SseDeserializer deserializer);
+
+  @protected
+  MpcReshareSession
+      sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(
+          SseDeserializer deserializer);
+
+  @protected
+  MpcSigningSession
+      sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(
+          SseDeserializer deserializer);
+
+  @protected
   Bip44Account
       sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerBip44Account(
           SseDeserializer deserializer);
@@ -375,6 +474,21 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   Mnemonic
       sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMnemonic(
+          SseDeserializer deserializer);
+
+  @protected
+  MpcDkgSession
+      sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(
+          SseDeserializer deserializer);
+
+  @protected
+  MpcReshareSession
+      sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(
+          SseDeserializer deserializer);
+
+  @protected
+  MpcSigningSession
+      sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(
           SseDeserializer deserializer);
 
   @protected
@@ -456,6 +570,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
 
   @protected
+  MpcDkgAdvanceResult sse_decode_mpc_dkg_advance_result(
+      SseDeserializer deserializer);
+
+  @protected
+  MpcReshareAdvanceResult sse_decode_mpc_reshare_advance_result(
+      SseDeserializer deserializer);
+
+  @protected
+  MpcSigningAdvanceResult sse_decode_mpc_signing_advance_result(
+      SseDeserializer deserializer);
+
+  @protected
   Network sse_decode_network(SseDeserializer deserializer);
 
   @protected
@@ -466,6 +592,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   BigInt? sse_decode_opt_box_autoadd_u_64(SseDeserializer deserializer);
+
+  @protected
+  Uint8List? sse_decode_opt_list_prim_u_8_strict(SseDeserializer deserializer);
 
   @protected
   Purpose sse_decode_purpose(SseDeserializer deserializer);
@@ -537,6 +666,21 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void
+      sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(
+          MpcDkgSession self, SseSerializer serializer);
+
+  @protected
+  void
+      sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(
+          MpcReshareSession self, SseSerializer serializer);
+
+  @protected
+  void
+      sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(
+          MpcSigningSession self, SseSerializer serializer);
+
+  @protected
+  void
       sse_encode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerBip44Wallet(
           Bip44Wallet self, SseSerializer serializer);
 
@@ -577,6 +721,21 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void
+      sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(
+          MpcDkgSession self, SseSerializer serializer);
+
+  @protected
+  void
+      sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(
+          MpcReshareSession self, SseSerializer serializer);
+
+  @protected
+  void
+      sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(
+          MpcSigningSession self, SseSerializer serializer);
+
+  @protected
+  void
       sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerBip44Account(
           Bip44Account self, SseSerializer serializer);
 
@@ -609,6 +768,21 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void
       sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMnemonic(
           Mnemonic self, SseSerializer serializer);
+
+  @protected
+  void
+      sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(
+          MpcDkgSession self, SseSerializer serializer);
+
+  @protected
+  void
+      sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(
+          MpcReshareSession self, SseSerializer serializer);
+
+  @protected
+  void
+      sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(
+          MpcSigningSession self, SseSerializer serializer);
 
   @protected
   void sse_encode_String(String self, SseSerializer serializer);
@@ -690,6 +864,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
       Uint8List self, SseSerializer serializer);
 
   @protected
+  void sse_encode_mpc_dkg_advance_result(
+      MpcDkgAdvanceResult self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_mpc_reshare_advance_result(
+      MpcReshareAdvanceResult self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_mpc_signing_advance_result(
+      MpcSigningAdvanceResult self, SseSerializer serializer);
+
+  @protected
   void sse_encode_network(Network self, SseSerializer serializer);
 
   @protected
@@ -701,6 +887,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_opt_box_autoadd_u_64(BigInt? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_list_prim_u_8_strict(
+      Uint8List? self, SseSerializer serializer);
 
   @protected
   void sse_encode_purpose(Purpose self, SseSerializer serializer);
@@ -972,5 +1162,101 @@ class RustLibWire implements BaseWire {
           'frbgen_khodpay_bridge_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMnemonic');
   late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMnemonic =
       _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMnemonicPtr
+          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
+
+  void
+      rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(
+    ffi.Pointer<ffi.Void> ptr,
+  ) {
+    return _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(
+      ptr,
+    );
+  }
+
+  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSessionPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
+          'frbgen_khodpay_bridge_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession');
+  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession =
+      _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSessionPtr
+          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
+
+  void
+      rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(
+    ffi.Pointer<ffi.Void> ptr,
+  ) {
+    return _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(
+      ptr,
+    );
+  }
+
+  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSessionPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
+          'frbgen_khodpay_bridge_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession');
+  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession =
+      _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSessionPtr
+          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
+
+  void
+      rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(
+    ffi.Pointer<ffi.Void> ptr,
+  ) {
+    return _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(
+      ptr,
+    );
+  }
+
+  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSessionPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
+          'frbgen_khodpay_bridge_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession');
+  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession =
+      _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSessionPtr
+          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
+
+  void
+      rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(
+    ffi.Pointer<ffi.Void> ptr,
+  ) {
+    return _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(
+      ptr,
+    );
+  }
+
+  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSessionPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
+          'frbgen_khodpay_bridge_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession');
+  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession =
+      _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSessionPtr
+          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
+
+  void
+      rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(
+    ffi.Pointer<ffi.Void> ptr,
+  ) {
+    return _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(
+      ptr,
+    );
+  }
+
+  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSessionPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
+          'frbgen_khodpay_bridge_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession');
+  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession =
+      _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSessionPtr
+          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
+
+  void
+      rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(
+    ffi.Pointer<ffi.Void> ptr,
+  ) {
+    return _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(
+      ptr,
+    );
+  }
+
+  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSessionPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
+          'frbgen_khodpay_bridge_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession');
+  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession =
+      _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSessionPtr
           .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 }

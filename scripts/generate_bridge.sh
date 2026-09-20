@@ -73,7 +73,7 @@ cd "$DART_OUTPUT"
 
 # Run code generator with absolute paths
 flutter_rust_bridge_codegen generate \
-  --rust-input "crate::bridge" \
+  --rust-input "crate::bridge,crate::mpc" \
   --rust-root "$RUST_ROOT" \
   --dart-output "$DART_OUTPUT" \
   --rust-output "$RUST_OUTPUT" \

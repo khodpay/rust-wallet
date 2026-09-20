@@ -38,7 +38,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.11.1";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 621995266;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1048694913;
 
 // Section: executor
 
@@ -2806,6 +2806,570 @@ fn wire__crate__bridge__Mnemonic_word_count_impl(
         },
     )
 }
+fn wire__crate__bridge__MpcDkgSession_advance_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "MpcDkgSession_advance",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_that = <RustOpaqueMoi<
+                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcDkgSession>,
+            >>::sse_decode(&mut deserializer);
+            let api_server_payload = <Vec<u8>>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, String>((move || {
+                    let mut api_that_guard = None;
+                    let decode_indices_ =
+                        flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
+                            flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                &api_that, 0, false,
+                            ),
+                        ]);
+                    for i in decode_indices_ {
+                        match i {
+                            0 => api_that_guard = Some(api_that.lockable_decode_sync_ref()),
+                            _ => unreachable!(),
+                        }
+                    }
+                    let api_that_guard = api_that_guard.unwrap();
+                    let output_ok = crate::bridge::MpcDkgSession::advance(
+                        &*api_that_guard,
+                        api_server_payload,
+                    )?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__bridge__MpcDkgSession_create_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "MpcDkgSession_create",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, String>((move || {
+                    let output_ok = crate::bridge::MpcDkgSession::create()?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__bridge__MpcDkgSession_first_round_payload_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "MpcDkgSession_first_round_payload",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_that = <RustOpaqueMoi<
+                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcDkgSession>,
+            >>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let mut api_that_guard = None;
+                    let decode_indices_ =
+                        flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
+                            flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                &api_that, 0, false,
+                            ),
+                        ]);
+                    for i in decode_indices_ {
+                        match i {
+                            0 => api_that_guard = Some(api_that.lockable_decode_sync_ref()),
+                            _ => unreachable!(),
+                        }
+                    }
+                    let api_that_guard = api_that_guard.unwrap();
+                    let output_ok = Result::<_, ()>::Ok(
+                        crate::bridge::MpcDkgSession::first_round_payload(&*api_that_guard),
+                    )?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__bridge__MpcDkgSession_session_id_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "MpcDkgSession_session_id",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_that = <RustOpaqueMoi<
+                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcDkgSession>,
+            >>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let mut api_that_guard = None;
+                    let decode_indices_ =
+                        flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
+                            flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                &api_that, 0, false,
+                            ),
+                        ]);
+                    for i in decode_indices_ {
+                        match i {
+                            0 => api_that_guard = Some(api_that.lockable_decode_sync_ref()),
+                            _ => unreachable!(),
+                        }
+                    }
+                    let api_that_guard = api_that_guard.unwrap();
+                    let output_ok = Result::<_, ()>::Ok(crate::bridge::MpcDkgSession::session_id(
+                        &*api_that_guard,
+                    ))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__bridge__MpcReshareSession_advance_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "MpcReshareSession_advance",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_that = <RustOpaqueMoi<
+                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcReshareSession>,
+            >>::sse_decode(&mut deserializer);
+            let api_server_payload = <Vec<u8>>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, String>((move || {
+                    let mut api_that_guard = None;
+                    let decode_indices_ =
+                        flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
+                            flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                &api_that, 0, false,
+                            ),
+                        ]);
+                    for i in decode_indices_ {
+                        match i {
+                            0 => api_that_guard = Some(api_that.lockable_decode_sync_ref()),
+                            _ => unreachable!(),
+                        }
+                    }
+                    let api_that_guard = api_that_guard.unwrap();
+                    let output_ok = crate::bridge::MpcReshareSession::advance(
+                        &*api_that_guard,
+                        api_server_payload,
+                    )?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__bridge__MpcReshareSession_create_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "MpcReshareSession_create",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, String>((move || {
+                    let output_ok = crate::bridge::MpcReshareSession::create()?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__bridge__MpcReshareSession_first_round_payload_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "MpcReshareSession_first_round_payload",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_that = <RustOpaqueMoi<
+                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcReshareSession>,
+            >>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let mut api_that_guard = None;
+                    let decode_indices_ =
+                        flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
+                            flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                &api_that, 0, false,
+                            ),
+                        ]);
+                    for i in decode_indices_ {
+                        match i {
+                            0 => api_that_guard = Some(api_that.lockable_decode_sync_ref()),
+                            _ => unreachable!(),
+                        }
+                    }
+                    let api_that_guard = api_that_guard.unwrap();
+                    let output_ok = Result::<_, ()>::Ok(
+                        crate::bridge::MpcReshareSession::first_round_payload(&*api_that_guard),
+                    )?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__bridge__MpcReshareSession_session_id_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "MpcReshareSession_session_id",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_that = <RustOpaqueMoi<
+                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcReshareSession>,
+            >>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let mut api_that_guard = None;
+                    let decode_indices_ =
+                        flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
+                            flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                &api_that, 0, false,
+                            ),
+                        ]);
+                    for i in decode_indices_ {
+                        match i {
+                            0 => api_that_guard = Some(api_that.lockable_decode_sync_ref()),
+                            _ => unreachable!(),
+                        }
+                    }
+                    let api_that_guard = api_that_guard.unwrap();
+                    let output_ok = Result::<_, ()>::Ok(
+                        crate::bridge::MpcReshareSession::session_id(&*api_that_guard),
+                    )?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__bridge__MpcSigningSession_advance_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "MpcSigningSession_advance",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_that = <RustOpaqueMoi<
+                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcSigningSession>,
+            >>::sse_decode(&mut deserializer);
+            let api_server_payload = <Vec<u8>>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, String>((move || {
+                    let mut api_that_guard = None;
+                    let decode_indices_ =
+                        flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
+                            flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                &api_that, 0, false,
+                            ),
+                        ]);
+                    for i in decode_indices_ {
+                        match i {
+                            0 => api_that_guard = Some(api_that.lockable_decode_sync_ref()),
+                            _ => unreachable!(),
+                        }
+                    }
+                    let api_that_guard = api_that_guard.unwrap();
+                    let output_ok = crate::bridge::MpcSigningSession::advance(
+                        &*api_that_guard,
+                        api_server_payload,
+                    )?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__bridge__MpcSigningSession_create_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "MpcSigningSession_create",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_device_share = <Vec<u8>>::sse_decode(&mut deserializer);
+            let api_tx_hash = <Vec<u8>>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, String>((move || {
+                    let output_ok =
+                        crate::bridge::MpcSigningSession::create(api_device_share, api_tx_hash)?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__bridge__MpcSigningSession_first_round_payload_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "MpcSigningSession_first_round_payload",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_that = <RustOpaqueMoi<
+                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcSigningSession>,
+            >>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let mut api_that_guard = None;
+                    let decode_indices_ =
+                        flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
+                            flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                &api_that, 0, false,
+                            ),
+                        ]);
+                    for i in decode_indices_ {
+                        match i {
+                            0 => api_that_guard = Some(api_that.lockable_decode_sync_ref()),
+                            _ => unreachable!(),
+                        }
+                    }
+                    let api_that_guard = api_that_guard.unwrap();
+                    let output_ok = Result::<_, ()>::Ok(
+                        crate::bridge::MpcSigningSession::first_round_payload(&*api_that_guard),
+                    )?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__bridge__MpcSigningSession_session_id_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "MpcSigningSession_session_id",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_that = <RustOpaqueMoi<
+                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcSigningSession>,
+            >>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let mut api_that_guard = None;
+                    let decode_indices_ =
+                        flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
+                            flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                &api_that, 0, false,
+                            ),
+                        ]);
+                    for i in decode_indices_ {
+                        match i {
+                            0 => api_that_guard = Some(api_that.lockable_decode_sync_ref()),
+                            _ => unreachable!(),
+                        }
+                    }
+                    let api_that_guard = api_that_guard.unwrap();
+                    let output_ok = Result::<_, ()>::Ok(
+                        crate::bridge::MpcSigningSession::session_id(&*api_that_guard),
+                    )?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
 fn wire__crate__bridge__add_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -5538,6 +6102,15 @@ flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
 flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
     flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Mnemonic>
 );
+flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
+    flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcDkgSession>
+);
+flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
+    flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcReshareSession>
+);
+flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
+    flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcSigningSession>
+);
 
 // Section: dart2rust
 
@@ -5611,6 +6184,36 @@ impl SseDecode for Mnemonic {
     }
 }
 
+impl SseDecode for MpcDkgSession {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <RustOpaqueMoi<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcDkgSession>,
+        >>::sse_decode(deserializer);
+        return flutter_rust_bridge::for_generated::rust_auto_opaque_decode_owned(inner);
+    }
+}
+
+impl SseDecode for MpcReshareSession {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <RustOpaqueMoi<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcReshareSession>,
+        >>::sse_decode(deserializer);
+        return flutter_rust_bridge::for_generated::rust_auto_opaque_decode_owned(inner);
+    }
+}
+
+impl SseDecode for MpcSigningSession {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <RustOpaqueMoi<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcSigningSession>,
+        >>::sse_decode(deserializer);
+        return flutter_rust_bridge::for_generated::rust_auto_opaque_decode_owned(inner);
+    }
+}
+
 impl SseDecode
     for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Bip44Account>>
 {
@@ -5673,6 +6276,36 @@ impl SseDecode
 
 impl SseDecode
     for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Mnemonic>>
+{
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <usize>::sse_decode(deserializer);
+        return decode_rust_opaque_moi(inner);
+    }
+}
+
+impl SseDecode
+    for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcDkgSession>>
+{
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <usize>::sse_decode(deserializer);
+        return decode_rust_opaque_moi(inner);
+    }
+}
+
+impl SseDecode
+    for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcReshareSession>>
+{
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <usize>::sse_decode(deserializer);
+        return decode_rust_opaque_moi(inner);
+    }
+}
+
+impl SseDecode
+    for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcSigningSession>>
 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -5864,6 +6497,50 @@ impl SseDecode for Vec<u8> {
     }
 }
 
+impl SseDecode for crate::bridge::MpcDkgAdvanceResult {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_isComplete = <bool>::sse_decode(deserializer);
+        let mut var_nextPayload = <Option<Vec<u8>>>::sse_decode(deserializer);
+        let mut var_deviceShare = <Option<Vec<u8>>>::sse_decode(deserializer);
+        let mut var_walletAddress = <Option<String>>::sse_decode(deserializer);
+        return crate::bridge::MpcDkgAdvanceResult {
+            is_complete: var_isComplete,
+            next_payload: var_nextPayload,
+            device_share: var_deviceShare,
+            wallet_address: var_walletAddress,
+        };
+    }
+}
+
+impl SseDecode for crate::bridge::MpcReshareAdvanceResult {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_isComplete = <bool>::sse_decode(deserializer);
+        let mut var_nextPayload = <Option<Vec<u8>>>::sse_decode(deserializer);
+        let mut var_newDeviceShare = <Option<Vec<u8>>>::sse_decode(deserializer);
+        return crate::bridge::MpcReshareAdvanceResult {
+            is_complete: var_isComplete,
+            next_payload: var_nextPayload,
+            new_device_share: var_newDeviceShare,
+        };
+    }
+}
+
+impl SseDecode for crate::bridge::MpcSigningAdvanceResult {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_isComplete = <bool>::sse_decode(deserializer);
+        let mut var_nextPayload = <Option<Vec<u8>>>::sse_decode(deserializer);
+        let mut var_signature = <Option<Vec<u8>>>::sse_decode(deserializer);
+        return crate::bridge::MpcSigningAdvanceResult {
+            is_complete: var_isComplete,
+            next_payload: var_nextPayload,
+            signature: var_signature,
+        };
+    }
+}
+
 impl SseDecode for crate::bridge::Network {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -5903,6 +6580,17 @@ impl SseDecode for Option<u64> {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         if (<bool>::sse_decode(deserializer)) {
             return Some(<u64>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<Vec<u8>> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<Vec<u8>>::sse_decode(deserializer));
         } else {
             return None;
         }
@@ -5986,7 +6674,6 @@ impl SseDecode for crate::bridge::WpgpPaymentIntent {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut var_businessId = <String>::sse_decode(deserializer);
-        let mut var_business = <String>::sse_decode(deserializer);
         let mut var_recipient = <String>::sse_decode(deserializer);
         let mut var_token = <String>::sse_decode(deserializer);
         let mut var_amount = <String>::sse_decode(deserializer);
@@ -5995,7 +6682,6 @@ impl SseDecode for crate::bridge::WpgpPaymentIntent {
         let mut var_nonce = <String>::sse_decode(deserializer);
         return crate::bridge::WpgpPaymentIntent {
             business_id: var_businessId,
-            business: var_business,
             recipient: var_recipient,
             token: var_token,
             amount: var_amount,
@@ -6245,195 +6931,236 @@ fn pde_ffi_dispatcher_primary_impl(
         56 => wire__crate__bridge__Mnemonic_to_phrase_impl(port, ptr, rust_vec_len, data_len),
         57 => wire__crate__bridge__Mnemonic_to_seed_impl(port, ptr, rust_vec_len, data_len),
         58 => wire__crate__bridge__Mnemonic_word_count_impl(port, ptr, rust_vec_len, data_len),
-        59 => wire__crate__bridge__add_impl(port, ptr, rust_vec_len, data_len),
-        60 => wire__crate__bridge__chain_id_to_u64_impl(port, ptr, rust_vec_len, data_len),
-        61 => wire__crate__bridge__coin_type_to_index_impl(port, ptr, rust_vec_len, data_len),
-        62 => wire__crate__bridge__create_bip44_account_impl(port, ptr, rust_vec_len, data_len),
-        63 => wire__crate__bridge__create_bip44_wallet_impl(port, ptr, rust_vec_len, data_len),
-        64 => wire__crate__bridge__create_evm_signer_from_mnemonic_impl(
+        59 => wire__crate__bridge__MpcDkgSession_advance_impl(port, ptr, rust_vec_len, data_len),
+        60 => wire__crate__bridge__MpcDkgSession_create_impl(port, ptr, rust_vec_len, data_len),
+        61 => wire__crate__bridge__MpcDkgSession_first_round_payload_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        65 => wire__crate__bridge__create_master_key_impl(port, ptr, rust_vec_len, data_len),
-        66 => wire__crate__bridge__custom_chain_id_value_impl(port, ptr, rust_vec_len, data_len),
-        67 => wire__crate__bridge__derive_bip44_address_impl(port, ptr, rust_vec_len, data_len),
-        68 => wire__crate__bridge__derive_evm_address_impl(port, ptr, rust_vec_len, data_len),
-        69 => wire__crate__bridge__derive_key_impl(port, ptr, rust_vec_len, data_len),
-        70 => wire__crate__bridge__eip712_sign_impl(port, ptr, rust_vec_len, data_len),
-        71 => wire__crate__bridge__eip712_verify_impl(port, ptr, rust_vec_len, data_len),
-        72 => wire__crate__bridge__eip_1559_transaction_builder_impl(
+        62 => wire__crate__bridge__MpcDkgSession_session_id_impl(port, ptr, rust_vec_len, data_len),
+        63 => {
+            wire__crate__bridge__MpcReshareSession_advance_impl(port, ptr, rust_vec_len, data_len)
+        }
+        64 => wire__crate__bridge__MpcReshareSession_create_impl(port, ptr, rust_vec_len, data_len),
+        65 => wire__crate__bridge__MpcReshareSession_first_round_payload_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        73 => wire__crate__bridge__eip_1559_transaction_builder_build_impl(
+        66 => wire__crate__bridge__MpcReshareSession_session_id_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        74 => wire__crate__bridge__eip_1559_transaction_builder_default_impl(
+        67 => {
+            wire__crate__bridge__MpcSigningSession_advance_impl(port, ptr, rust_vec_len, data_len)
+        }
+        68 => wire__crate__bridge__MpcSigningSession_create_impl(port, ptr, rust_vec_len, data_len),
+        69 => wire__crate__bridge__MpcSigningSession_first_round_payload_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        75 => wire__crate__bridge__eip_1559_transaction_builder_new_impl(
+        70 => wire__crate__bridge__MpcSigningSession_session_id_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        76 => wire__crate__bridge__eip_1559_transaction_is_contract_creation_impl(
+        71 => wire__crate__bridge__add_impl(port, ptr, rust_vec_len, data_len),
+        72 => wire__crate__bridge__chain_id_to_u64_impl(port, ptr, rust_vec_len, data_len),
+        73 => wire__crate__bridge__coin_type_to_index_impl(port, ptr, rust_vec_len, data_len),
+        74 => wire__crate__bridge__create_bip44_account_impl(port, ptr, rust_vec_len, data_len),
+        75 => wire__crate__bridge__create_bip44_wallet_impl(port, ptr, rust_vec_len, data_len),
+        76 => wire__crate__bridge__create_evm_signer_from_mnemonic_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        77 => wire__crate__bridge__eip_1559_transaction_is_transfer_impl(
+        77 => wire__crate__bridge__create_master_key_impl(port, ptr, rust_vec_len, data_len),
+        78 => wire__crate__bridge__custom_chain_id_value_impl(port, ptr, rust_vec_len, data_len),
+        79 => wire__crate__bridge__derive_bip44_address_impl(port, ptr, rust_vec_len, data_len),
+        80 => wire__crate__bridge__derive_evm_address_impl(port, ptr, rust_vec_len, data_len),
+        81 => wire__crate__bridge__derive_key_impl(port, ptr, rust_vec_len, data_len),
+        82 => wire__crate__bridge__eip712_sign_impl(port, ptr, rust_vec_len, data_len),
+        83 => wire__crate__bridge__eip712_verify_impl(port, ptr, rust_vec_len, data_len),
+        84 => wire__crate__bridge__eip_1559_transaction_builder_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        78 => wire__crate__bridge__eip_1559_transaction_token_transfer_gas_impl(
+        85 => wire__crate__bridge__eip_1559_transaction_builder_build_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        79 => wire__crate__bridge__eip_1559_transaction_transfer_gas_impl(
+        86 => wire__crate__bridge__eip_1559_transaction_builder_default_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        80 => wire__crate__bridge__eip_1559_transaction_validate_impl(
+        87 => wire__crate__bridge__eip_1559_transaction_builder_new_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        81 => wire__crate__bridge__ether_to_wei_impl(port, ptr, rust_vec_len, data_len),
-        82 => wire__crate__bridge__evm_access_list_item_address_only_impl(
+        88 => wire__crate__bridge__eip_1559_transaction_is_contract_creation_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        83 => wire__crate__bridge__evm_access_list_item_new_impl(port, ptr, rust_vec_len, data_len),
-        84 => wire__crate__bridge__evm_signature_from_bytes_impl(port, ptr, rust_vec_len, data_len),
-        85 => wire__crate__bridge__evm_signature_new_impl(port, ptr, rust_vec_len, data_len),
-        86 => wire__crate__bridge__evm_signature_to_bytes_impl(port, ptr, rust_vec_len, data_len),
-        87 => {
+        89 => wire__crate__bridge__eip_1559_transaction_is_transfer_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        90 => wire__crate__bridge__eip_1559_transaction_token_transfer_gas_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        91 => wire__crate__bridge__eip_1559_transaction_transfer_gas_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        92 => wire__crate__bridge__eip_1559_transaction_validate_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        93 => wire__crate__bridge__ether_to_wei_impl(port, ptr, rust_vec_len, data_len),
+        94 => wire__crate__bridge__evm_access_list_item_address_only_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        95 => wire__crate__bridge__evm_access_list_item_new_impl(port, ptr, rust_vec_len, data_len),
+        96 => wire__crate__bridge__evm_signature_from_bytes_impl(port, ptr, rust_vec_len, data_len),
+        97 => wire__crate__bridge__evm_signature_new_impl(port, ptr, rust_vec_len, data_len),
+        98 => wire__crate__bridge__evm_signature_to_bytes_impl(port, ptr, rust_vec_len, data_len),
+        99 => {
             wire__crate__bridge__evm_signature_to_hex_string_impl(port, ptr, rust_vec_len, data_len)
         }
-        88 => wire__crate__bridge__evm_wei_add_impl(port, ptr, rust_vec_len, data_len),
-        89 => wire__crate__bridge__evm_wei_from_ether_impl(port, ptr, rust_vec_len, data_len),
-        90 => wire__crate__bridge__evm_wei_from_gwei_impl(port, ptr, rust_vec_len, data_len),
-        91 => wire__crate__bridge__evm_wei_from_wei_string_impl(port, ptr, rust_vec_len, data_len),
-        92 => wire__crate__bridge__evm_wei_from_wei_u64_impl(port, ptr, rust_vec_len, data_len),
-        93 => wire__crate__bridge__evm_wei_is_zero_impl(port, ptr, rust_vec_len, data_len),
-        94 => wire__crate__bridge__evm_wei_multiply_impl(port, ptr, rust_vec_len, data_len),
-        95 => {
+        100 => wire__crate__bridge__evm_wei_add_impl(port, ptr, rust_vec_len, data_len),
+        101 => wire__crate__bridge__evm_wei_from_ether_impl(port, ptr, rust_vec_len, data_len),
+        102 => wire__crate__bridge__evm_wei_from_gwei_impl(port, ptr, rust_vec_len, data_len),
+        103 => wire__crate__bridge__evm_wei_from_wei_string_impl(port, ptr, rust_vec_len, data_len),
+        104 => wire__crate__bridge__evm_wei_from_wei_u64_impl(port, ptr, rust_vec_len, data_len),
+        105 => wire__crate__bridge__evm_wei_is_zero_impl(port, ptr, rust_vec_len, data_len),
+        106 => wire__crate__bridge__evm_wei_multiply_impl(port, ptr, rust_vec_len, data_len),
+        107 => {
             wire__crate__bridge__evm_wei_to_decimal_string_impl(port, ptr, rust_vec_len, data_len)
         }
-        96 => wire__crate__bridge__evm_wei_to_ether_impl(port, ptr, rust_vec_len, data_len),
-        97 => wire__crate__bridge__evm_wei_to_gwei_impl(port, ptr, rust_vec_len, data_len),
-        98 => wire__crate__bridge__evm_wei_to_u64_impl(port, ptr, rust_vec_len, data_len),
-        99 => wire__crate__bridge__evm_wei_zero_impl(port, ptr, rust_vec_len, data_len),
-        100 => wire__crate__bridge__generate_mnemonic_impl(port, ptr, rust_vec_len, data_len),
-        101 => wire__crate__bridge__generate_mnemonic_from_entropy_impl(
+        108 => wire__crate__bridge__evm_wei_to_ether_impl(port, ptr, rust_vec_len, data_len),
+        109 => wire__crate__bridge__evm_wei_to_gwei_impl(port, ptr, rust_vec_len, data_len),
+        110 => wire__crate__bridge__evm_wei_to_u64_impl(port, ptr, rust_vec_len, data_len),
+        111 => wire__crate__bridge__evm_wei_zero_impl(port, ptr, rust_vec_len, data_len),
+        112 => wire__crate__bridge__generate_mnemonic_impl(port, ptr, rust_vec_len, data_len),
+        113 => wire__crate__bridge__generate_mnemonic_from_entropy_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        102 => wire__crate__bridge__get_address_impl(port, ptr, rust_vec_len, data_len),
-        103 => wire__crate__bridge__get_chain_id_value_impl(port, ptr, rust_vec_len, data_len),
-        104 => wire__crate__bridge__get_chain_name_impl(port, ptr, rust_vec_len, data_len),
-        105 => wire__crate__bridge__get_coin_info_impl(port, ptr, rust_vec_len, data_len),
-        106 => wire__crate__bridge__get_ether_in_wei_impl(port, ptr, rust_vec_len, data_len),
-        107 => wire__crate__bridge__get_evm_address_from_private_key_impl(
+        114 => wire__crate__bridge__get_address_impl(port, ptr, rust_vec_len, data_len),
+        115 => wire__crate__bridge__get_chain_id_value_impl(port, ptr, rust_vec_len, data_len),
+        116 => wire__crate__bridge__get_chain_name_impl(port, ptr, rust_vec_len, data_len),
+        117 => wire__crate__bridge__get_coin_info_impl(port, ptr, rust_vec_len, data_len),
+        118 => wire__crate__bridge__get_ether_in_wei_impl(port, ptr, rust_vec_len, data_len),
+        119 => wire__crate__bridge__get_evm_address_from_private_key_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        108 => wire__crate__bridge__get_gwei_in_wei_impl(port, ptr, rust_vec_len, data_len),
-        109 => wire__crate__bridge__get_public_key_impl(port, ptr, rust_vec_len, data_len),
-        110 => wire__crate__bridge__get_purpose_info_impl(port, ptr, rust_vec_len, data_len),
-        111 => wire__crate__bridge__get_token_transfer_gas_impl(port, ptr, rust_vec_len, data_len),
-        112 => wire__crate__bridge__get_transfer_gas_impl(port, ptr, rust_vec_len, data_len),
-        113 => wire__crate__bridge__gwei_to_wei_impl(port, ptr, rust_vec_len, data_len),
-        114 => wire__crate__bridge__health_check_impl(port, ptr, rust_vec_len, data_len),
-        115 => wire__crate__bridge__is_testnet_chain_impl(port, ptr, rust_vec_len, data_len),
-        116 => {
+        120 => wire__crate__bridge__get_gwei_in_wei_impl(port, ptr, rust_vec_len, data_len),
+        121 => wire__crate__bridge__get_public_key_impl(port, ptr, rust_vec_len, data_len),
+        122 => wire__crate__bridge__get_purpose_info_impl(port, ptr, rust_vec_len, data_len),
+        123 => wire__crate__bridge__get_token_transfer_gas_impl(port, ptr, rust_vec_len, data_len),
+        124 => wire__crate__bridge__get_transfer_gas_impl(port, ptr, rust_vec_len, data_len),
+        125 => wire__crate__bridge__gwei_to_wei_impl(port, ptr, rust_vec_len, data_len),
+        126 => wire__crate__bridge__health_check_impl(port, ptr, rust_vec_len, data_len),
+        127 => wire__crate__bridge__is_testnet_chain_impl(port, ptr, rust_vec_len, data_len),
+        128 => {
             wire__crate__bridge__mnemonic_phrase_to_seed_hex_impl(port, ptr, rust_vec_len, data_len)
         }
-        117 => wire__crate__bridge__parse_bip44_path_impl(port, ptr, rust_vec_len, data_len),
-        118 => wire__crate__bridge__parse_evm_address_impl(port, ptr, rust_vec_len, data_len),
-        119 => wire__crate__bridge__recover_signer_address_impl(port, ptr, rust_vec_len, data_len),
-        120 => {
+        129 => wire__crate__bridge__parse_bip44_path_impl(port, ptr, rust_vec_len, data_len),
+        130 => wire__crate__bridge__parse_evm_address_impl(port, ptr, rust_vec_len, data_len),
+        131 => wire__crate__bridge__recover_signer_address_impl(port, ptr, rust_vec_len, data_len),
+        132 => {
             wire__crate__bridge__sign_eip1559_transaction_impl(port, ptr, rust_vec_len, data_len)
         }
-        121 => wire__crate__bridge__signed_evm_transaction_encode_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        122 => {
-            wire__crate__bridge__signed_evm_transaction_new_impl(port, ptr, rust_vec_len, data_len)
-        }
-        123 => wire__crate__bridge__signed_evm_transaction_to_raw_transaction_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        124 => wire__crate__bridge__signed_evm_transaction_tx_hash_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        125 => wire__crate__bridge__signed_evm_transaction_tx_hash_hex_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        126 => wire__crate__bridge__validate_evm_address_checksum_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        127 => wire__crate__bridge__validate_mnemonic_impl(port, ptr, rust_vec_len, data_len),
-        128 => {
-            wire__crate__bridge__wpgp_build_eoa_transaction_impl(port, ptr, rust_vec_len, data_len)
-        }
-        129 => wire__crate__bridge__wpgp_entry_point_v07_impl(port, ptr, rust_vec_len, data_len),
-        130 => {
-            wire__crate__bridge__wpgp_sign_payment_intent_impl(port, ptr, rust_vec_len, data_len)
-        }
-        131 => {
-            wire__crate__bridge__wpgp_sign_user_operation_impl(port, ptr, rust_vec_len, data_len)
-        }
-        132 => {
-            wire__crate__bridge__wpgp_user_operation_hash_impl(port, ptr, rust_vec_len, data_len)
-        }
-        133 => wire__crate__bridge__wpgp_verify_payment_signature_impl(
+        133 => wire__crate__bridge__signed_evm_transaction_encode_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
         134 => {
+            wire__crate__bridge__signed_evm_transaction_new_impl(port, ptr, rust_vec_len, data_len)
+        }
+        135 => wire__crate__bridge__signed_evm_transaction_to_raw_transaction_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        136 => wire__crate__bridge__signed_evm_transaction_tx_hash_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        137 => wire__crate__bridge__signed_evm_transaction_tx_hash_hex_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        138 => wire__crate__bridge__validate_evm_address_checksum_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        139 => wire__crate__bridge__validate_mnemonic_impl(port, ptr, rust_vec_len, data_len),
+        140 => {
+            wire__crate__bridge__wpgp_build_eoa_transaction_impl(port, ptr, rust_vec_len, data_len)
+        }
+        141 => wire__crate__bridge__wpgp_entry_point_v07_impl(port, ptr, rust_vec_len, data_len),
+        142 => {
+            wire__crate__bridge__wpgp_sign_payment_intent_impl(port, ptr, rust_vec_len, data_len)
+        }
+        143 => {
+            wire__crate__bridge__wpgp_sign_user_operation_impl(port, ptr, rust_vec_len, data_len)
+        }
+        144 => {
+            wire__crate__bridge__wpgp_user_operation_hash_impl(port, ptr, rust_vec_len, data_len)
+        }
+        145 => wire__crate__bridge__wpgp_verify_payment_signature_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        146 => {
             wire__crate__bridge__wpgp_verify_user_operation_impl(port, ptr, rust_vec_len, data_len)
         }
         _ => unreachable!(),
@@ -6558,6 +7285,51 @@ impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for FrbWrapper<
 
 impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<Mnemonic>> for Mnemonic {
     fn into_into_dart(self) -> FrbWrapper<Mnemonic> {
+        self.into()
+    }
+}
+
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for FrbWrapper<MpcDkgSession> {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self.0)
+            .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for FrbWrapper<MpcDkgSession> {}
+
+impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<MpcDkgSession>> for MpcDkgSession {
+    fn into_into_dart(self) -> FrbWrapper<MpcDkgSession> {
+        self.into()
+    }
+}
+
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for FrbWrapper<MpcReshareSession> {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self.0)
+            .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for FrbWrapper<MpcReshareSession> {}
+
+impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<MpcReshareSession>> for MpcReshareSession {
+    fn into_into_dart(self) -> FrbWrapper<MpcReshareSession> {
+        self.into()
+    }
+}
+
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for FrbWrapper<MpcSigningSession> {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self.0)
+            .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for FrbWrapper<MpcSigningSession> {}
+
+impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<MpcSigningSession>> for MpcSigningSession {
+    fn into_into_dart(self) -> FrbWrapper<MpcSigningSession> {
         self.into()
     }
 }
@@ -6734,6 +7506,73 @@ impl flutter_rust_bridge::IntoIntoDart<crate::bridge::EvmWei> for crate::bridge:
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::bridge::MpcDkgAdvanceResult {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.is_complete.into_into_dart().into_dart(),
+            self.next_payload.into_into_dart().into_dart(),
+            self.device_share.into_into_dart().into_dart(),
+            self.wallet_address.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::bridge::MpcDkgAdvanceResult
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::bridge::MpcDkgAdvanceResult>
+    for crate::bridge::MpcDkgAdvanceResult
+{
+    fn into_into_dart(self) -> crate::bridge::MpcDkgAdvanceResult {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::bridge::MpcReshareAdvanceResult {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.is_complete.into_into_dart().into_dart(),
+            self.next_payload.into_into_dart().into_dart(),
+            self.new_device_share.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::bridge::MpcReshareAdvanceResult
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::bridge::MpcReshareAdvanceResult>
+    for crate::bridge::MpcReshareAdvanceResult
+{
+    fn into_into_dart(self) -> crate::bridge::MpcReshareAdvanceResult {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::bridge::MpcSigningAdvanceResult {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.is_complete.into_into_dart().into_dart(),
+            self.next_payload.into_into_dart().into_dart(),
+            self.signature.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::bridge::MpcSigningAdvanceResult
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::bridge::MpcSigningAdvanceResult>
+    for crate::bridge::MpcSigningAdvanceResult
+{
+    fn into_into_dart(self) -> crate::bridge::MpcSigningAdvanceResult {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::bridge::Network {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         match self {
@@ -6812,7 +7651,6 @@ impl flutter_rust_bridge::IntoDart for crate::bridge::WpgpPaymentIntent {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
             self.business_id.into_into_dart().into_dart(),
-            self.business.into_into_dart().into_dart(),
             self.recipient.into_into_dart().into_dart(),
             self.token.into_into_dart().into_dart(),
             self.amount.into_into_dart().into_dart(),
@@ -6913,6 +7751,27 @@ impl SseEncode for Mnemonic {
     }
 }
 
+impl SseEncode for MpcDkgSession {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcDkgSession>>>::sse_encode(flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self), serializer);
+    }
+}
+
+impl SseEncode for MpcReshareSession {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcReshareSession>>>::sse_encode(flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self), serializer);
+    }
+}
+
+impl SseEncode for MpcSigningSession {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcSigningSession>>>::sse_encode(flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self), serializer);
+    }
+}
+
 impl SseEncode
     for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Bip44Account>>
 {
@@ -6981,6 +7840,39 @@ impl SseEncode
 
 impl SseEncode
     for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Mnemonic>>
+{
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        let (ptr, size) = self.sse_encode_raw();
+        <usize>::sse_encode(ptr, serializer);
+        <i32>::sse_encode(size, serializer);
+    }
+}
+
+impl SseEncode
+    for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcDkgSession>>
+{
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        let (ptr, size) = self.sse_encode_raw();
+        <usize>::sse_encode(ptr, serializer);
+        <i32>::sse_encode(size, serializer);
+    }
+}
+
+impl SseEncode
+    for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcReshareSession>>
+{
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        let (ptr, size) = self.sse_encode_raw();
+        <usize>::sse_encode(ptr, serializer);
+        <i32>::sse_encode(size, serializer);
+    }
+}
+
+impl SseEncode
+    for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcSigningSession>>
 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -7148,6 +8040,34 @@ impl SseEncode for Vec<u8> {
     }
 }
 
+impl SseEncode for crate::bridge::MpcDkgAdvanceResult {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_complete, serializer);
+        <Option<Vec<u8>>>::sse_encode(self.next_payload, serializer);
+        <Option<Vec<u8>>>::sse_encode(self.device_share, serializer);
+        <Option<String>>::sse_encode(self.wallet_address, serializer);
+    }
+}
+
+impl SseEncode for crate::bridge::MpcReshareAdvanceResult {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_complete, serializer);
+        <Option<Vec<u8>>>::sse_encode(self.next_payload, serializer);
+        <Option<Vec<u8>>>::sse_encode(self.new_device_share, serializer);
+    }
+}
+
+impl SseEncode for crate::bridge::MpcSigningAdvanceResult {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_complete, serializer);
+        <Option<Vec<u8>>>::sse_encode(self.next_payload, serializer);
+        <Option<Vec<u8>>>::sse_encode(self.signature, serializer);
+    }
+}
+
 impl SseEncode for crate::bridge::Network {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -7190,6 +8110,16 @@ impl SseEncode for Option<u64> {
         <bool>::sse_encode(self.is_some(), serializer);
         if let Some(value) = self {
             <u64>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<Vec<u8>> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <Vec<u8>>::sse_encode(value, serializer);
         }
     }
 }
@@ -7269,7 +8199,6 @@ impl SseEncode for crate::bridge::WpgpPaymentIntent {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <String>::sse_encode(self.business_id, serializer);
-        <String>::sse_encode(self.business, serializer);
         <String>::sse_encode(self.recipient, serializer);
         <String>::sse_encode(self.token, serializer);
         <String>::sse_encode(self.amount, serializer);
@@ -7411,6 +8340,48 @@ mod io {
     ) {
         MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Mnemonic>>::decrement_strong_count(ptr as _);
     }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_khodpay_bridge_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcDkgSession>>::increment_strong_count(ptr as _);
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_khodpay_bridge_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcDkgSession>>::decrement_strong_count(ptr as _);
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_khodpay_bridge_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcReshareSession>>::increment_strong_count(ptr as _);
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_khodpay_bridge_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcReshareSession>>::decrement_strong_count(ptr as _);
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_khodpay_bridge_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcSigningSession>>::increment_strong_count(ptr as _);
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_khodpay_bridge_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcSigningSession>>::decrement_strong_count(ptr as _);
+    }
 }
 #[cfg(not(target_family = "wasm"))]
 pub use io::*;
@@ -7533,6 +8504,48 @@ mod web {
         ptr: *const std::ffi::c_void,
     ) {
         MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Mnemonic>>::decrement_strong_count(ptr as _);
+    }
+
+    #[wasm_bindgen]
+    pub fn rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcDkgSession>>::increment_strong_count(ptr as _);
+    }
+
+    #[wasm_bindgen]
+    pub fn rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcDkgSession>>::decrement_strong_count(ptr as _);
+    }
+
+    #[wasm_bindgen]
+    pub fn rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcReshareSession>>::increment_strong_count(ptr as _);
+    }
+
+    #[wasm_bindgen]
+    pub fn rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcReshareSession>>::decrement_strong_count(ptr as _);
+    }
+
+    #[wasm_bindgen]
+    pub fn rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcSigningSession>>::increment_strong_count(ptr as _);
+    }
+
+    #[wasm_bindgen]
+    pub fn rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcSigningSession>>::decrement_strong_count(ptr as _);
     }
 }
 #[cfg(target_family = "wasm")]
