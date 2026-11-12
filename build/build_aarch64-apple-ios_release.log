@@ -14,109 +14,117 @@ workspace: /Users/drmac/RustroverProjects/khodpay-wallet/Cargo.toml
    Compiling serde v1.0.226
    Compiling typenum v1.19.0
    Compiling generic-array v0.14.7
-   Compiling base16ct v0.2.0
    Compiling zeroize v1.8.2
    Compiling once_cell v1.21.3
+   Compiling base16ct v0.2.0
    Compiling memchr v2.7.6
    Compiling zerocopy v0.8.27
    Compiling thiserror v1.0.69
    Compiling pin-project-lite v0.2.17
    Compiling futures-sink v0.3.34
-   Compiling der v0.7.10
    Compiling futures-core v0.3.34
-   Compiling futures-task v0.3.34
+   Compiling slab v0.4.11
+   Compiling der v0.7.10
    Compiling getrandom v0.2.16
    Compiling cpufeatures v0.2.17
-   Compiling rand_core v0.6.4
    Compiling futures-channel v0.3.34
-   Compiling slab v0.4.11
+   Compiling futures-task v0.3.34
    Compiling futures-io v0.3.34
+   Compiling rand_core v0.6.4
    Compiling bitcoin-internals v0.2.0
+   Compiling futures-util v0.3.34
    Compiling gmp-mpfr-sys v1.7.1
    Compiling phantom-type v0.4.2
    Compiling tinyvec_macros v0.1.1
-   Compiling libm v0.2.16
    Compiling tinyvec v1.10.0
-   Compiling futures-util v0.3.34
-   Compiling ff v0.13.1
+   Compiling libm v0.2.16
    Compiling hex-conservative v0.1.2
-   Compiling thiserror v2.0.20
-   Compiling spki v0.7.3
-   Compiling group v0.13.0
-   Compiling ppv-lite86 v0.2.21
-   Compiling unicode-normalization v0.1.24
-   Compiling pkcs8 v0.10.2
-   Compiling rand_chacha v0.3.1
-   Compiling hex v0.4.3
-   Compiling rand v0.8.5
-   Compiling serde_with v2.3.3
-   Compiling block-buffer v0.10.4
-   Compiling crypto-common v0.1.6
-   Compiling sec1 v0.7.3
-   Compiling crypto-bigint v0.5.5
-   Compiling generic-ec-core v0.2.3
-   Compiling bitcoin_hashes v0.13.0
    Compiling rug v1.30.0
+   Compiling ff v0.13.1
+   Compiling spki v0.7.3
+   Compiling ppv-lite86 v0.2.21
+   Compiling group v0.13.0
+   Compiling bitcoin_hashes v0.13.0
+   Compiling pkcs8 v0.10.2
+   Compiling hex v0.4.3
+   Compiling rand_chacha v0.3.1
+   Compiling serde_with v2.3.3
+   Compiling unicode-normalization v0.1.24
+   Compiling crypto-common v0.1.6
+   Compiling block-buffer v0.10.4
+   Compiling crypto-bigint v0.5.5
+   Compiling sec1 v0.7.3
+   Compiling rand v0.8.5
    Compiling digest v0.10.7
-   Compiling secp256k1-sys v0.10.1
+   Compiling generic-ec-core v0.2.3
+   Compiling thiserror v2.0.20
    Compiling hmac v0.12.1
    Compiling sha2 v0.10.9
-   Compiling rfc6979 v0.4.0
    Compiling signature v2.2.0
+   Compiling hkdf v0.12.4
+   Compiling rfc6979 v0.4.0
    Compiling elliptic-curve v0.13.8
    Compiling udigest v0.2.4
-   Compiling ecdsa v0.16.9
+   Compiling secp256k1-sys v0.10.1
    Compiling rand_hash v0.1.1
-   Compiling tracing-core v0.1.36
    Compiling az v1.3.0
+   Compiling ecdsa v0.16.9
    Compiling byteorder v1.5.0
+   Compiling tracing-core v0.1.36
    Compiling rustc-hex v2.1.0
-   Compiling parking_lot_core v0.9.12
    Compiling object v0.37.3
-   Compiling k256 v0.13.4
    Compiling crunchy v0.2.4
-   Compiling tracing v0.1.44
+   Compiling parking_lot_core v0.9.12
    Compiling bytemuck v1.25.2
    Compiling bip39 v2.2.0
+   Compiling k256 v0.13.4
    Compiling futures-executor v0.3.34
+   Compiling tracing v0.1.44
+   Compiling inout v0.1.4
    Compiling phantom-type v0.3.1
-   Compiling scopeguard v1.2.0
    Compiling adler2 v2.0.1
-   Compiling bytes v1.11.0
-   Compiling generic-ec-curves v0.2.4
    Compiling smallvec v1.15.1
-   Compiling static_assertions v1.1.0
+   Compiling generic-ec-curves v0.2.4
    Compiling generic-ec v0.4.5
+   Compiling static_assertions v1.1.0
+   Compiling scopeguard v1.2.0
    Compiling gimli v0.32.3
-   Compiling rlp v0.5.2
+   Compiling bytes v1.11.0
+   Compiling anyhow v1.0.100
+   Compiling lock_api v0.4.14
    Compiling fast-paillier v0.1.1
-   Compiling khodpay-bip39 v0.4.0 (/Users/drmac/RustroverProjects/khodpay-wallet/crates/bip39)
+   Compiling secp256k1 v0.29.1
+   Compiling serde_json v1.0.145
    Compiling generic-ec-zkp v0.4.4
-   Compiling key-share v0.6.1
+   Compiling rlp v0.5.2
    Compiling miniz_oxide v0.8.9
    Compiling addr2line v0.25.1
-   Compiling secp256k1 v0.29.1
-   Compiling getrandom v0.4.3
-   Compiling serde_json v1.0.145
-   Compiling lock_api v0.4.14
-   Compiling futures v0.3.34
+   Compiling key-share v0.6.1
    Compiling round-based v0.4.1
-   Compiling anyhow v1.0.100
+   Compiling khodpay-bip39 v0.4.0 (/Users/drmac/RustroverProjects/khodpay-wallet/crates/bip39)
+   Compiling cipher v0.4.4
+   Compiling futures v0.3.34
    Compiling serde_with v3.22.0
    Compiling bs58 v0.5.1
    Compiling ripemd v0.1.3
+   Compiling universal-hash v0.5.1
    Compiling keccak v0.1.5
-   Compiling itoa v1.0.15
+   Compiling half v2.6.0
    Compiling hashbrown v0.14.5
+   Compiling ciborium-io v0.2.2
+   Compiling opaque-debug v0.3.1
+   Compiling itoa v1.0.15
    Compiling rustc-demangle v0.1.26
    Compiling ryu v1.0.20
    Compiling portable-atomic v1.11.1
-   Compiling khodpay-bip32 v0.2.0 (/Users/drmac/RustroverProjects/khodpay-wallet/crates/bip32)
+   Compiling polyval v0.6.2
+   Compiling paillier-zk v0.4.3
+   Compiling ciborium-ll v0.2.2
+   Compiling dashmap v5.5.3
    Compiling sha3 v0.10.8
    Compiling dart-sys v4.1.5
    Compiling oslog v0.2.0
-   Compiling dashmap v5.5.3
-   Compiling paillier-zk v0.4.3
+   Compiling khodpay-bip32 v0.2.0 (/Users/drmac/RustroverProjects/khodpay-wallet/crates/bip32)
    Compiling cggmp21-keygen v0.5.0
    Compiling backtrace v0.3.76
    Compiling uint v0.9.5
@@ -125,48 +133,45 @@ workspace: /Users/drmac/RustroverProjects/khodpay-wallet/Cargo.toml
    Compiling num_cpus v1.17.0
    Compiling log v0.4.28
    Compiling atomic v0.5.3
+   Compiling base64ct v1.7.3
    Compiling cggmp21 v0.6.3
+   Compiling password-hash v0.5.0
    Compiling allo-isolate v0.1.27
-   Compiling uuid v1.26.0
+   Compiling khodpay-bip44 v0.1.0 (/Users/drmac/RustroverProjects/khodpay-wallet/crates/bip44)
    Compiling threadpool v1.8.1
    Compiling primitive-types v0.12.2
-   Compiling khodpay-bip44 v0.1.0 (/Users/drmac/RustroverProjects/khodpay-wallet/crates/bip44)
+   Compiling ciborium v0.2.2
+   Compiling ghash v0.5.1
    Compiling flutter_rust_bridge v2.11.1
+   Compiling aes v0.8.4
+   Compiling ctr v0.9.2
+   Compiling blake2 v0.10.6
+   Compiling aead v0.5.2
    Compiling tokio v1.48.0
    Compiling lazy_static v1.5.0
-   Compiling khodpay-signing v0.2.0 (/Users/drmac/RustroverProjects/khodpay-wallet/crates/khodpay-signing)
+   Compiling argon2 v0.5.3
    Compiling khodpay-mpc-tss v0.1.0 (/Users/drmac/RustroverProjects/khodpay-wallet/crates/mpc-tss)
+   Compiling aes-gcm v0.10.3
+   Compiling khodpay-signing v0.2.0 (/Users/drmac/RustroverProjects/khodpay-wallet/crates/khodpay-signing)
    Compiling khodpay-flutter-bridge v0.1.0 (/Users/drmac/RustroverProjects/khodpay-wallet/crates/flutter_bridge)
 warning: unexpected `cfg` condition name: `frb_expand`
-  --> crates/flutter_bridge/src/bridge.rs:41:1
-   |
-41 | #[frb]
-   | ^^^^^^
-   |
-   = help: expected names are: `docsrs`, `feature`, and `test` and 31 more
-   = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
-   = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
-   = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
-   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
-   = note: `#[warn(unexpected_cfgs)]` on by default
-   = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-warning: unexpected `cfg` condition name: `frb_expand`
-  --> crates/flutter_bridge/src/bridge.rs:67:1
-   |
-67 | #[frb]
-   | ^^^^^^
-   |
-   = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
-   = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
-   = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
-   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
-   = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-warning: unexpected `cfg` condition name: `frb_expand`
-   --> crates/flutter_bridge/src/bridge.rs:100:1
+   --> crates/flutter_bridge/src/bridge.rs:141:1
     |
-100 | #[frb]
+141 | #[frb]
+    | ^^^^^^
+    |
+    = help: expected names are: `docsrs`, `feature`, and `test` and 31 more
+    = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+    = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+    = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+    = note: `#[warn(unexpected_cfgs)]` on by default
+    = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+   --> crates/flutter_bridge/src/bridge.rs:167:1
+    |
+167 | #[frb]
     | ^^^^^^
     |
     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -176,9 +181,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-   --> crates/flutter_bridge/src/bridge.rs:164:1
+   --> crates/flutter_bridge/src/bridge.rs:200:1
     |
-164 | #[frb]
+200 | #[frb]
     | ^^^^^^
     |
     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -188,9 +193,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-   --> crates/flutter_bridge/src/bridge.rs:191:1
+   --> crates/flutter_bridge/src/bridge.rs:264:1
     |
-191 | #[frb]
+264 | #[frb]
     | ^^^^^^
     |
     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -200,81 +205,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-   --> crates/flutter_bridge/src/bridge.rs:241:1
+   --> crates/flutter_bridge/src/bridge.rs:291:1
     |
-241 | #[frb]
-    | ^^^^^^
-    |
-    = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
-    = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
-    = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
-    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
-    = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-warning: unexpected `cfg` condition name: `frb_expand`
-   --> crates/flutter_bridge/src/bridge.rs:248:1
-    |
-248 | #[frb]
-    | ^^^^^^
-    |
-    = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
-    = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
-    = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
-    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
-    = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-warning: unexpected `cfg` condition name: `frb_expand`
-   --> crates/flutter_bridge/src/bridge.rs:254:1
-    |
-254 | #[frb]
-    | ^^^^^^
-    |
-    = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
-    = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
-    = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
-    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
-    = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-warning: unexpected `cfg` condition name: `frb_expand`
-   --> crates/flutter_bridge/src/bridge.rs:261:1
-    |
-261 | #[frb]
-    | ^^^^^^
-    |
-    = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
-    = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
-    = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
-    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
-    = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-warning: unexpected `cfg` condition name: `frb_expand`
-   --> crates/flutter_bridge/src/bridge.rs:274:1
-    |
-274 | #[frb]
-    | ^^^^^^
-    |
-    = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
-    = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
-    = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
-    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
-    = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-warning: unexpected `cfg` condition name: `frb_expand`
-   --> crates/flutter_bridge/src/bridge.rs:279:1
-    |
-279 | #[frb]
-    | ^^^^^^
-    |
-    = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
-    = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
-    = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
-    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
-    = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-warning: unexpected `cfg` condition name: `frb_expand`
-   --> crates/flutter_bridge/src/bridge.rs:336:1
-    |
-336 | #[frb]
+291 | #[frb]
     | ^^^^^^
     |
     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -296,9 +229,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-   --> crates/flutter_bridge/src/bridge.rs:460:1
+   --> crates/flutter_bridge/src/bridge.rs:348:1
     |
-460 | #[frb]
+348 | #[frb]
     | ^^^^^^
     |
     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -308,9 +241,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-   --> crates/flutter_bridge/src/bridge.rs:465:1
+   --> crates/flutter_bridge/src/bridge.rs:354:1
     |
-465 | #[frb]
+354 | #[frb]
     | ^^^^^^
     |
     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -320,9 +253,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-   --> crates/flutter_bridge/src/bridge.rs:547:1
+   --> crates/flutter_bridge/src/bridge.rs:361:1
     |
-547 | #[frb]
+361 | #[frb]
     | ^^^^^^
     |
     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -332,9 +265,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-   --> crates/flutter_bridge/src/bridge.rs:552:1
+   --> crates/flutter_bridge/src/bridge.rs:374:1
     |
-552 | #[frb]
+374 | #[frb]
     | ^^^^^^
     |
     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -344,9 +277,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-   --> crates/flutter_bridge/src/bridge.rs:606:1
+   --> crates/flutter_bridge/src/bridge.rs:379:1
     |
-606 | #[frb]
+379 | #[frb]
     | ^^^^^^
     |
     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -356,9 +289,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-   --> crates/flutter_bridge/src/bridge.rs:611:1
+   --> crates/flutter_bridge/src/bridge.rs:436:1
     |
-611 | #[frb]
+436 | #[frb]
     | ^^^^^^
     |
     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -368,9 +301,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-   --> crates/flutter_bridge/src/bridge.rs:754:1
+   --> crates/flutter_bridge/src/bridge.rs:441:1
     |
-754 | #[frb]
+441 | #[frb]
     | ^^^^^^
     |
     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -380,9 +313,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-   --> crates/flutter_bridge/src/bridge.rs:759:1
+   --> crates/flutter_bridge/src/bridge.rs:560:1
     |
-759 | #[frb]
+560 | #[frb]
     | ^^^^^^
     |
     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -392,9 +325,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-   --> crates/flutter_bridge/src/bridge.rs:828:1
+   --> crates/flutter_bridge/src/bridge.rs:565:1
     |
-828 | #[frb]
+565 | #[frb]
     | ^^^^^^
     |
     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -404,9 +337,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-   --> crates/flutter_bridge/src/bridge.rs:834:1
+   --> crates/flutter_bridge/src/bridge.rs:647:1
     |
-834 | #[frb]
+647 | #[frb]
     | ^^^^^^
     |
     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -416,9 +349,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-   --> crates/flutter_bridge/src/bridge.rs:945:1
+   --> crates/flutter_bridge/src/bridge.rs:652:1
     |
-945 | #[frb]
+652 | #[frb]
     | ^^^^^^
     |
     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -428,9 +361,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-   --> crates/flutter_bridge/src/bridge.rs:956:1
+   --> crates/flutter_bridge/src/bridge.rs:706:1
     |
-956 | #[frb]
+706 | #[frb]
     | ^^^^^^
     |
     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -440,9 +373,69 @@ warning: unexpected `cfg` condition name: `frb_expand`
     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1031:1
+   --> crates/flutter_bridge/src/bridge.rs:711:1
+    |
+711 | #[frb]
+    | ^^^^^^
+    |
+    = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+    = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+    = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+    = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+   --> crates/flutter_bridge/src/bridge.rs:854:1
+    |
+854 | #[frb]
+    | ^^^^^^
+    |
+    = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+    = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+    = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+    = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+   --> crates/flutter_bridge/src/bridge.rs:859:1
+    |
+859 | #[frb]
+    | ^^^^^^
+    |
+    = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+    = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+    = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+    = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+   --> crates/flutter_bridge/src/bridge.rs:928:1
+    |
+928 | #[frb]
+    | ^^^^^^
+    |
+    = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+    = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+    = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+    = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+   --> crates/flutter_bridge/src/bridge.rs:934:1
+    |
+934 | #[frb]
+    | ^^^^^^
+    |
+    = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+    = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+    = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+    = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:1045:1
      |
-1031 | #[frb]
+1045 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -452,9 +445,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1052:1
+    --> crates/flutter_bridge/src/bridge.rs:1056:1
      |
-1052 | #[frb]
+1056 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -464,9 +457,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1136:1
+    --> crates/flutter_bridge/src/bridge.rs:1131:1
      |
-1136 | #[frb]
+1131 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -476,9 +469,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1149:1
+    --> crates/flutter_bridge/src/bridge.rs:1152:1
      |
-1149 | #[frb]
+1152 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -488,9 +481,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1203:1
+    --> crates/flutter_bridge/src/bridge.rs:1250:1
      |
-1203 | #[frb]
+1250 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -500,9 +493,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1212:1
+    --> crates/flutter_bridge/src/bridge.rs:1263:1
      |
-1212 | #[frb]
+1263 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -512,9 +505,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1262:1
+    --> crates/flutter_bridge/src/bridge.rs:1317:1
      |
-1262 | #[frb]
+1317 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -524,9 +517,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1267:1
+    --> crates/flutter_bridge/src/bridge.rs:1326:1
      |
-1267 | #[frb]
+1326 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -536,9 +529,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1352:1
+    --> crates/flutter_bridge/src/bridge.rs:1376:1
      |
-1352 | #[frb]
+1376 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -548,9 +541,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1361:1
+    --> crates/flutter_bridge/src/bridge.rs:1381:1
      |
-1361 | #[frb]
+1381 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -560,9 +553,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1387:1
+    --> crates/flutter_bridge/src/bridge.rs:1466:1
      |
-1387 | #[frb]
+1466 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -572,9 +565,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1407:1
+    --> crates/flutter_bridge/src/bridge.rs:1475:1
      |
-1407 | #[frb]
+1475 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -584,9 +577,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1415:1
+    --> crates/flutter_bridge/src/bridge.rs:1501:1
      |
-1415 | #[frb]
+1501 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -596,9 +589,33 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1421:1
+    --> crates/flutter_bridge/src/bridge.rs:1521:1
      |
-1421 | #[frb(name = "mnemonicPhraseToSeedHex")]
+1521 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:1529:1
+     |
+1529 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:1535:1
+     |
+1535 | #[frb(name = "mnemonicPhraseToSeedHex")]
      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -608,9 +625,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1435:1
+    --> crates/flutter_bridge/src/bridge.rs:1549:1
      |
-1435 | #[frb]
+1549 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -620,9 +637,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1452:1
+    --> crates/flutter_bridge/src/bridge.rs:1566:1
      |
-1452 | #[frb]
+1566 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -632,9 +649,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1468:1
+    --> crates/flutter_bridge/src/bridge.rs:1582:1
      |
-1468 | #[frb]
+1582 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -644,9 +661,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1478:1
+    --> crates/flutter_bridge/src/bridge.rs:1592:1
      |
-1478 | #[frb]
+1592 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -656,9 +673,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1498:1
+    --> crates/flutter_bridge/src/bridge.rs:1612:1
      |
-1498 | #[frb]
+1612 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -668,9 +685,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1534:1
+    --> crates/flutter_bridge/src/bridge.rs:1648:1
      |
-1534 | #[frb]
+1648 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -680,9 +697,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1558:1
+    --> crates/flutter_bridge/src/bridge.rs:1672:1
      |
-1558 | #[frb]
+1672 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -692,9 +709,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1584:1
+    --> crates/flutter_bridge/src/bridge.rs:1698:1
      |
-1584 | #[frb]
+1698 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -704,9 +721,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1610:1
+    --> crates/flutter_bridge/src/bridge.rs:1724:1
      |
-1610 | #[frb]
+1724 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -716,9 +733,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1629:1
+    --> crates/flutter_bridge/src/bridge.rs:1743:1
      |
-1629 | #[frb]
+1743 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -728,9 +745,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1652:1
+    --> crates/flutter_bridge/src/bridge.rs:1766:1
      |
-1652 | #[frb]
+1766 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -740,9 +757,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1658:1
+    --> crates/flutter_bridge/src/bridge.rs:1772:1
      |
-1658 | #[frb]
+1772 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -752,9 +769,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1664:1
+    --> crates/flutter_bridge/src/bridge.rs:1778:1
      |
-1664 | #[frb]
+1778 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -764,9 +781,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1670:1
+    --> crates/flutter_bridge/src/bridge.rs:1784:1
      |
-1670 | #[frb]
+1784 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -776,9 +793,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1676:1
+    --> crates/flutter_bridge/src/bridge.rs:1790:1
      |
-1676 | #[frb]
+1790 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -788,9 +805,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1682:1
+    --> crates/flutter_bridge/src/bridge.rs:1796:1
      |
-1682 | #[frb]
+1796 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -800,9 +817,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1688:1
+    --> crates/flutter_bridge/src/bridge.rs:1802:1
      |
-1688 | #[frb]
+1802 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -812,9 +829,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1695:1
+    --> crates/flutter_bridge/src/bridge.rs:1809:1
      |
-1695 | #[frb]
+1809 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -824,9 +841,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1701:1
+    --> crates/flutter_bridge/src/bridge.rs:1815:1
      |
-1701 | #[frb]
+1815 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -836,9 +853,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1708:1
+    --> crates/flutter_bridge/src/bridge.rs:1822:1
      |
-1708 | #[frb]
+1822 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -848,9 +865,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1715:1
+    --> crates/flutter_bridge/src/bridge.rs:1829:1
      |
-1715 | #[frb]
+1829 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -860,9 +877,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1722:1
+    --> crates/flutter_bridge/src/bridge.rs:1836:1
      |
-1722 | #[frb]
+1836 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -872,9 +889,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1751:1
+    --> crates/flutter_bridge/src/bridge.rs:1865:1
      |
-1751 | #[frb]
+1865 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -884,9 +901,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1824:1
+    --> crates/flutter_bridge/src/bridge.rs:1938:1
      |
-1824 | #[frb]
+1938 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -896,9 +913,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1852:1
+    --> crates/flutter_bridge/src/bridge.rs:1966:1
      |
-1852 | #[frb]
+1966 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -908,9 +925,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1881:1
+    --> crates/flutter_bridge/src/bridge.rs:1995:1
      |
-1881 | #[frb]
+1995 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -920,9 +937,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1906:1
+    --> crates/flutter_bridge/src/bridge.rs:2020:1
      |
-1906 | #[frb]
+2020 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -932,9 +949,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1912:1
+    --> crates/flutter_bridge/src/bridge.rs:2026:1
      |
-1912 | #[frb]
+2026 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -944,9 +961,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:1924:1
+    --> crates/flutter_bridge/src/bridge.rs:2038:1
      |
-1924 | #[frb]
+2038 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -956,9 +973,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:2065:1
+    --> crates/flutter_bridge/src/bridge.rs:2179:1
      |
-2065 | #[frb]
+2179 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -968,9 +985,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:2110:1
+    --> crates/flutter_bridge/src/bridge.rs:2224:1
      |
-2110 | #[frb]
+2224 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -980,9 +997,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:2150:1
+    --> crates/flutter_bridge/src/bridge.rs:2264:1
      |
-2150 | #[frb]
+2264 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -992,9 +1009,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:2219:1
+    --> crates/flutter_bridge/src/bridge.rs:2332:1
      |
-2219 | #[frb]
+2332 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -1004,9 +1021,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:2274:1
+    --> crates/flutter_bridge/src/bridge.rs:2386:1
      |
-2274 | #[frb]
+2386 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -1016,9 +1033,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:2305:1
+    --> crates/flutter_bridge/src/bridge.rs:2417:1
      |
-2305 | #[frb]
+2417 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -1028,9 +1045,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:2348:1
+    --> crates/flutter_bridge/src/bridge.rs:2460:1
      |
-2348 | #[frb]
+2460 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -1040,9 +1057,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:2381:1
+    --> crates/flutter_bridge/src/bridge.rs:2493:1
      |
-2381 | #[frb]
+2493 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -1052,9 +1069,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:2411:1
+    --> crates/flutter_bridge/src/bridge.rs:2523:1
      |
-2411 | #[frb]
+2523 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -1064,9 +1081,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:2464:1
+    --> crates/flutter_bridge/src/bridge.rs:2576:1
      |
-2464 | #[frb]
+2576 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -1076,9 +1093,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:2538:1
+    --> crates/flutter_bridge/src/bridge.rs:2651:1
      |
-2538 | #[frb]
+2651 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -1088,9 +1105,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:2560:1
+    --> crates/flutter_bridge/src/bridge.rs:2679:1
      |
-2560 | #[frb]
+2679 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -1100,9 +1117,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:2579:1
+    --> crates/flutter_bridge/src/bridge.rs:2733:1
      |
-2579 | #[frb]
+2733 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -1112,9 +1129,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:2616:1
+    --> crates/flutter_bridge/src/bridge.rs:2975:1
      |
-2616 | #[frb]
+2975 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -1124,9 +1141,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:2635:1
+    --> crates/flutter_bridge/src/bridge.rs:2981:1
      |
-2635 | #[frb]
+2981 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -1136,9 +1153,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:2761:1
+    --> crates/flutter_bridge/src/bridge.rs:2988:1
      |
-2761 | #[frb]
+2988 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -1148,9 +1165,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:2778:1
+    --> crates/flutter_bridge/src/bridge.rs:2996:1
      |
-2778 | #[frb]
+2996 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -1160,9 +1177,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:2889:1
+    --> crates/flutter_bridge/src/bridge.rs:3002:1
      |
-2889 | #[frb]
+3002 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -1172,9 +1189,9 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: unexpected `cfg` condition name: `frb_expand`
-    --> crates/flutter_bridge/src/bridge.rs:2904:1
+    --> crates/flutter_bridge/src/bridge.rs:3041:1
      |
-2904 | #[frb]
+3041 | #[frb]
      | ^^^^^^
      |
      = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
@@ -1183,25 +1200,1273 @@ warning: unexpected `cfg` condition name: `frb_expand`
      = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
      = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-warning: unused import: `encode_uint64`
-  --> crates/flutter_bridge/src/bridge.rs:17:37
-   |
-17 |     encode_address, encode_bytes32, encode_uint64, sign_typed_data, verify_typed_data,
-   |                                     ^^^^^^^^^^^^^
-   |
-   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
-
-warning: unused import: `khodpay_signing::eip712::Eip712Domain`
-    --> crates/flutter_bridge/src/bridge.rs:2187:9
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3141:1
      |
-2187 |     use khodpay_signing::eip712::Eip712Domain;
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-warning: unused import: `khodpay_signing::eip712::Eip712Domain`
-    --> crates/flutter_bridge/src/bridge.rs:2254:9
+3141 | #[frb]
+     | ^^^^^^
      |
-2254 |     use khodpay_signing::eip712::Eip712Domain;
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-warning: `khodpay-flutter-bridge` (lib) generated 90 warnings (run `cargo fix --lib -p khodpay-flutter-bridge` to apply 3 suggestions)
-    Finished `release` profile [optimized] target(s) in 15m 40s
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3153:1
+     |
+3153 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3168:1
+     |
+3168 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3186:1
+     |
+3186 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3200:1
+     |
+3200 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3218:1
+     |
+3218 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3272:1
+     |
+3272 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3303:1
+     |
+3303 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3446:1
+     |
+3446 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3468:1
+     |
+3468 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3606:1
+     |
+3606 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3615:1
+     |
+3615 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3621:1
+     |
+3621 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3627:1
+     |
+3627 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3633:1
+     |
+3633 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3644:1
+     |
+3644 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3652:1
+     |
+3652 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3662:1
+     |
+3662 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3674:1
+     |
+3674 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3684:1
+     |
+3684 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3696:1
+     |
+3696 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3711:1
+     |
+3711 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3727:1
+     |
+3727 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3736:1
+     |
+3736 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3745:1
+     |
+3745 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3771:1
+     |
+3771 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3777:1
+     |
+3777 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3783:1
+     |
+3783 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3791:1
+     |
+3791 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3797:1
+     |
+3797 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3809:1
+     |
+3809 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3815:1
+     |
+3815 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3826:1
+     |
+3826 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3832:1
+     |
+3832 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3838:1
+     |
+3838 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3849:1
+     |
+3849 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3855:1
+     |
+3855 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3861:1
+     |
+3861 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3873:1
+     |
+3873 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3884:1
+     |
+3884 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3901:1
+     |
+3901 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3909:1
+     |
+3909 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3919:1
+     |
+3919 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3929:1
+     |
+3929 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3937:1
+     |
+3937 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3944:1
+     |
+3944 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:3981:1
+     |
+3981 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4011:1
+     |
+4011 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4025:1
+     |
+4025 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4041:1
+     |
+4041 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4053:1
+     |
+4053 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4062:1
+     |
+4062 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4072:1
+     |
+4072 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4081:1
+     |
+4081 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4117:1
+     |
+4117 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4137:1
+     |
+4137 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4143:1
+     |
+4143 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4149:1
+     |
+4149 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4155:1
+     |
+4155 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4161:1
+     |
+4161 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4167:1
+     |
+4167 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4173:1
+     |
+4173 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4182:1
+     |
+4182 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4191:1
+     |
+4191 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4197:1
+     |
+4197 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4203:1
+     |
+4203 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4209:1
+     |
+4209 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4223:1
+     |
+4223 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4234:1
+     |
+4234 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4246:1
+     |
+4246 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4255:1
+     |
+4255 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4268:1
+     |
+4268 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4281:1
+     |
+4281 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4296:1
+     |
+4296 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4321:1
+     |
+4321 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4360:1
+     |
+4360 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4455:1
+     |
+4455 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4461:1
+     |
+4461 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4472:1
+     |
+4472 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4485:1
+     |
+4485 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4498:1
+     |
+4498 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4505:1
+     |
+4505 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4511:1
+     |
+4511 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4517:1
+     |
+4517 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4523:1
+     |
+4523 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4529:1
+     |
+4529 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4535:1
+     |
+4535 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4541:1
+     |
+4541 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4551:1
+     |
+4551 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4564:1
+     |
+4564 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4577:1
+     |
+4577 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4591:1
+     |
+4591 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4616:1
+     |
+4616 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4628:1
+     |
+4628 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4639:1
+     |
+4639 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4655:1
+     |
+4655 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4671:1
+     |
+4671 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4677:1
+     |
+4677 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4686:1
+     |
+4686 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4694:1
+     |
+4694 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4767:1
+     |
+4767 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4773:1
+     |
+4773 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4782:1
+     |
+4782 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4857:1
+     |
+4857 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `frb_expand`
+    --> crates/flutter_bridge/src/bridge.rs:4931:1
+     |
+4931 | #[frb]
+     | ^^^^^^
+     |
+     = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+     = help: try referring to `frb` crate for guidance on how handle this unexpected cfg
+     = help: the attribute macro `frb` may come from an old version of the `flutter_rust_bridge_macros` crate, try updating your dependency with `cargo update -p flutter_rust_bridge_macros`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the attribute macro `frb` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unused import: `MpcError`
+   --> crates/flutter_bridge/src/bridge.rs:130:36
+    |
+130 | use khodpay_mpc_tss::{DeviceShare, MpcError};
+    |                                    ^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `khodpay-flutter-bridge` (lib) generated 193 warnings (run `cargo fix --lib -p khodpay-flutter-bridge` to apply 1 suggestion)
+    Finished `release` profile [optimized] target(s) in 26m 51s

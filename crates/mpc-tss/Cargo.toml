@@ -4,29 +4,28 @@ version = "0.1.0"
 edition = "2021"
 rust-version = "1.81"
 authors = ["KhodPay Team"]
-description = "2-of-2 threshold ECDSA (CGGMP21) engine for secp256k1/EVM — device-side key share, DKG, signing, and resharing"
+description = "2-of-3 threshold ECDSA (CGGMP21) for secp256k1/EVM: key generation, aux info, signing and the round-by-round transport"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/khodpay/khodpay-wallet"
 keywords = ["mpc", "threshold-signatures", "tss", "ecdsa", "ethereum"]
 categories = ["cryptography"]
 
-[features]
-# Exposes in-process ceremony helpers (run_local, trusted_dealer, etc.) for
-# integration tests in other crates (e.g. crates/flutter_bridge).
-# Never enable this feature in production builds.
-test-utils = ["cggmp21/spof", "dep:round-based", "dep:sha2"]
-
 [dependencies]
 # Threshold ECDSA protocol — CGGMP21, secp256k1 curve
-cggmp21 = { version = "=0.6.3", features = ["curve-secp256k1"] }
+# `state-machine` exposes every protocol as a synchronous `StateMachine`, which
+# the `transport` module drives one network round at a time.
+cggmp21 = { version = "=0.6.3", features = ["curve-secp256k1", "state-machine"] }
 
 # gmp-mpfr-sys is a transitive dep via cggmp21 → fast-paillier → rug.
 # The `force-cross` feature is required to cross-compile to iOS/Android.
 gmp-mpfr-sys = { version = "=1.7.1", features = ["force-cross"] }
 
-# Optional: needed only when test-utils feature is enabled
-round-based = { version = "0.4.1", features = ["sim"], optional = true }
-sha2 = { version = "0.10", optional = true }
+# Message types (`Incoming`/`Outgoing`) and the sync state machine used by the
+# round-by-round transport.
+round-based = { version = "0.4.1", features = ["state-machine"] }
+
+# Compact binary encoding of protocol messages sent over the network
+ciborium = "0.2"
 
 # Error handling
 thiserror = "1.0"
@@ -43,15 +42,8 @@ k256 = { version = "0.13", features = ["ecdsa"] }
 # CSPRNG — matches the rand version pulled in by cggmp21
 rand = { version = "0.8", features = ["std"] }
 
-# Session ID generation
-uuid = { version = "1", features = ["v4"] }
-
 [dependencies.sha3]
 version = "0.10"
 
 [dependencies.serde_json]
 version = "1.0"
-
-[dev-dependencies]
-# spof feature enables trusted_dealer for test key generation (generates full KeyShare with AuxInfo)
-cggmp21 = { version = "=0.6.3", features = ["curve-secp256k1", "spof"] }

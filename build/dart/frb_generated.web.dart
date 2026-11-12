@@ -40,8 +40,6 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MnemonicPtr => wir
 
 CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MpcDkgSessionPtr => wire.rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession;
 
-CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MpcReshareSessionPtr => wire.rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession;
-
 CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MpcSigningSessionPtr => wire.rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession;
 
 
@@ -61,8 +59,6 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MpcSigningSessionP
 @protected Mnemonic dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMnemonic(dynamic raw);
 
 @protected MpcDkgSession dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(dynamic raw);
-
-@protected MpcReshareSession dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(dynamic raw);
 
 @protected MpcSigningSession dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(dynamic raw);
 
@@ -84,8 +80,6 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MpcSigningSessionP
 
 @protected MpcDkgSession dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(dynamic raw);
 
-@protected MpcReshareSession dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(dynamic raw);
-
 @protected MpcSigningSession dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(dynamic raw);
 
 @protected Bip44Account dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerBip44Account(dynamic raw);
@@ -104,13 +98,37 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MpcSigningSessionP
 
 @protected MpcDkgSession dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(dynamic raw);
 
-@protected MpcReshareSession dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(dynamic raw);
-
 @protected MpcSigningSession dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(dynamic raw);
 
 @protected String dco_decode_String(dynamic raw);
 
+@protected Bip32ChildNumberInfo dco_decode_bip_32_child_number_info(dynamic raw);
+
+@protected Bip32KeyPair dco_decode_bip_32_key_pair(dynamic raw);
+
+@protected Bip32NetworkInfo dco_decode_bip_32_network_info(dynamic raw);
+
+@protected Bip32PathInfo dco_decode_bip_32_path_info(dynamic raw);
+
+@protected Bip39WordCountInfo dco_decode_bip_39_word_count_info(dynamic raw);
+
+@protected Bip44AccountScan dco_decode_bip_44_account_scan(dynamic raw);
+
+@protected Bip44ChainDetails dco_decode_bip_44_chain_details(dynamic raw);
+
+@protected Bip44ChainScan dco_decode_bip_44_chain_scan(dynamic raw);
+
+@protected Bip44CoinDetails dco_decode_bip_44_coin_details(dynamic raw);
+
+@protected Bip44DerivedAddressInfo dco_decode_bip_44_derived_address_info(dynamic raw);
+
+@protected Bip44PathInfo dco_decode_bip_44_path_info(dynamic raw);
+
+@protected Bip44PurposeDetails dco_decode_bip_44_purpose_details(dynamic raw);
+
 @protected bool dco_decode_bool(dynamic raw);
+
+@protected Bip32ChildNumberInfo dco_decode_box_autoadd_bip_32_child_number_info(dynamic raw);
 
 @protected ChainId dco_decode_box_autoadd_chain_id(dynamic raw);
 
@@ -122,7 +140,13 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MpcSigningSessionP
 
 @protected EvmWei dco_decode_box_autoadd_evm_wei(dynamic raw);
 
+@protected Network dco_decode_box_autoadd_network(dynamic raw);
+
 @protected SignedEvmTransaction dco_decode_box_autoadd_signed_evm_transaction(dynamic raw);
+
+@protected int dco_decode_box_autoadd_u_16(dynamic raw);
+
+@protected int dco_decode_box_autoadd_u_32(dynamic raw);
 
 @protected BigInt dco_decode_box_autoadd_u_64(dynamic raw);
 
@@ -146,9 +170,21 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MpcSigningSessionP
 
 @protected EvmWei dco_decode_evm_wei(dynamic raw);
 
+@protected GatewayRevert dco_decode_gateway_revert(dynamic raw);
+
+@protected GatewayRevertKind dco_decode_gateway_revert_kind(dynamic raw);
+
 @protected int dco_decode_i_32(dynamic raw);
 
 @protected List<String> dco_decode_list_String(dynamic raw);
+
+@protected List<Bip44AccountScan> dco_decode_list_bip_44_account_scan(dynamic raw);
+
+@protected List<MpcWireMessage> dco_decode_list_mpc_wire_message(dynamic raw);
+
+@protected List<int> dco_decode_list_prim_u_32_loose(dynamic raw);
+
+@protected Uint32List dco_decode_list_prim_u_32_strict(dynamic raw);
 
 @protected List<int> dco_decode_list_prim_u_8_loose(dynamic raw);
 
@@ -156,15 +192,27 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MpcSigningSessionP
 
 @protected MpcDkgAdvanceResult dco_decode_mpc_dkg_advance_result(dynamic raw);
 
-@protected MpcReshareAdvanceResult dco_decode_mpc_reshare_advance_result(dynamic raw);
+@protected MpcPairingRequest dco_decode_mpc_pairing_request(dynamic raw);
+
+@protected MpcShareInfo dco_decode_mpc_share_info(dynamic raw);
 
 @protected MpcSigningAdvanceResult dco_decode_mpc_signing_advance_result(dynamic raw);
+
+@protected MpcWireMessage dco_decode_mpc_wire_message(dynamic raw);
 
 @protected Network dco_decode_network(dynamic raw);
 
 @protected String? dco_decode_opt_String(dynamic raw);
 
+@protected Bip32ChildNumberInfo? dco_decode_opt_box_autoadd_bip_32_child_number_info(dynamic raw);
+
 @protected ChainId? dco_decode_opt_box_autoadd_chain_id(dynamic raw);
+
+@protected Network? dco_decode_opt_box_autoadd_network(dynamic raw);
+
+@protected int? dco_decode_opt_box_autoadd_u_16(dynamic raw);
+
+@protected int? dco_decode_opt_box_autoadd_u_32(dynamic raw);
 
 @protected BigInt? dco_decode_opt_box_autoadd_u_64(dynamic raw);
 
@@ -173,6 +221,8 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MpcSigningSessionP
 @protected Purpose dco_decode_purpose(dynamic raw);
 
 @protected SignedEvmTransaction dco_decode_signed_evm_transaction(dynamic raw);
+
+@protected int dco_decode_u_16(dynamic raw);
 
 @protected int dco_decode_u_32(dynamic raw);
 
@@ -186,9 +236,13 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MpcSigningSessionP
 
 @protected WalletResult dco_decode_wallet_result(dynamic raw);
 
+@protected WpgpBusinessInfo dco_decode_wpgp_business_info(dynamic raw);
+
 @protected WpgpPaymentIntent dco_decode_wpgp_payment_intent(dynamic raw);
 
 @protected WpgpUserOperation dco_decode_wpgp_user_operation(dynamic raw);
+
+@protected WpgpUserOperationDetails dco_decode_wpgp_user_operation_details(dynamic raw);
 
 @protected Bip44Account sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerBip44Account(SseDeserializer deserializer);
 
@@ -205,8 +259,6 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MpcSigningSessionP
 @protected Mnemonic sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMnemonic(SseDeserializer deserializer);
 
 @protected MpcDkgSession sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(SseDeserializer deserializer);
-
-@protected MpcReshareSession sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(SseDeserializer deserializer);
 
 @protected MpcSigningSession sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(SseDeserializer deserializer);
 
@@ -228,8 +280,6 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MpcSigningSessionP
 
 @protected MpcDkgSession sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(SseDeserializer deserializer);
 
-@protected MpcReshareSession sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(SseDeserializer deserializer);
-
 @protected MpcSigningSession sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(SseDeserializer deserializer);
 
 @protected Bip44Account sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerBip44Account(SseDeserializer deserializer);
@@ -248,13 +298,37 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MpcSigningSessionP
 
 @protected MpcDkgSession sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(SseDeserializer deserializer);
 
-@protected MpcReshareSession sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(SseDeserializer deserializer);
-
 @protected MpcSigningSession sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(SseDeserializer deserializer);
 
 @protected String sse_decode_String(SseDeserializer deserializer);
 
+@protected Bip32ChildNumberInfo sse_decode_bip_32_child_number_info(SseDeserializer deserializer);
+
+@protected Bip32KeyPair sse_decode_bip_32_key_pair(SseDeserializer deserializer);
+
+@protected Bip32NetworkInfo sse_decode_bip_32_network_info(SseDeserializer deserializer);
+
+@protected Bip32PathInfo sse_decode_bip_32_path_info(SseDeserializer deserializer);
+
+@protected Bip39WordCountInfo sse_decode_bip_39_word_count_info(SseDeserializer deserializer);
+
+@protected Bip44AccountScan sse_decode_bip_44_account_scan(SseDeserializer deserializer);
+
+@protected Bip44ChainDetails sse_decode_bip_44_chain_details(SseDeserializer deserializer);
+
+@protected Bip44ChainScan sse_decode_bip_44_chain_scan(SseDeserializer deserializer);
+
+@protected Bip44CoinDetails sse_decode_bip_44_coin_details(SseDeserializer deserializer);
+
+@protected Bip44DerivedAddressInfo sse_decode_bip_44_derived_address_info(SseDeserializer deserializer);
+
+@protected Bip44PathInfo sse_decode_bip_44_path_info(SseDeserializer deserializer);
+
+@protected Bip44PurposeDetails sse_decode_bip_44_purpose_details(SseDeserializer deserializer);
+
 @protected bool sse_decode_bool(SseDeserializer deserializer);
+
+@protected Bip32ChildNumberInfo sse_decode_box_autoadd_bip_32_child_number_info(SseDeserializer deserializer);
 
 @protected ChainId sse_decode_box_autoadd_chain_id(SseDeserializer deserializer);
 
@@ -266,7 +340,13 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MpcSigningSessionP
 
 @protected EvmWei sse_decode_box_autoadd_evm_wei(SseDeserializer deserializer);
 
+@protected Network sse_decode_box_autoadd_network(SseDeserializer deserializer);
+
 @protected SignedEvmTransaction sse_decode_box_autoadd_signed_evm_transaction(SseDeserializer deserializer);
+
+@protected int sse_decode_box_autoadd_u_16(SseDeserializer deserializer);
+
+@protected int sse_decode_box_autoadd_u_32(SseDeserializer deserializer);
 
 @protected BigInt sse_decode_box_autoadd_u_64(SseDeserializer deserializer);
 
@@ -290,9 +370,21 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MpcSigningSessionP
 
 @protected EvmWei sse_decode_evm_wei(SseDeserializer deserializer);
 
+@protected GatewayRevert sse_decode_gateway_revert(SseDeserializer deserializer);
+
+@protected GatewayRevertKind sse_decode_gateway_revert_kind(SseDeserializer deserializer);
+
 @protected int sse_decode_i_32(SseDeserializer deserializer);
 
 @protected List<String> sse_decode_list_String(SseDeserializer deserializer);
+
+@protected List<Bip44AccountScan> sse_decode_list_bip_44_account_scan(SseDeserializer deserializer);
+
+@protected List<MpcWireMessage> sse_decode_list_mpc_wire_message(SseDeserializer deserializer);
+
+@protected List<int> sse_decode_list_prim_u_32_loose(SseDeserializer deserializer);
+
+@protected Uint32List sse_decode_list_prim_u_32_strict(SseDeserializer deserializer);
 
 @protected List<int> sse_decode_list_prim_u_8_loose(SseDeserializer deserializer);
 
@@ -300,15 +392,27 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MpcSigningSessionP
 
 @protected MpcDkgAdvanceResult sse_decode_mpc_dkg_advance_result(SseDeserializer deserializer);
 
-@protected MpcReshareAdvanceResult sse_decode_mpc_reshare_advance_result(SseDeserializer deserializer);
+@protected MpcPairingRequest sse_decode_mpc_pairing_request(SseDeserializer deserializer);
+
+@protected MpcShareInfo sse_decode_mpc_share_info(SseDeserializer deserializer);
 
 @protected MpcSigningAdvanceResult sse_decode_mpc_signing_advance_result(SseDeserializer deserializer);
+
+@protected MpcWireMessage sse_decode_mpc_wire_message(SseDeserializer deserializer);
 
 @protected Network sse_decode_network(SseDeserializer deserializer);
 
 @protected String? sse_decode_opt_String(SseDeserializer deserializer);
 
+@protected Bip32ChildNumberInfo? sse_decode_opt_box_autoadd_bip_32_child_number_info(SseDeserializer deserializer);
+
 @protected ChainId? sse_decode_opt_box_autoadd_chain_id(SseDeserializer deserializer);
+
+@protected Network? sse_decode_opt_box_autoadd_network(SseDeserializer deserializer);
+
+@protected int? sse_decode_opt_box_autoadd_u_16(SseDeserializer deserializer);
+
+@protected int? sse_decode_opt_box_autoadd_u_32(SseDeserializer deserializer);
 
 @protected BigInt? sse_decode_opt_box_autoadd_u_64(SseDeserializer deserializer);
 
@@ -317,6 +421,8 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MpcSigningSessionP
 @protected Purpose sse_decode_purpose(SseDeserializer deserializer);
 
 @protected SignedEvmTransaction sse_decode_signed_evm_transaction(SseDeserializer deserializer);
+
+@protected int sse_decode_u_16(SseDeserializer deserializer);
 
 @protected int sse_decode_u_32(SseDeserializer deserializer);
 
@@ -330,9 +436,13 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MpcSigningSessionP
 
 @protected WalletResult sse_decode_wallet_result(SseDeserializer deserializer);
 
+@protected WpgpBusinessInfo sse_decode_wpgp_business_info(SseDeserializer deserializer);
+
 @protected WpgpPaymentIntent sse_decode_wpgp_payment_intent(SseDeserializer deserializer);
 
 @protected WpgpUserOperation sse_decode_wpgp_user_operation(SseDeserializer deserializer);
+
+@protected WpgpUserOperationDetails sse_decode_wpgp_user_operation_details(SseDeserializer deserializer);
 
 @protected void sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerBip44Account(Bip44Account self, SseSerializer serializer);
 
@@ -349,8 +459,6 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MpcSigningSessionP
 @protected void sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMnemonic(Mnemonic self, SseSerializer serializer);
 
 @protected void sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(MpcDkgSession self, SseSerializer serializer);
-
-@protected void sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(MpcReshareSession self, SseSerializer serializer);
 
 @protected void sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(MpcSigningSession self, SseSerializer serializer);
 
@@ -372,8 +480,6 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MpcSigningSessionP
 
 @protected void sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(MpcDkgSession self, SseSerializer serializer);
 
-@protected void sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(MpcReshareSession self, SseSerializer serializer);
-
 @protected void sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(MpcSigningSession self, SseSerializer serializer);
 
 @protected void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerBip44Account(Bip44Account self, SseSerializer serializer);
@@ -392,13 +498,37 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MpcSigningSessionP
 
 @protected void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(MpcDkgSession self, SseSerializer serializer);
 
-@protected void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(MpcReshareSession self, SseSerializer serializer);
-
 @protected void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(MpcSigningSession self, SseSerializer serializer);
 
 @protected void sse_encode_String(String self, SseSerializer serializer);
 
+@protected void sse_encode_bip_32_child_number_info(Bip32ChildNumberInfo self, SseSerializer serializer);
+
+@protected void sse_encode_bip_32_key_pair(Bip32KeyPair self, SseSerializer serializer);
+
+@protected void sse_encode_bip_32_network_info(Bip32NetworkInfo self, SseSerializer serializer);
+
+@protected void sse_encode_bip_32_path_info(Bip32PathInfo self, SseSerializer serializer);
+
+@protected void sse_encode_bip_39_word_count_info(Bip39WordCountInfo self, SseSerializer serializer);
+
+@protected void sse_encode_bip_44_account_scan(Bip44AccountScan self, SseSerializer serializer);
+
+@protected void sse_encode_bip_44_chain_details(Bip44ChainDetails self, SseSerializer serializer);
+
+@protected void sse_encode_bip_44_chain_scan(Bip44ChainScan self, SseSerializer serializer);
+
+@protected void sse_encode_bip_44_coin_details(Bip44CoinDetails self, SseSerializer serializer);
+
+@protected void sse_encode_bip_44_derived_address_info(Bip44DerivedAddressInfo self, SseSerializer serializer);
+
+@protected void sse_encode_bip_44_path_info(Bip44PathInfo self, SseSerializer serializer);
+
+@protected void sse_encode_bip_44_purpose_details(Bip44PurposeDetails self, SseSerializer serializer);
+
 @protected void sse_encode_bool(bool self, SseSerializer serializer);
+
+@protected void sse_encode_box_autoadd_bip_32_child_number_info(Bip32ChildNumberInfo self, SseSerializer serializer);
 
 @protected void sse_encode_box_autoadd_chain_id(ChainId self, SseSerializer serializer);
 
@@ -410,7 +540,13 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MpcSigningSessionP
 
 @protected void sse_encode_box_autoadd_evm_wei(EvmWei self, SseSerializer serializer);
 
+@protected void sse_encode_box_autoadd_network(Network self, SseSerializer serializer);
+
 @protected void sse_encode_box_autoadd_signed_evm_transaction(SignedEvmTransaction self, SseSerializer serializer);
+
+@protected void sse_encode_box_autoadd_u_16(int self, SseSerializer serializer);
+
+@protected void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer);
 
 @protected void sse_encode_box_autoadd_u_64(BigInt self, SseSerializer serializer);
 
@@ -434,9 +570,21 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MpcSigningSessionP
 
 @protected void sse_encode_evm_wei(EvmWei self, SseSerializer serializer);
 
+@protected void sse_encode_gateway_revert(GatewayRevert self, SseSerializer serializer);
+
+@protected void sse_encode_gateway_revert_kind(GatewayRevertKind self, SseSerializer serializer);
+
 @protected void sse_encode_i_32(int self, SseSerializer serializer);
 
 @protected void sse_encode_list_String(List<String> self, SseSerializer serializer);
+
+@protected void sse_encode_list_bip_44_account_scan(List<Bip44AccountScan> self, SseSerializer serializer);
+
+@protected void sse_encode_list_mpc_wire_message(List<MpcWireMessage> self, SseSerializer serializer);
+
+@protected void sse_encode_list_prim_u_32_loose(List<int> self, SseSerializer serializer);
+
+@protected void sse_encode_list_prim_u_32_strict(Uint32List self, SseSerializer serializer);
 
 @protected void sse_encode_list_prim_u_8_loose(List<int> self, SseSerializer serializer);
 
@@ -444,15 +592,27 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MpcSigningSessionP
 
 @protected void sse_encode_mpc_dkg_advance_result(MpcDkgAdvanceResult self, SseSerializer serializer);
 
-@protected void sse_encode_mpc_reshare_advance_result(MpcReshareAdvanceResult self, SseSerializer serializer);
+@protected void sse_encode_mpc_pairing_request(MpcPairingRequest self, SseSerializer serializer);
+
+@protected void sse_encode_mpc_share_info(MpcShareInfo self, SseSerializer serializer);
 
 @protected void sse_encode_mpc_signing_advance_result(MpcSigningAdvanceResult self, SseSerializer serializer);
+
+@protected void sse_encode_mpc_wire_message(MpcWireMessage self, SseSerializer serializer);
 
 @protected void sse_encode_network(Network self, SseSerializer serializer);
 
 @protected void sse_encode_opt_String(String? self, SseSerializer serializer);
 
+@protected void sse_encode_opt_box_autoadd_bip_32_child_number_info(Bip32ChildNumberInfo? self, SseSerializer serializer);
+
 @protected void sse_encode_opt_box_autoadd_chain_id(ChainId? self, SseSerializer serializer);
+
+@protected void sse_encode_opt_box_autoadd_network(Network? self, SseSerializer serializer);
+
+@protected void sse_encode_opt_box_autoadd_u_16(int? self, SseSerializer serializer);
+
+@protected void sse_encode_opt_box_autoadd_u_32(int? self, SseSerializer serializer);
 
 @protected void sse_encode_opt_box_autoadd_u_64(BigInt? self, SseSerializer serializer);
 
@@ -461,6 +621,8 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MpcSigningSessionP
 @protected void sse_encode_purpose(Purpose self, SseSerializer serializer);
 
 @protected void sse_encode_signed_evm_transaction(SignedEvmTransaction self, SseSerializer serializer);
+
+@protected void sse_encode_u_16(int self, SseSerializer serializer);
 
 @protected void sse_encode_u_32(int self, SseSerializer serializer);
 
@@ -474,9 +636,13 @@ CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MpcSigningSessionP
 
 @protected void sse_encode_wallet_result(WalletResult self, SseSerializer serializer);
 
+@protected void sse_encode_wpgp_business_info(WpgpBusinessInfo self, SseSerializer serializer);
+
 @protected void sse_encode_wpgp_payment_intent(WpgpPaymentIntent self, SseSerializer serializer);
 
 @protected void sse_encode_wpgp_user_operation(WpgpUserOperation self, SseSerializer serializer);
+
+@protected void sse_encode_wpgp_user_operation_details(WpgpUserOperationDetails self, SseSerializer serializer);
                 }
                 
 
@@ -518,10 +684,6 @@ void rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generated
 
 void rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(int ptr) => wasmModule.rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(ptr);
 
-void rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(int ptr) => wasmModule.rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(ptr);
-
-void rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(int ptr) => wasmModule.rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(ptr);
-
 void rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(int ptr) => wasmModule.rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(ptr);
 
 void rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(int ptr) => wasmModule.rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(ptr);
@@ -560,10 +722,6 @@ external void rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_
 external void rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(int ptr);
 
 external void rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcDkgSession(int ptr);
-
-external void rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(int ptr);
-
-external void rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcReshareSession(int ptr);
 
 external void rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMpcSigningSession(int ptr);
 

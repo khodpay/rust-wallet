@@ -6,9 +6,9 @@
 import 'frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `build_packed_user_op`, `parse_eip712_domain`, `parse_payment_intent`, `to_rust_transaction`
-// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `WpgpPaymentIntentTyped`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `encode_data`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `try_from`, `type_string`
+// These functions are ignored because they are not marked as `pub`: `abi_push_dynamic`, `abi_selector`, `abi_word_u64`, `bip32_path_info`, `bip44_chain_scan`, `bip44_path_details`, `build_packed_user_op`, `bytes32`, `decimal_from_be_word`, `evm_address_of_key`, `hex_to_bytes`, `info_small`, `info_string`, `info_u64`, `info_word`, `mpc_check_passphrase`, `mpc_decrypt_recovery_backup`, `mpc_derive_backup_key`, `mpc_encrypt_recovery_share`, `mpc_pairing_key`, `mpc_pairing_open`, `mpc_pairing_seal`, `mpc_parse_backup`, `mpc_parse_primes`, `mpc_take_payload`, `mpc_validate_session_id`, `parse_address_20`, `parse_bip44_path_str`, `parse_derivation_path`, `parse_eip712_domain`, `parse_language`, `parse_payment_intent`, `parse_u128`, `to_rust_transaction`
+// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `MpcBackupHeader`, `MpcDkgState`, `MpcKdfParams`, `MpcSigningState`, `WpgpPaymentIntentTyped`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `drop`, `encode_data`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `try_from`, `type_string`
 
 /// Get the numeric chain ID value
 Future<BigInt> chainIdToU64({required ChainId chainId}) =>
@@ -397,6 +397,523 @@ Future<String> wpgpBuildEoaTransaction(
 Future<String> wpgpEntryPointV07() =>
     RustLib.instance.api.crateBridgeWpgpEntryPointV07();
 
+/// Generates the Paillier primes needed by the aux-info phase of key
+/// generation.
+///
+/// **Slow** (seconds on a desktop, longer on a phone) and needs no network, so
+/// run it ahead of time on a background isolate. The returned bytes are secret:
+/// keep them in secure storage and pass them to [`MpcDkgSession::create`], which
+/// uses them once. Use fresh primes for every key generation.
+Future<Uint8List> mpcGeneratePrimes() =>
+    RustLib.instance.api.crateBridgeMpcGeneratePrimes();
+
+/// Shortest recovery passphrase accepted, in characters.
+Future<int> mpcMinPassphraseChars() =>
+    RustLib.instance.api.crateBridgeMpcMinPassphraseChars();
+
+/// Whether a passphrase is acceptable, with the reason it is not.
+Future<void> mpcValidatePassphrase({required String passphrase}) =>
+    RustLib.instance.api
+        .crateBridgeMpcValidatePassphrase(passphrase: passphrase);
+
+/// The wallet a recovery backup belongs to. Readable without the passphrase,
+/// so the app can show which wallet a downloaded backup is for.
+Future<String> mpcRecoveryBackupWalletAddress({required List<int> backup}) =>
+    RustLib.instance.api
+        .crateBridgeMpcRecoveryBackupWalletAddress(backup: backup);
+
+/// Opens a recovery backup with the user's passphrase and returns the plain
+/// recovery share (opaque bytes). Keep it only in secure storage, as the share
+/// of a recovered device; sign with it through [`MpcSigningSession::create`].
+Future<Uint8List> mpcUnlockRecoveryBackup(
+        {required List<int> backup, required String passphrase}) =>
+    RustLib.instance.api.crateBridgeMpcUnlockRecoveryBackup(
+        backup: backup, passphrase: passphrase);
+
+/// Re-encrypts a recovery backup under a new passphrase.
+Future<Uint8List> mpcChangeRecoveryPassphrase(
+        {required List<int> backup,
+        required String oldPassphrase,
+        required String newPassphrase}) =>
+    RustLib.instance.api.crateBridgeMpcChangeRecoveryPassphrase(
+        backup: backup,
+        oldPassphrase: oldPassphrase,
+        newPassphrase: newPassphrase);
+
+/// New device, step 1: make a one-time key pair. Show `public_key` (for
+/// example as a QR code) to the existing device and keep `secret_key`.
+Future<MpcPairingRequest> mpcPairingNewRequest() =>
+    RustLib.instance.api.crateBridgeMpcPairingNewRequest();
+
+/// Existing device, step 2: encrypt this device's share to the new device.
+/// Only a device share (party 0) can be exported; the recovery share moves
+/// through its passphrase-protected backup instead.
+Future<Uint8List> mpcPairingExportShare(
+        {required List<int> deviceShare,
+        required List<int> newDevicePublicKey}) =>
+    RustLib.instance.api.crateBridgeMpcPairingExportShare(
+        deviceShare: deviceShare, newDevicePublicKey: newDevicePublicKey);
+
+/// New device, step 3: open the package with the secret key from step 1 and
+/// return the device share. The share is checked before it is returned. Store
+/// it like a share from key generation, and link the device on the server.
+Future<Uint8List> mpcPairingImportShare(
+        {required List<int> secretKey, required List<int> package}) =>
+    RustLib.instance.api.crateBridgeMpcPairingImportShare(
+        secretKey: secretKey, package: package);
+
+/// Reads the wallet address and role from a share.
+Future<MpcShareInfo> mpcShareInfo({required List<int> share}) =>
+    RustLib.instance.api.crateBridgeMpcShareInfo(share: share);
+
+/// Signs a 32-byte hash using the device share and the recovery share held
+/// together on this device, with no server involved.
+///
+/// This is the escape hatch for when the signer server is unavailable. It
+/// needs the unlocked recovery share, so the device briefly holds two shares.
+/// **Slow** (several seconds): run it off the UI isolate.
+Future<Uint8List> mpcSignLocally(
+        {required List<int> deviceShare,
+        required List<int> recoveryShare,
+        required List<int> txHash}) =>
+    RustLib.instance.api.crateBridgeMpcSignLocally(
+        deviceShare: deviceShare, recoveryShare: recoveryShare, txHash: txHash);
+
+/// Names of every supported mnemonic language.
+Future<List<String>> bip39Languages() =>
+    RustLib.instance.api.crateBridgeBip39Languages();
+
+/// Name of the default mnemonic language.
+Future<String> bip39DefaultLanguage() =>
+    RustLib.instance.api.crateBridgeBip39DefaultLanguage();
+
+/// Every supported word count (12, 15, 18, 21, 24).
+Future<Uint32List> bip39WordCounts() =>
+    RustLib.instance.api.crateBridgeBip39WordCounts();
+
+/// Entropy length and checksum size for a word count.
+Future<Bip39WordCountInfo> bip39WordCountInfo({required int wordCount}) =>
+    RustLib.instance.api.crateBridgeBip39WordCountInfo(wordCount: wordCount);
+
+/// Word count that matches an entropy length in bytes.
+Future<int> bip39WordCountForEntropyLength({required int entropyBytes}) =>
+    RustLib.instance.api
+        .crateBridgeBip39WordCountForEntropyLength(entropyBytes: entropyBytes);
+
+/// Generate a mnemonic in the given language.
+Future<String> generateMnemonicInLanguage(
+        {required int wordCount, required String language}) =>
+    RustLib.instance.api.crateBridgeGenerateMnemonicInLanguage(
+        wordCount: wordCount, language: language);
+
+/// Create a mnemonic from entropy in the given language.
+Future<String> generateMnemonicFromEntropyInLanguage(
+        {required List<int> entropy, required String language}) =>
+    RustLib.instance.api.crateBridgeGenerateMnemonicFromEntropyInLanguage(
+        entropy: entropy, language: language);
+
+/// Validate a mnemonic and return the reason it is invalid, if any.
+Future<void> validateMnemonicDetailed(
+        {required String phrase, String? language}) =>
+    RustLib.instance.api.crateBridgeValidateMnemonicDetailed(
+        phrase: phrase, language: language);
+
+/// Entropy bytes encoded in a mnemonic.
+Future<Uint8List> mnemonicToEntropy(
+        {required String phrase, String? language}) =>
+    RustLib.instance.api
+        .crateBridgeMnemonicToEntropy(phrase: phrase, language: language);
+
+/// Convert a mnemonic in the given language to a 64-byte seed (hex).
+Future<String> mnemonicPhraseToSeedHexInLanguage(
+        {required String phrase,
+        String? passphrase,
+        required String language}) =>
+    RustLib.instance.api.crateBridgeMnemonicPhraseToSeedHexInLanguage(
+        phrase: phrase, passphrase: passphrase, language: language);
+
+/// Parse a derivation path and describe it.
+Future<Bip32PathInfo> bip32DerivationPathInfo({required String path}) =>
+    RustLib.instance.api.crateBridgeBip32DerivationPathInfo(path: path);
+
+/// Parent of a derivation path (`None` for the master path).
+Future<String?> bip32DerivationPathParent({required String path}) =>
+    RustLib.instance.api.crateBridgeBip32DerivationPathParent(path: path);
+
+/// Append raw child indexes (bit 31 = hardened) to a derivation path.
+Future<String> bip32DerivationPathExtend(
+        {required String path, required List<int> children}) =>
+    RustLib.instance.api
+        .crateBridgeBip32DerivationPathExtend(path: path, children: children);
+
+/// Whether `path` begins with `prefix`.
+Future<bool> bip32DerivationPathStartsWith(
+        {required String path, required String prefix}) =>
+    RustLib.instance.api
+        .crateBridgeBip32DerivationPathStartsWith(path: path, prefix: prefix);
+
+/// Child number at a position of a derivation path.
+Future<Bip32ChildNumberInfo?> bip32DerivationPathChildAt(
+        {required String path, required int position}) =>
+    RustLib.instance.api
+        .crateBridgeBip32DerivationPathChildAt(path: path, position: position);
+
+/// Whether the child at a position is hardened.
+Future<bool> bip32DerivationPathIsHardenedAt(
+        {required String path, required int position}) =>
+    RustLib.instance.api.crateBridgeBip32DerivationPathIsHardenedAt(
+        path: path, position: position);
+
+/// Describe a raw child index (bit 31 = hardened).
+Future<Bip32ChildNumberInfo> bip32ChildNumberInfo({required int rawIndex}) =>
+    RustLib.instance.api.crateBridgeBip32ChildNumberInfo(rawIndex: rawIndex);
+
+/// Raw index of a hardened child with the given value.
+Future<int> bip32ChildNumberHardened({required int value}) =>
+    RustLib.instance.api.crateBridgeBip32ChildNumberHardened(value: value);
+
+/// Raw index of a normal child with the given value.
+Future<int> bip32ChildNumberNormal({required int value}) =>
+    RustLib.instance.api.crateBridgeBip32ChildNumberNormal(value: value);
+
+/// Name and version bytes of a network.
+Future<Bip32NetworkInfo> bip32NetworkInfo({required Network network}) =>
+    RustLib.instance.api.crateBridgeBip32NetworkInfo(network: network);
+
+/// Network that uses the given `xprv` version bytes.
+Future<Network?> bip32NetworkFromXprvVersion({required int version}) =>
+    RustLib.instance.api
+        .crateBridgeBip32NetworkFromXprvVersion(version: version);
+
+/// Network that uses the given `xpub` version bytes.
+Future<Network?> bip32NetworkFromXpubVersion({required int version}) =>
+    RustLib.instance.api
+        .crateBridgeBip32NetworkFromXpubVersion(version: version);
+
+/// Version bytes for a network and key kind.
+Future<int> bip32NetworkVersionBytes(
+        {required Network network, required bool isPrivate}) =>
+    RustLib.instance.api.crateBridgeBip32NetworkVersionBytes(
+        network: network, isPrivate: isPrivate);
+
+/// Master private and public keys from a seed.
+Future<Bip32KeyPair> bip32GenerateMasterKeypair(
+        {required List<int> seed, required Network network}) =>
+    RustLib.instance.api
+        .crateBridgeBip32GenerateMasterKeypair(seed: seed, network: network);
+
+/// Private and public keys at `path` below a master key.
+Future<Bip32KeyPair> bip32DeriveKeypairFromPath(
+        {required String masterExtendedPrivateKey, required String path}) =>
+    RustLib.instance.api.crateBridgeBip32DeriveKeypairFromPath(
+        masterExtendedPrivateKey: masterExtendedPrivateKey, path: path);
+
+/// Compressed public key (33 bytes, hex) of a raw private key.
+Future<String> bip32PrivateKeyToPublicKey({required String privateKeyHex}) =>
+    RustLib.instance.api
+        .crateBridgeBip32PrivateKeyToPublicKey(privateKeyHex: privateKeyHex);
+
+/// Add a 32-byte tweak to a private key (hex in, hex out).
+Future<String> bip32PrivateKeyTweakAdd(
+        {required String privateKeyHex, required String tweakHex}) =>
+    RustLib.instance.api.crateBridgeBip32PrivateKeyTweakAdd(
+        privateKeyHex: privateKeyHex, tweakHex: tweakHex);
+
+/// Add a 32-byte tweak to a compressed public key (hex in, hex out).
+Future<String> bip32PublicKeyTweakAdd(
+        {required String publicKeyHex, required String tweakHex}) =>
+    RustLib.instance.api.crateBridgeBip32PublicKeyTweakAdd(
+        publicKeyHex: publicKeyHex, tweakHex: tweakHex);
+
+/// Uncompressed form (65 bytes, hex) of a compressed public key.
+Future<String> bip32PublicKeyToUncompressed({required String publicKeyHex}) =>
+    RustLib.instance.api
+        .crateBridgeBip32PublicKeyToUncompressed(publicKeyHex: publicKeyHex);
+
+/// Validate a 32-byte chain code and return it as bytes.
+Future<Uint8List> bip32ChainCodeFromBytes({required List<int> bytes}) =>
+    RustLib.instance.api.crateBridgeBip32ChainCodeFromBytes(bytes: bytes);
+
+/// Build a BIP-44 path from its components.
+Future<Bip44PathInfo> bip44PathBuild(
+        {required Purpose purpose,
+        required CoinType coinType,
+        required int account,
+        required Chain chain,
+        required int addressIndex}) =>
+    RustLib.instance.api.crateBridgeBip44PathBuild(
+        purpose: purpose,
+        coinType: coinType,
+        account: account,
+        chain: chain,
+        addressIndex: addressIndex);
+
+/// Parse a BIP-44 path into its components.
+Future<Bip44PathInfo> bip44PathParse({required String path}) =>
+    RustLib.instance.api.crateBridgeBip44PathParse(path: path);
+
+/// The same path with the next address index.
+Future<Bip44PathInfo> bip44PathNextAddress({required String path}) =>
+    RustLib.instance.api.crateBridgeBip44PathNextAddress(path: path);
+
+/// The same path with a different address index.
+Future<Bip44PathInfo> bip44PathWithAddressIndex(
+        {required String path, required int addressIndex}) =>
+    RustLib.instance.api.crateBridgeBip44PathWithAddressIndex(
+        path: path, addressIndex: addressIndex);
+
+/// The same path on a different chain.
+Future<Bip44PathInfo> bip44PathWithChain(
+        {required String path, required Chain chain}) =>
+    RustLib.instance.api
+        .crateBridgeBip44PathWithChain(path: path, chain: chain);
+
+/// The same path on the external chain.
+Future<Bip44PathInfo> bip44PathToExternal({required String path}) =>
+    RustLib.instance.api.crateBridgeBip44PathToExternal(path: path);
+
+/// The same path on the internal (change) chain.
+Future<Bip44PathInfo> bip44PathToInternal({required String path}) =>
+    RustLib.instance.api.crateBridgeBip44PathToInternal(path: path);
+
+/// The same path under a different account.
+Future<Bip44PathInfo> bip44PathWithAccount(
+        {required String path, required int account}) =>
+    RustLib.instance.api
+        .crateBridgeBip44PathWithAccount(path: path, account: account);
+
+/// The same path under the next account.
+Future<Bip44PathInfo> bip44PathNextAccount({required String path}) =>
+    RustLib.instance.api.crateBridgeBip44PathNextAccount(path: path);
+
+/// The same path with a different purpose.
+Future<Bip44PathInfo> bip44PathWithPurpose(
+        {required String path, required Purpose purpose}) =>
+    RustLib.instance.api
+        .crateBridgeBip44PathWithPurpose(path: path, purpose: purpose);
+
+/// The same path with a different coin type.
+Future<Bip44PathInfo> bip44PathWithCoinType(
+        {required String path, required CoinType coinType}) =>
+    RustLib.instance.api
+        .crateBridgeBip44PathWithCoinType(path: path, coinType: coinType);
+
+/// A BIP-44 path as a generic BIP-32 derivation path string.
+Future<String> bip44PathToDerivationPath({required String path}) =>
+    RustLib.instance.api.crateBridgeBip44PathToDerivationPath(path: path);
+
+/// Structured details of a coin type.
+Future<Bip44CoinDetails> bip44CoinDetails({required CoinType coinType}) =>
+    RustLib.instance.api.crateBridgeBip44CoinDetails(coinType: coinType);
+
+/// Structured details of a purpose.
+Future<Bip44PurposeDetails> bip44PurposeDetails({required Purpose purpose}) =>
+    RustLib.instance.api.crateBridgeBip44PurposeDetails(purpose: purpose);
+
+/// Structured details of a chain.
+Future<Bip44ChainDetails> bip44ChainDetails({required Chain chain}) =>
+    RustLib.instance.api.crateBridgeBip44ChainDetails(chain: chain);
+
+/// The default gap limit (20).
+Future<int> bip44DefaultGapLimit() =>
+    RustLib.instance.api.crateBridgeBip44DefaultGapLimit();
+
+/// Last used address index, given the set of used indexes.
+///
+/// Dart looks up which addresses have activity and passes them in; the gap
+/// limit rule is applied here.
+Future<int?> bip44FindLastUsedIndex(
+        {required List<int> usedIndices,
+        required int gapLimit,
+        required int startIndex}) =>
+    RustLib.instance.api.crateBridgeBip44FindLastUsedIndex(
+        usedIndices: usedIndices, gapLimit: gapLimit, startIndex: startIndex);
+
+/// All used indexes found by the gap limit rule.
+Future<Uint32List> bip44FindUsedIndices(
+        {required List<int> usedIndices,
+        required int gapLimit,
+        required int startIndex}) =>
+    RustLib.instance.api.crateBridgeBip44FindUsedIndices(
+        usedIndices: usedIndices, gapLimit: gapLimit, startIndex: startIndex);
+
+/// Scan one chain with the gap limit rule.
+Future<Bip44ChainScan> bip44ScanChain(
+        {required List<int> usedIndices,
+        required int gapLimit,
+        required Chain chain}) =>
+    RustLib.instance.api.crateBridgeBip44ScanChain(
+        usedIndices: usedIndices, gapLimit: gapLimit, chain: chain);
+
+/// Scan accounts `0..max_accounts` using one set of used indexes per chain.
+Future<List<Bip44AccountScan>> bip44DiscoverAccounts(
+        {required List<int> externalUsedIndices,
+        required List<int> internalUsedIndices,
+        required int gapLimit,
+        required int maxAccounts}) =>
+    RustLib.instance.api.crateBridgeBip44DiscoverAccounts(
+        externalUsedIndices: externalUsedIndices,
+        internalUsedIndices: internalUsedIndices,
+        gapLimit: gapLimit,
+        maxAccounts: maxAccounts);
+
+/// keccak-256 of arbitrary bytes.
+Future<Uint8List> keccak256Bytes({required List<int> data}) =>
+    RustLib.instance.api.crateBridgeKeccak256Bytes(data: data);
+
+/// EIP-712 domain type string, e.g. `EIP712Domain(string name,...)`.
+Future<String> eip712DomainTypeString(
+        {required String name,
+        required String version,
+        required BigInt chainId,
+        String? verifyingContract}) =>
+    RustLib.instance.api.crateBridgeEip712DomainTypeString(
+        name: name,
+        version: version,
+        chainId: chainId,
+        verifyingContract: verifyingContract);
+
+/// EIP-712 domain type hash.
+Future<Uint8List> eip712DomainTypeHash(
+        {required String name,
+        required String version,
+        required BigInt chainId,
+        String? verifyingContract}) =>
+    RustLib.instance.api.crateBridgeEip712DomainTypeHash(
+        name: name,
+        version: version,
+        chainId: chainId,
+        verifyingContract: verifyingContract);
+
+/// EIP-712 domain separator.
+Future<Uint8List> eip712DomainSeparator(
+        {required String name,
+        required String version,
+        required BigInt chainId,
+        String? verifyingContract}) =>
+    RustLib.instance.api.crateBridgeEip712DomainSeparator(
+        name: name,
+        version: version,
+        chainId: chainId,
+        verifyingContract: verifyingContract);
+
+/// ABI-encode an address as a 32-byte EIP-712 word.
+Future<Uint8List> eip712EncodeAddress({required String address}) =>
+    RustLib.instance.api.crateBridgeEip712EncodeAddress(address: address);
+
+/// Encode a decimal `u128` as a 32-byte word.
+Future<Uint8List> eip712EncodeUint256({required String value}) =>
+    RustLib.instance.api.crateBridgeEip712EncodeUint256(value: value);
+
+/// Encode 32 big-endian bytes as a 32-byte word.
+Future<Uint8List> eip712EncodeU256Bytes({required List<int> value}) =>
+    RustLib.instance.api.crateBridgeEip712EncodeU256Bytes(value: value);
+
+/// Encode a `u64` as a 32-byte word.
+Future<Uint8List> eip712EncodeUint64({required BigInt value}) =>
+    RustLib.instance.api.crateBridgeEip712EncodeUint64(value: value);
+
+/// Encode a bool as a 32-byte word.
+Future<Uint8List> eip712EncodeBool({required bool value}) =>
+    RustLib.instance.api.crateBridgeEip712EncodeBool(value: value);
+
+/// Encode a `bytes32` value as a 32-byte word.
+Future<Uint8List> eip712EncodeBytes32({required List<int> value}) =>
+    RustLib.instance.api.crateBridgeEip712EncodeBytes32(value: value);
+
+/// Hash a dynamic `bytes` or `string` value as EIP-712 requires.
+Future<Uint8List> eip712EncodeBytesDynamic({required List<int> value}) =>
+    RustLib.instance.api.crateBridgeEip712EncodeBytesDynamic(value: value);
+
+/// Pack verification and call gas limits into one 32-byte word.
+Future<Uint8List> erc4337PackGasLimits(
+        {required String verificationGasLimit, required String callGasLimit}) =>
+    RustLib.instance.api.crateBridgeErc4337PackGasLimits(
+        verificationGasLimit: verificationGasLimit, callGasLimit: callGasLimit);
+
+/// Pack priority and max fee per gas into one 32-byte word.
+Future<Uint8List> erc4337PackGasFees(
+        {required String maxPriorityFeePerGas, required String maxFeePerGas}) =>
+    RustLib.instance.api.crateBridgeErc4337PackGasFees(
+        maxPriorityFeePerGas: maxPriorityFeePerGas, maxFeePerGas: maxFeePerGas);
+
+/// Build a user operation and read back its packed fields.
+Future<WpgpUserOperationDetails> wpgpUserOperationDetails(
+        {required WpgpUserOperation userOp}) =>
+    RustLib.instance.api.crateBridgeWpgpUserOperationDetails(userOp: userOp);
+
+/// Encode messages into one batch, the unit sent per gRPC round trip.
+Future<Uint8List> mpcEncodeWireBatch(
+        {required List<MpcWireMessage> messages}) =>
+    RustLib.instance.api.crateBridgeMpcEncodeWireBatch(messages: messages);
+
+/// Decode a batch received from the signer server.
+Future<List<MpcWireMessage>> mpcDecodeWireBatch({required List<int> bytes}) =>
+    RustLib.instance.api.crateBridgeMpcDecodeWireBatch(bytes: bytes);
+
+/// 32-byte execution id both parties derive for a ceremony.
+Future<Uint8List> mpcExecutionId(
+        {required String sessionId, required String purpose}) =>
+    RustLib.instance.api
+        .crateBridgeMpcExecutionId(sessionId: sessionId, purpose: purpose);
+
+/// Whether the bytes are a complete, usable device share.
+Future<bool> mpcIsValidDeviceShare({required List<int> deviceShare}) =>
+    RustLib.instance.api
+        .crateBridgeMpcIsValidDeviceShare(deviceShare: deviceShare);
+
+/// Wallet address (EIP-55) a device share belongs to.
+Future<String> mpcWalletAddressFromDeviceShare(
+        {required List<int> deviceShare}) =>
+    RustLib.instance.api
+        .crateBridgeMpcWalletAddressFromDeviceShare(deviceShare: deviceShare);
+
+/// Check that a 65-byte signature over `tx_hash` recovers to `expected_address`.
+Future<bool> mpcVerifySignatureRecoversAddress(
+        {required List<int> signature,
+        required List<int> txHash,
+        required String expectedAddress}) =>
+    RustLib.instance.api.crateBridgeMpcVerifySignatureRecoversAddress(
+        signature: signature, txHash: txHash, expectedAddress: expectedAddress);
+
+/// The 4-byte selector of the gateway `registerBusiness` call, as `0x` hex.
+Future<String> wpgpRegisterBusinessSelector() =>
+    RustLib.instance.api.crateBridgeWpgpRegisterBusinessSelector();
+
+/// A random 32-byte business id from the operating system's CSPRNG.
+Future<Uint8List> wpgpGenerateBusinessId() =>
+    RustLib.instance.api.crateBridgeWpgpGenerateBusinessId();
+
+/// Call data (`0x` hex) for
+/// `registerBusiness(bytes32,address,string,string,uint256,bytes)`.
+Future<String> wpgpEncodeRegisterBusiness(
+        {required List<int> businessId,
+        required String ownerAddress,
+        required String name,
+        required String metadataUri,
+        required BigInt permitExpiresAt,
+        required List<int> platformSignature}) =>
+    RustLib.instance.api.crateBridgeWpgpEncodeRegisterBusiness(
+        businessId: businessId,
+        ownerAddress: ownerAddress,
+        name: name,
+        metadataUri: metadataUri,
+        permitExpiresAt: permitExpiresAt,
+        platformSignature: platformSignature);
+
+/// Decode revert data (`0x` hex, or `None`) into a [`GatewayRevert`].
+/// Never fails: anything unrecognised yields `Unknown`.
+Future<GatewayRevert> wpgpDecodeGatewayRevert({String? revertData}) =>
+    RustLib.instance.api
+        .crateBridgeWpgpDecodeGatewayRevert(revertData: revertData);
+
+/// Decode the `eth_call` result of `getBusinessInfo(bytes32)`: the 7-field
+/// struct `status, owner, trustLevel, name, metadataURI, registeredAt,
+/// updatedAt`. Rejects malformed data and any other layout.
+Future<WpgpBusinessInfo> wpgpDecodeBusinessInfo({required String resultHex}) =>
+    RustLib.instance.api
+        .crateBridgeWpgpDecodeBusinessInfo(resultHex: resultHex);
+
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Bip44Account>>
 abstract class Bip44Account implements RustOpaqueInterface {
   /// Get the account index
@@ -418,8 +935,33 @@ abstract class Bip44Account implements RustOpaqueInterface {
   /// Derive an internal (change) address at the given index
   Future<String> deriveInternal({required int index});
 
+  /// A derived address together with its path.
+  Future<Bip44DerivedAddressInfo> derivedAddressInfo(
+      {required Chain chain, required int index});
+
   /// Get the extended key as a string (xprv format)
   Future<String> extendedKeyString();
+
+  /// Build an account from an account-level extended private key string.
+  static Future<Bip44Account> fromExtendedKey(
+          {required String extendedKey,
+          required Purpose purpose,
+          required CoinType coinType,
+          required int accountIndex}) =>
+      RustLib.instance.api.crateBridgeBip44AccountFromExtendedKey(
+          extendedKey: extendedKey,
+          purpose: purpose,
+          coinType: coinType,
+          accountIndex: accountIndex);
+
+  /// Walk addresses from `start_index`, returning at most `count`.
+  ///
+  /// `max_index` stops the walk early when set.
+  Future<List<String>> iterateAddresses(
+      {required Chain chain,
+      required int startIndex,
+      int? maxIndex,
+      required int count});
 
   /// Get the network for this account
   Future<Network> network();
@@ -430,6 +972,12 @@ abstract class Bip44Account implements RustOpaqueInterface {
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Bip44Wallet>>
 abstract class Bip44Wallet implements RustOpaqueInterface {
+  /// Number of accounts currently cached.
+  Future<int> cachedAccountCount();
+
+  /// Forget cached accounts.
+  Future<void> clearCache();
+
   /// Create a new BIP44 wallet from mnemonic
   static Future<Bip44Wallet> fromMnemonic(
           {required String mnemonic,
@@ -437,6 +985,18 @@ abstract class Bip44Wallet implements RustOpaqueInterface {
           required Network network}) =>
       RustLib.instance.api.crateBridgeBip44WalletFromMnemonic(
           mnemonic: mnemonic, passphrase: passphrase, network: network);
+
+  /// Create a wallet from a mnemonic written in the given language.
+  static Future<Bip44Wallet> fromMnemonicInLanguage(
+          {required String mnemonic,
+          String? passphrase,
+          required String language,
+          required Network network}) =>
+      RustLib.instance.api.crateBridgeBip44WalletFromMnemonicInLanguage(
+          mnemonic: mnemonic,
+          passphrase: passphrase,
+          language: language,
+          network: network);
 
   /// Create a new BIP44 wallet from seed
   static Future<Bip44Wallet> fromSeed(
@@ -449,6 +1009,9 @@ abstract class Bip44Wallet implements RustOpaqueInterface {
       {required Purpose purpose,
       required CoinType coinType,
       required int accountIndex});
+
+  /// The master key as an extended private key string.
+  Future<String> masterKeyString();
 
   /// Get the network this wallet operates on
   Future<Network> network();
@@ -521,8 +1084,14 @@ abstract class EvmSigner implements RustOpaqueInterface {
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ExtendedPrivateKey>>
 abstract class ExtendedPrivateKey implements RustOpaqueInterface {
+  /// The 32-byte chain code.
+  Future<Uint8List> chainCode();
+
   /// Get the child number index
   Future<int> childNumberIndex();
+
+  /// Raw child index of this key (bit 31 = hardened).
+  Future<int> childNumberRaw();
 
   /// Get the depth in derivation tree (0 = master, 1 = level-1 child, etc.)
   Future<int> depth();
@@ -564,6 +1133,15 @@ abstract class ExtendedPrivateKey implements RustOpaqueInterface {
   /// Get the parent fingerprint (4 bytes)
   Future<Uint8List> parentFingerprint();
 
+  /// The raw 32-byte private key. Handle with care.
+  Future<Uint8List> privateKeyBytes();
+
+  /// The compressed public key (33 bytes).
+  Future<Uint8List> publicKeyBytes();
+
+  /// The uncompressed public key (65 bytes).
+  Future<Uint8List> publicKeyUncompressed();
+
   /// Convert to extended public key
   Future<ExtendedPublicKey> toExtendedPublicKey();
 
@@ -573,8 +1151,14 @@ abstract class ExtendedPrivateKey implements RustOpaqueInterface {
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ExtendedPublicKey>>
 abstract class ExtendedPublicKey implements RustOpaqueInterface {
+  /// The 32-byte chain code.
+  Future<Uint8List> chainCode();
+
   /// Get the child number index
   Future<int> childNumberIndex();
+
+  /// Raw child index of this key (bit 31 = hardened).
+  Future<int> childNumberRaw();
 
   /// Get the depth in derivation tree
   Future<int> depth();
@@ -600,6 +1184,12 @@ abstract class ExtendedPublicKey implements RustOpaqueInterface {
 
   /// Get the parent fingerprint (4 bytes)
   Future<Uint8List> parentFingerprint();
+
+  /// The compressed public key (33 bytes).
+  Future<Uint8List> publicKeyBytes();
+
+  /// The uncompressed public key (65 bytes).
+  Future<Uint8List> publicKeyUncompressed();
 
   /// Serialize to extended key string (xpub... format)
   Future<String> toExtendedString();
@@ -630,117 +1220,494 @@ abstract class Mnemonic implements RustOpaqueInterface {
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcDkgSession>>
 abstract class MpcDkgSession implements RustOpaqueInterface {
-  /// Processes one round of server response and advances the ceremony.
+  /// Processes the server's latest batch (empty is allowed) and returns what
+  /// to send back.
   ///
-  /// Pass the raw bytes received from the KhodPay signer server.  Inspect
-  /// `MpcDkgAdvanceResult::is_complete` to decide whether to loop or
-  /// finish.
+  /// Blocks while the device computes (prime generation if it was not done
+  /// ahead, zero-knowledge proofs), so Dart awaits it off the UI isolate.
   ///
   /// # Errors
   ///
-  /// Returns a descriptive string on any protocol error.  The session is
-  /// not reusable after an error — create a fresh `MpcDkgSession`.
+  /// Returns a description on any protocol error. The session cannot be used
+  /// afterwards; start a new ceremony.
   Future<MpcDkgAdvanceResult> advance({required List<int> serverPayload});
 
-  /// Creates a new DKG session and generates the first round payload.
+  /// Starts the device side of the key generation the server announced with
+  /// `session_id`.
   ///
-  /// The returned session is ready to use: call `first_round_payload()`,
-  /// forward the bytes to the signer server, then drive the ceremony with
-  /// `advance()`.
+  /// The device runs two of the wallet's three parties (the device share and
+  /// the recovery share), so it needs two separate sets of primes: call
+  /// [`mpc_generate_primes`] twice. Pass `None` to let the session generate
+  /// them itself, which can take minutes on a phone.
   ///
-  /// # Errors
-  ///
-  /// Returns a descriptive string if the underlying session cannot be
-  /// initialised (e.g. RNG failure).
-  static Future<MpcDkgSession> create() =>
-      RustLib.instance.api.crateBridgeMpcDkgSessionCreate();
-
-  /// Returns the opaque first-round payload to send to the KhodPay signer
-  /// server.
-  ///
-  /// This payload must be forwarded before calling `advance()`.
-  Future<Uint8List> firstRoundPayload();
-
-  /// Returns the session ID (UUID v4).
-  ///
-  /// Forward this to the server so it can correlate responses to this
-  /// specific DKG ceremony.
-  Future<String> sessionId();
-}
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcReshareSession>>
-abstract class MpcReshareSession implements RustOpaqueInterface {
-  /// Processes one round of server response and advances the resharing
-  /// ceremony.
-  ///
-  /// When `MpcReshareAdvanceResult::is_complete` is `true`,
-  /// `result.new_device_share` contains the fresh device share bytes.
-  /// Store them under `SecureStorageService("mpc_device_share_v1")`,
-  /// **overwriting** the previous entry.
+  /// `recovery_passphrase` encrypts the recovery share before it leaves Rust
+  /// (at least [`MPC_MIN_PASSPHRASE_CHARS`] characters). It must be
+  /// remembered: without it the backup cannot be opened.
   ///
   /// # Errors
   ///
-  /// Returns a descriptive string on any protocol error.
-  Future<MpcReshareAdvanceResult> advance({required List<int> serverPayload});
+  /// Returns a description if `session_id`, a primes value or the passphrase
+  /// is invalid.
+  static Future<MpcDkgSession> create(
+          {required String sessionId,
+          Uint8List? devicePrimes,
+          Uint8List? recoveryPrimes,
+          required String recoveryPassphrase}) =>
+      RustLib.instance.api.crateBridgeMpcDkgSessionCreate(
+          sessionId: sessionId,
+          devicePrimes: devicePrimes,
+          recoveryPrimes: recoveryPrimes,
+          recoveryPassphrase: recoveryPassphrase);
 
-  /// Creates a new resharing session.
-  ///
-  /// The server authorises the resharing ceremony via the user's Google ID
-  /// token (handled server-side); this method only creates the device-side
-  /// session state.
-  ///
-  /// # Errors
-  ///
-  /// Returns a descriptive string if the session cannot be initialised.
-  static Future<MpcReshareSession> create() =>
-      RustLib.instance.api.crateBridgeMpcReshareSessionCreate();
-
-  /// Returns the opaque first-round payload to send to the KhodPay signer
-  /// server.
-  Future<Uint8List> firstRoundPayload();
-
-  /// Returns the session ID (UUID v4).
+  /// Returns the session id the server announced.
   Future<String> sessionId();
 }
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MpcSigningSession>>
 abstract class MpcSigningSession implements RustOpaqueInterface {
-  /// Processes one round of server response and advances the signing
-  /// ceremony.
-  ///
-  /// Pass the raw bytes received from the KhodPay signer server.  When
-  /// `MpcSigningAdvanceResult::is_complete` is `true`,
-  /// `result.signature` contains the 65-byte EVM signature (`r || s || v`).
+  /// Processes the server's latest batch (empty is allowed) and returns what
+  /// to send back. When `is_complete`, `signature` is the final signature.
   ///
   /// # Errors
   ///
-  /// Returns a descriptive string on any protocol or validation error.
+  /// Returns a description on any protocol error. The session cannot be used
+  /// afterwards; start a new signing session.
   Future<MpcSigningAdvanceResult> advance({required List<int> serverPayload});
 
-  /// Creates a new signing session for the given device share and transaction
-  /// hash.
+  /// Starts the device side of the signature the server announced with
+  /// `session_id`.
   ///
-  /// # Parameters
-  ///
-  /// - `device_share`: the opaque bytes returned by a previous DKG
-  ///   ceremony, read from `SecureStorageService("mpc_device_share_v1")`.
-  /// - `tx_hash`: the 32-byte keccak256 hash of the transaction to sign.
+  /// - `device_share`: the bytes stored after key generation.
+  /// - `tx_hash`: the 32-byte hash to sign. It is signed as given, not hashed
+  ///   again, and must be the same hash sent in `StartSigning`.
   ///
   /// # Errors
   ///
-  /// Returns a descriptive string if `device_share` bytes are invalid or if
-  /// `tx_hash` is not exactly 32 bytes.
+  /// Returns a description if `session_id`, `tx_hash` or `device_share` is
+  /// invalid. A share created before aux-info generation existed is rejected.
   static Future<MpcSigningSession> create(
-          {required List<int> deviceShare, required List<int> txHash}) =>
+          {required String sessionId,
+          required List<int> deviceShare,
+          required List<int> txHash}) =>
       RustLib.instance.api.crateBridgeMpcSigningSessionCreate(
-          deviceShare: deviceShare, txHash: txHash);
+          sessionId: sessionId, deviceShare: deviceShare, txHash: txHash);
 
-  /// Returns the opaque first-round payload to send to the KhodPay signer
-  /// server.
-  Future<Uint8List> firstRoundPayload();
-
-  /// Returns the session ID (UUID v4).
+  /// Returns the session id the server announced.
   Future<String> sessionId();
+}
+
+/// Details about one child number.
+class Bip32ChildNumberInfo {
+  final int rawIndex;
+  final int value;
+  final bool isHardened;
+
+  const Bip32ChildNumberInfo({
+    required this.rawIndex,
+    required this.value,
+    required this.isHardened,
+  });
+
+  @override
+  int get hashCode => rawIndex.hashCode ^ value.hashCode ^ isHardened.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Bip32ChildNumberInfo &&
+          runtimeType == other.runtimeType &&
+          rawIndex == other.rawIndex &&
+          value == other.value &&
+          isHardened == other.isHardened;
+}
+
+/// A master or derived key pair in extended-string form.
+class Bip32KeyPair {
+  final String privateKey;
+  final String publicKey;
+
+  const Bip32KeyPair({
+    required this.privateKey,
+    required this.publicKey,
+  });
+
+  @override
+  int get hashCode => privateKey.hashCode ^ publicKey.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Bip32KeyPair &&
+          runtimeType == other.runtimeType &&
+          privateKey == other.privateKey &&
+          publicKey == other.publicKey;
+}
+
+/// Version bytes and name of a BIP-32 network.
+class Bip32NetworkInfo {
+  final String name;
+  final int xprvVersion;
+  final int xpubVersion;
+
+  const Bip32NetworkInfo({
+    required this.name,
+    required this.xprvVersion,
+    required this.xpubVersion,
+  });
+
+  @override
+  int get hashCode =>
+      name.hashCode ^ xprvVersion.hashCode ^ xpubVersion.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Bip32NetworkInfo &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          xprvVersion == other.xprvVersion &&
+          xpubVersion == other.xpubVersion;
+}
+
+/// Breakdown of a BIP-32 derivation path.
+class Bip32PathInfo {
+  final String normalized;
+  final int depth;
+  final bool isMaster;
+  final bool isValid;
+  final bool containsHardened;
+  final bool isPublicDerivable;
+  final int hardenedPrefixLength;
+  final int normalSuffixLength;
+
+  /// Raw child indexes (hardened ones have bit 31 set).
+  final Uint32List components;
+
+  const Bip32PathInfo({
+    required this.normalized,
+    required this.depth,
+    required this.isMaster,
+    required this.isValid,
+    required this.containsHardened,
+    required this.isPublicDerivable,
+    required this.hardenedPrefixLength,
+    required this.normalSuffixLength,
+    required this.components,
+  });
+
+  @override
+  int get hashCode =>
+      normalized.hashCode ^
+      depth.hashCode ^
+      isMaster.hashCode ^
+      isValid.hashCode ^
+      containsHardened.hashCode ^
+      isPublicDerivable.hashCode ^
+      hardenedPrefixLength.hashCode ^
+      normalSuffixLength.hashCode ^
+      components.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Bip32PathInfo &&
+          runtimeType == other.runtimeType &&
+          normalized == other.normalized &&
+          depth == other.depth &&
+          isMaster == other.isMaster &&
+          isValid == other.isValid &&
+          containsHardened == other.containsHardened &&
+          isPublicDerivable == other.isPublicDerivable &&
+          hardenedPrefixLength == other.hardenedPrefixLength &&
+          normalSuffixLength == other.normalSuffixLength &&
+          components == other.components;
+}
+
+/// Sizes belonging to one BIP-39 word count.
+class Bip39WordCountInfo {
+  final int words;
+  final int entropyBytes;
+  final int checksumBits;
+
+  const Bip39WordCountInfo({
+    required this.words,
+    required this.entropyBytes,
+    required this.checksumBits,
+  });
+
+  @override
+  int get hashCode =>
+      words.hashCode ^ entropyBytes.hashCode ^ checksumBits.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Bip39WordCountInfo &&
+          runtimeType == other.runtimeType &&
+          words == other.words &&
+          entropyBytes == other.entropyBytes &&
+          checksumBits == other.checksumBits;
+}
+
+/// Result of scanning one account.
+class Bip44AccountScan {
+  final int accountIndex;
+  final Bip44ChainScan external_;
+  final Bip44ChainScan internal;
+  final bool isUsed;
+  final int totalUsedCount;
+
+  const Bip44AccountScan({
+    required this.accountIndex,
+    required this.external_,
+    required this.internal,
+    required this.isUsed,
+    required this.totalUsedCount,
+  });
+
+  @override
+  int get hashCode =>
+      accountIndex.hashCode ^
+      external_.hashCode ^
+      internal.hashCode ^
+      isUsed.hashCode ^
+      totalUsedCount.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Bip44AccountScan &&
+          runtimeType == other.runtimeType &&
+          accountIndex == other.accountIndex &&
+          external_ == other.external_ &&
+          internal == other.internal &&
+          isUsed == other.isUsed &&
+          totalUsedCount == other.totalUsedCount;
+}
+
+/// Structured details of a chain (external or internal).
+class Bip44ChainDetails {
+  final String name;
+  final int value;
+  final bool isExternal;
+  final bool isInternal;
+
+  const Bip44ChainDetails({
+    required this.name,
+    required this.value,
+    required this.isExternal,
+    required this.isInternal,
+  });
+
+  @override
+  int get hashCode =>
+      name.hashCode ^
+      value.hashCode ^
+      isExternal.hashCode ^
+      isInternal.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Bip44ChainDetails &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          value == other.value &&
+          isExternal == other.isExternal &&
+          isInternal == other.isInternal;
+}
+
+/// Result of scanning one chain for used addresses.
+class Bip44ChainScan {
+  final Chain chain;
+  final Uint32List usedIndices;
+  final int? lastUsedIndex;
+
+  const Bip44ChainScan({
+    required this.chain,
+    required this.usedIndices,
+    this.lastUsedIndex,
+  });
+
+  @override
+  int get hashCode =>
+      chain.hashCode ^ usedIndices.hashCode ^ lastUsedIndex.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Bip44ChainScan &&
+          runtimeType == other.runtimeType &&
+          chain == other.chain &&
+          usedIndices == other.usedIndices &&
+          lastUsedIndex == other.lastUsedIndex;
+}
+
+/// Structured details of a coin type.
+class Bip44CoinDetails {
+  final String name;
+  final String symbol;
+  final int index;
+  final bool isTestnet;
+  final bool isEvmCompatible;
+  final Purpose defaultPurpose;
+
+  const Bip44CoinDetails({
+    required this.name,
+    required this.symbol,
+    required this.index,
+    required this.isTestnet,
+    required this.isEvmCompatible,
+    required this.defaultPurpose,
+  });
+
+  @override
+  int get hashCode =>
+      name.hashCode ^
+      symbol.hashCode ^
+      index.hashCode ^
+      isTestnet.hashCode ^
+      isEvmCompatible.hashCode ^
+      defaultPurpose.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Bip44CoinDetails &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          symbol == other.symbol &&
+          index == other.index &&
+          isTestnet == other.isTestnet &&
+          isEvmCompatible == other.isEvmCompatible &&
+          defaultPurpose == other.defaultPurpose;
+}
+
+/// A derived BIP-44 address with its path.
+class Bip44DerivedAddressInfo {
+  final String path;
+  final Chain chain;
+  final int index;
+  final Purpose purpose;
+  final CoinType coinType;
+  final int accountIndex;
+  final bool isExternal;
+  final bool isInternal;
+
+  /// Checksummed address for EVM coins, otherwise the extended key string.
+  final String address;
+
+  const Bip44DerivedAddressInfo({
+    required this.path,
+    required this.chain,
+    required this.index,
+    required this.purpose,
+    required this.coinType,
+    required this.accountIndex,
+    required this.isExternal,
+    required this.isInternal,
+    required this.address,
+  });
+
+  @override
+  int get hashCode =>
+      path.hashCode ^
+      chain.hashCode ^
+      index.hashCode ^
+      purpose.hashCode ^
+      coinType.hashCode ^
+      accountIndex.hashCode ^
+      isExternal.hashCode ^
+      isInternal.hashCode ^
+      address.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Bip44DerivedAddressInfo &&
+          runtimeType == other.runtimeType &&
+          path == other.path &&
+          chain == other.chain &&
+          index == other.index &&
+          purpose == other.purpose &&
+          coinType == other.coinType &&
+          accountIndex == other.accountIndex &&
+          isExternal == other.isExternal &&
+          isInternal == other.isInternal &&
+          address == other.address;
+}
+
+/// Components of a BIP-44 path.
+class Bip44PathInfo {
+  final String path;
+  final Purpose purpose;
+  final CoinType coinType;
+  final int account;
+  final Chain chain;
+  final int addressIndex;
+  final bool isValid;
+  final int depth;
+
+  const Bip44PathInfo({
+    required this.path,
+    required this.purpose,
+    required this.coinType,
+    required this.account,
+    required this.chain,
+    required this.addressIndex,
+    required this.isValid,
+    required this.depth,
+  });
+
+  @override
+  int get hashCode =>
+      path.hashCode ^
+      purpose.hashCode ^
+      coinType.hashCode ^
+      account.hashCode ^
+      chain.hashCode ^
+      addressIndex.hashCode ^
+      isValid.hashCode ^
+      depth.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Bip44PathInfo &&
+          runtimeType == other.runtimeType &&
+          path == other.path &&
+          purpose == other.purpose &&
+          coinType == other.coinType &&
+          account == other.account &&
+          chain == other.chain &&
+          addressIndex == other.addressIndex &&
+          isValid == other.isValid &&
+          depth == other.depth;
+}
+
+/// Structured details of a purpose.
+class Bip44PurposeDetails {
+  final String name;
+  final int value;
+  final String description;
+
+  const Bip44PurposeDetails({
+    required this.name,
+    required this.value,
+    required this.description,
+  });
+
+  @override
+  int get hashCode => name.hashCode ^ value.hashCode ^ description.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Bip44PurposeDetails &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          value == other.value &&
+          description == other.description;
 }
 
 /// BIP44 Chain type (external/internal)
@@ -837,6 +1804,12 @@ class Eip1559Transaction {
   static Future<Eip1559TransactionBuilder> builder() =>
       RustLib.instance.api.crateBridgeEip1559TransactionBuilder();
 
+  /// `0x02 || rlp([...])` without a signature.
+  Future<Uint8List> encodeUnsigned() =>
+      RustLib.instance.api.crateBridgeEip1559TransactionEncodeUnsigned(
+        that: this,
+      );
+
   /// Check if this is a contract creation transaction
   Future<bool> isContractCreation() =>
       RustLib.instance.api.crateBridgeEip1559TransactionIsContractCreation(
@@ -846,6 +1819,19 @@ class Eip1559Transaction {
   /// Check if this is a simple value transfer (no data)
   Future<bool> isTransfer() =>
       RustLib.instance.api.crateBridgeEip1559TransactionIsTransfer(
+        that: this,
+      );
+
+  /// The 32-byte hash that is signed to authorise this transaction:
+  /// `keccak256(0x02 || rlp([chainId, nonce, maxPriorityFeePerGas,
+  /// maxFeePerGas, gasLimit, to, value, data, accessList]))`.
+  ///
+  /// Seedless (MPC) wallets sign this hash jointly with the signer server,
+  /// because no single party holds the key. Pair it with
+  /// [`SignedEvmTransaction::new`] and the resulting signature to build the
+  /// raw transaction.
+  Future<Uint8List> signingHash() =>
+      RustLib.instance.api.crateBridgeEip1559TransactionSigningHash(
         that: this,
       );
 
@@ -1068,6 +2054,10 @@ class EvmWei {
   Future<EvmWei> add({required EvmWei other}) =>
       RustLib.instance.api.crateBridgeEvmWeiAdd(that: this, other: other);
 
+  /// Build a value from big-endian bytes.
+  static Future<EvmWei> fromBeBytes({required List<int> bytes}) =>
+      RustLib.instance.api.crateBridgeEvmWeiFromBeBytes(bytes: bytes);
+
   /// Create Wei from ether/BNB (1 ether = 10^18 wei)
   static Future<EvmWei> fromEther({required BigInt ether}) =>
       RustLib.instance.api.crateBridgeEvmWeiFromEther(ether: ether);
@@ -1093,6 +2083,12 @@ class EvmWei {
   Future<EvmWei> multiply({required BigInt scalar}) => RustLib.instance.api
       .crateBridgeEvmWeiMultiply(that: this, scalar: scalar);
 
+  /// Big-endian 32-byte form of this value.
+  Future<Uint8List> toBeBytes() =>
+      RustLib.instance.api.crateBridgeEvmWeiToBeBytes(
+        that: this,
+      );
+
   /// Returns the value as a decimal string
   Future<String> toDecimalString() =>
       RustLib.instance.api.crateBridgeEvmWeiToDecimalString(
@@ -1106,6 +2102,12 @@ class EvmWei {
 
   /// Convert to gwei (truncates)
   Future<BigInt> toGwei() => RustLib.instance.api.crateBridgeEvmWeiToGwei(
+        that: this,
+      );
+
+  /// The value as a decimal `u128` string, or `None` if it does not fit.
+  Future<String?> toU128String() =>
+      RustLib.instance.api.crateBridgeEvmWeiToU128String(
         that: this,
       );
 
@@ -1128,25 +2130,71 @@ class EvmWei {
           valueHex == other.valueHex;
 }
 
+/// A decoded gateway revert. `args` are the error's `uint256` arguments as
+/// decimal strings, in order (empty for `BusinessIdAlreadyExists`).
+class GatewayRevert {
+  final GatewayRevertKind kind;
+  final List<String> args;
+
+  const GatewayRevert({
+    required this.kind,
+    required this.args,
+  });
+
+  @override
+  int get hashCode => kind.hashCode ^ args.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is GatewayRevert &&
+          runtimeType == other.runtimeType &&
+          kind == other.kind &&
+          args == other.args;
+}
+
+/// Gateway custom errors that `registerBusiness` can fail with.
+enum GatewayRevertKind {
+  metadataTooLarge,
+  permitExpired,
+  permitWrongAction,
+  permitNonceStale,
+  invalidPermitSignature,
+  businessIdAlreadyExists,
+  activationDepositTooSmall,
+  activationTargetsNotConfigured,
+
+  /// No revert data, or an error the gateway does not define.
+  unknown,
+  ;
+}
+
 /// Result of one `advance()` call on [`MpcDkgSession`].
 ///
-/// If `is_complete` is `false`, send `next_payload` (unwrapped) to the server
-/// and call `advance()` again with the server's response.
+/// Whenever `next_payload` is set, send it to the server and pass the server's
+/// reply to the next `advance()`. Send it even when `is_complete` is `true`:
+/// the server may still need this device's last messages to finish.
 ///
-/// If `is_complete` is `true`, `device_share` and `wallet_address` are
-/// populated and the session is done.
+/// If `is_complete` is `true`, `device_share`, `recovery_backup` and
+/// `wallet_address` are populated.
 class MpcDkgAdvanceResult {
   /// `true` when the DKG ceremony has completed.
   final bool isComplete;
 
-  /// The payload to forward to the server for the next round.
-  /// `None` when `is_complete` is `true`.
+  /// The payload to forward to the server for the next round, even when
+  /// `is_complete` is `true`: the server may still need it to finish.
   final Uint8List? nextPayload;
 
   /// The device-side key share (opaque bytes).
   /// Populated only when `is_complete` is `true`.
   /// Store under `SecureStorageService` key `mpc_device_share_v1`.
   final Uint8List? deviceShare;
+
+  /// The recovery share, already encrypted with the user's passphrase. Safe
+  /// to upload to the user's Google Drive app-data folder. The unencrypted
+  /// recovery share never leaves Rust.
+  /// Populated only when `is_complete` is `true`.
+  final Uint8List? recoveryBackup;
 
   /// EIP-55 checksummed EVM wallet address derived from the joint public key.
   /// Populated only when `is_complete` is `true`.
@@ -1156,6 +2204,7 @@ class MpcDkgAdvanceResult {
     required this.isComplete,
     this.nextPayload,
     this.deviceShare,
+    this.recoveryBackup,
     this.walletAddress,
   });
 
@@ -1164,6 +2213,7 @@ class MpcDkgAdvanceResult {
       isComplete.hashCode ^
       nextPayload.hashCode ^
       deviceShare.hashCode ^
+      recoveryBackup.hashCode ^
       walletAddress.hashCode;
 
   @override
@@ -1174,54 +2224,81 @@ class MpcDkgAdvanceResult {
           isComplete == other.isComplete &&
           nextPayload == other.nextPayload &&
           deviceShare == other.deviceShare &&
+          recoveryBackup == other.recoveryBackup &&
           walletAddress == other.walletAddress;
 }
 
-/// Result of one `advance()` call on [`MpcReshareSession`].
-///
-/// If `is_complete` is `false`, forward `next_payload` to the server for the
-/// next round.  When `is_complete` is `true`, `new_device_share` holds the
-/// freshly issued device share; store it under `mpc_device_share_v1`,
-/// overwriting the previous entry.
-class MpcReshareAdvanceResult {
-  /// `true` when the resharing ceremony has completed.
-  final bool isComplete;
+/// The new device's one-time key pair for [`mpc_pairing_export_share`].
+class MpcPairingRequest {
+  /// Compressed public key (33 bytes). Show it to the existing device.
+  final Uint8List publicKey;
 
-  /// The payload to forward to the server for the next round.
-  /// `None` when `is_complete` is `true`.
-  final Uint8List? nextPayload;
+  /// Secret key (32 bytes). Keep it in memory or secure storage only until the
+  /// package arrives, then discard it.
+  final Uint8List secretKey;
 
-  /// The new device-side key share (opaque bytes).
-  /// Populated only when `is_complete` is `true`.
-  /// Store under `SecureStorageService` key `mpc_device_share_v1`,
-  /// **overwriting** the previous entry — the old share is now invalid.
-  final Uint8List? newDeviceShare;
-
-  const MpcReshareAdvanceResult({
-    required this.isComplete,
-    this.nextPayload,
-    this.newDeviceShare,
+  const MpcPairingRequest({
+    required this.publicKey,
+    required this.secretKey,
   });
 
   @override
-  int get hashCode =>
-      isComplete.hashCode ^ nextPayload.hashCode ^ newDeviceShare.hashCode;
+  int get hashCode => publicKey.hashCode ^ secretKey.hashCode;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is MpcReshareAdvanceResult &&
+      other is MpcPairingRequest &&
           runtimeType == other.runtimeType &&
-          isComplete == other.isComplete &&
-          nextPayload == other.nextPayload &&
-          newDeviceShare == other.newDeviceShare;
+          publicKey == other.publicKey &&
+          secretKey == other.secretKey;
+}
+
+/// What a stored share says about itself.
+class MpcShareInfo {
+  /// EIP-55 wallet address.
+  final String walletAddress;
+
+  /// 0 for the device share, 2 for the recovery share.
+  final int partyIndex;
+
+  /// Shares the wallet was split into (3).
+  final int parties;
+
+  /// Shares needed to sign (2).
+  final int threshold;
+
+  const MpcShareInfo({
+    required this.walletAddress,
+    required this.partyIndex,
+    required this.parties,
+    required this.threshold,
+  });
+
+  @override
+  int get hashCode =>
+      walletAddress.hashCode ^
+      partyIndex.hashCode ^
+      parties.hashCode ^
+      threshold.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MpcShareInfo &&
+          runtimeType == other.runtimeType &&
+          walletAddress == other.walletAddress &&
+          partyIndex == other.partyIndex &&
+          parties == other.parties &&
+          threshold == other.threshold;
 }
 
 /// Result of one `advance()` call on [`MpcSigningSession`].
 ///
-/// If `is_complete` is `false`, forward `next_payload` to the server for the
-/// next round.  When `is_complete` is `true`, `signature` contains the
-/// 65-byte EVM signature (`r || s || v`).
+/// Whenever `next_payload` is set, send it to the server and pass the server's
+/// reply to the next `advance()`, even when `is_complete` is `true`. When
+/// `is_complete` is `true`, `signature` contains the 65-byte EVM signature
+/// (`r || s || v`, with `v` equal to 0 or 1).
 class MpcSigningAdvanceResult {
   /// `true` when the signing ceremony has completed.
   final bool isComplete;
@@ -1252,6 +2329,42 @@ class MpcSigningAdvanceResult {
           isComplete == other.isComplete &&
           nextPayload == other.nextPayload &&
           signature == other.signature;
+}
+
+/// One protocol message exchanged with the signer server.
+class MpcWireMessage {
+  final int sender;
+  final bool isBroadcast;
+  final int phase;
+  final int? recipient;
+  final Uint8List payload;
+
+  const MpcWireMessage({
+    required this.sender,
+    required this.isBroadcast,
+    required this.phase,
+    this.recipient,
+    required this.payload,
+  });
+
+  @override
+  int get hashCode =>
+      sender.hashCode ^
+      isBroadcast.hashCode ^
+      phase.hashCode ^
+      recipient.hashCode ^
+      payload.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MpcWireMessage &&
+          runtimeType == other.runtimeType &&
+          sender == other.sender &&
+          isBroadcast == other.isBroadcast &&
+          phase == other.phase &&
+          recipient == other.recipient &&
+          payload == other.payload;
 }
 
 /// Network type for the wallet
@@ -1351,6 +2464,50 @@ class WalletResult {
           success == other.success &&
           message == other.message &&
           data == other.data;
+}
+
+/// The gateway's on-chain record of a business.
+class WpgpBusinessInfo {
+  final int status;
+  final String owner;
+  final int trustLevel;
+  final String name;
+  final String metadataUri;
+  final BigInt registeredAt;
+  final BigInt updatedAt;
+
+  const WpgpBusinessInfo({
+    required this.status,
+    required this.owner,
+    required this.trustLevel,
+    required this.name,
+    required this.metadataUri,
+    required this.registeredAt,
+    required this.updatedAt,
+  });
+
+  @override
+  int get hashCode =>
+      status.hashCode ^
+      owner.hashCode ^
+      trustLevel.hashCode ^
+      name.hashCode ^
+      metadataUri.hashCode ^
+      registeredAt.hashCode ^
+      updatedAt.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is WpgpBusinessInfo &&
+          runtimeType == other.runtimeType &&
+          status == other.status &&
+          owner == other.owner &&
+          trustLevel == other.trustLevel &&
+          name == other.name &&
+          metadataUri == other.metadataUri &&
+          registeredAt == other.registeredAt &&
+          updatedAt == other.updatedAt;
 }
 
 /// WPGP PaymentIntent — the structured data signed by the business via EIP-712.
@@ -1489,4 +2646,48 @@ class WpgpUserOperation {
           maxFeePerGas == other.maxFeePerGas &&
           paymaster == other.paymaster &&
           paymasterDataHex == other.paymasterDataHex;
+}
+
+/// Decoded view of a built user operation.
+class WpgpUserOperationDetails {
+  final String verificationGasLimit;
+  final String callGasLimit;
+  final String maxPriorityFeePerGas;
+  final String maxFeePerGas;
+  final bool hasPaymaster;
+  final String? paymasterAddress;
+  final Uint8List paymasterData;
+
+  const WpgpUserOperationDetails({
+    required this.verificationGasLimit,
+    required this.callGasLimit,
+    required this.maxPriorityFeePerGas,
+    required this.maxFeePerGas,
+    required this.hasPaymaster,
+    this.paymasterAddress,
+    required this.paymasterData,
+  });
+
+  @override
+  int get hashCode =>
+      verificationGasLimit.hashCode ^
+      callGasLimit.hashCode ^
+      maxPriorityFeePerGas.hashCode ^
+      maxFeePerGas.hashCode ^
+      hasPaymaster.hashCode ^
+      paymasterAddress.hashCode ^
+      paymasterData.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is WpgpUserOperationDetails &&
+          runtimeType == other.runtimeType &&
+          verificationGasLimit == other.verificationGasLimit &&
+          callGasLimit == other.callGasLimit &&
+          maxPriorityFeePerGas == other.maxPriorityFeePerGas &&
+          maxFeePerGas == other.maxFeePerGas &&
+          hasPaymaster == other.hasPaymaster &&
+          paymasterAddress == other.paymasterAddress &&
+          paymasterData == other.paymasterData;
 }

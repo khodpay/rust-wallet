@@ -20,7 +20,7 @@
 //! - `Bip44Wallet` - BIP44 multi-account wallet
 //! - `Bip44Account` - BIP44 account for address derivation
 //! - Utility functions like `generate_mnemonic()`, `create_bip44_account()`, etc.
-//! - MPC session types (`MpcDkgSession`, `MpcSigningSession`, `MpcReshareSession`)
+//! - MPC session types (`MpcDkgSession`, `MpcSigningSession`)
 
 // All bridge API definitions — hand-written; includes BIP39/32/44, signing,
 // WPGP, and MPC-TSS session types.  A single module so the FRB codegen
